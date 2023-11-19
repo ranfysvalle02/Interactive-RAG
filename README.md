@@ -13,7 +13,7 @@ Took an outdated Interactive RAG demo and changed it to use MongoDB Atlas (along
 
 # ReAct Prompt Technique + Chain of Thought
 Generating reasoning traces allow the model to induce, track, and update action plans, and even handle exceptions.
-Uses ReAct combined with chain-of-thought (CoT) that allows use of both internal knowledge and external information obtained during reasoning.
+This example uses ReAct combined with chain-of-thought (CoT).
 
 [Chain of Thought](https://www.promptingguide.ai/techniques/cot)
 
