@@ -21,25 +21,25 @@ Uses ReAct combined with chain-of-thought (CoT) that allows use of both internal
 
 ```
 [EXAMPLES]
-            - User Input: What is MongoDB?
-            - Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
-            - Observation: I have an action available "answer_question". I'll use that
-            - Action: "answer_question"('What is MongoDB?')
+- User Input: What is MongoDB?
+- Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
+- Observation: I have an action available "answer_question". I'll use that
+- Action: "answer_question"('What is MongoDB?')
 
-            - User Input: Reset chat history
-            - Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
-            - Observation: I have an action available "reset_messages". I'll use that
-            - Action: "reset_messages"()
+- User Input: Reset chat history
+- Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
+- Observation: I have an action available "reset_messages". I'll use that
+- Action: "reset_messages"()
 
-            - User Input: remove source https://www.google.com
-            - Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
-            - Observation: I have an action available "remove_source". I'll use that
-            - Action: "remove_source"('https://www.google.com')
+- User Input: remove source https://www.google.com
+- Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
+- Observation: I have an action available "remove_source". I'll use that
+- Action: "remove_source"('https://www.google.com')
 
-            - User Input: read https://www.google.com, https://www.example.com
-            - Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
-            - Observation: I have an action available "read_url". I'll use that
-            - Action: "read_url"(['https://www.google.com','https://www.example.com'])
+- User Input: read https://www.google.com, https://www.example.com
+- Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
+- Observation: I have an action available "read_url". I'll use that
+- Action: "read_url"(['https://www.google.com','https://www.example.com'])
 [END EXAMPLES]
 ```
 
