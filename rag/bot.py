@@ -45,22 +45,22 @@ class AzureAgent:
             {"role":"system", "content":"""\n\n[EXAMPLES]
             - User Input: What is MongoDB?
             - Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
-            - Observation: I have an action available "answer_question". I'll use that
+            - Observation: I have an action available "answer_question".
             - Action: "answer_question"('What is MongoDB?')
 
             - User Input: Reset chat history
             - Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
-            - Observation: I have an action available "reset_messages". I'll use that
+            - Observation: I have an action available "reset_messages".
             - Action: "reset_messages"()
 
             - User Input: remove source https://www.google.com
             - Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
-            - Observation: I have an action available "remove_source". I'll use that
+            - Observation: I have an action available "remove_source".
             - Action: "remove_source"('https://www.google.com')
 
             - User Input: read https://www.google.com, https://www.example.com
             - Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
-            - Observation: I have an action available "read_url". I'll use that
+            - Observation: I have an action available "read_url".
             - Action: "read_url"(['https://www.google.com','https://www.example.com'])
         [END EXAMPLES]\n\n"""}
                          ]
@@ -114,22 +114,22 @@ class RAGAgent(AzureAgent):
             {"role":"system", "content":"""\n\n[EXAMPLES]
             - User Input: What is MongoDB?
             - Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
-            - Observation: I have an action available "answer_question". I'll use that
+            - Observation: I have an action available "answer_question".
             - Action: "answer_question"('What is MongoDB?')
 
             - User Input: Reset chat history
             - Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
-            - Observation: I have an action available "reset_messages". I'll use that
+            - Observation: I have an action available "reset_messages".
             - Action: "reset_messages"()
 
             - User Input: remove source https://www.google.com
             - Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
-            - Observation: I have an action available "remove_source". I'll use that
+            - Observation: I have an action available "remove_source".
             - Action: "remove_source"('https://www.google.com')
 
             - User Input: read https://www.google.com, https://www.example.com
             - Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
-            - Observation: I have an action available "read_url". I'll use that
+            - Observation: I have an action available "read_url".
             - Action: "read_url"(['https://www.google.com','https://www.example.com'])
         [END EXAMPLES]\n\n"""}
                          ]
@@ -209,22 +209,28 @@ class RAGAgent(AzureAgent):
         if context_str == "N/A":
                 return self.search_web(query)
         PRECISE_SYS_PROMPT = """
-        Given the following verified sources and a question, create a final concise answer in markdown. If uncertain, search the web.
+        Given the following verified sources and a question, create a final concise answer in markdown. 
+        If uncertain, search the web.
 
         Remember while answering:
             * The only verified sources are between START VERIFIED SOURCES and END VERIFIED SOURCES.
             * Only display images and links if they are found in the verified sources
             * If displaying images or links from the verified sources, copy the images and links exactly character for character and make sure the URL parameters are the same.
             * Only talk about the answer or reply with a follow up question, do not reference the verified sources.
-            * Do not make up any part of an answer. If the answer isn't in or derivable from the verified sources search the web.
+            * Do not make up any part of an answer. 
+            * If the answer isn't in or derivable from the verified sources search the web.
             * If the verified sources can answer the question in multiple different ways, ask a follow up question to clarify what the user wants to exactly to know about.
             * Questions might be vague or have multiple interpretations, you must ask follow up questions in this case.
             * You have access to the previous messages in the conversation which helps you help you answer questions that are related to previous questions. Always formulate your answer accounting for the previous messages.  
-            * Final response must include source URLs for reference in the Footnotes section.
             * Final response must be less than 1000 characters.
+
+        [REQUIRED RESPONSE FORMAT]
+        Answer: <concise response, include source URLs from verified sources. must be less than 1000 characters>
+
         [START VERIFIED SOURCES]
         __context_str__
         [END VERIFIED SOURCES]
+
 
         [ACTUAL QUESTION BASED ON VERIFIED SOURCES]:
         __text__
