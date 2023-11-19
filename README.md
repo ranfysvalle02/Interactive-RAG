@@ -16,8 +16,10 @@ Generating reasoning traces allow the model to induce, track, and update action 
 Uses ReAct combined with chain-of-thought (CoT) that allows use of both internal knowledge and external information obtained during reasoning.
 
 [Chain of Thought](https://www.promptingguide.ai/techniques/cot)
+
 [Reasoning + Action](https://www.promptingguide.ai/techniques/react)
 
+```
 [EXAMPLES]
             - User Input: What is MongoDB?
             - Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
@@ -39,6 +41,7 @@ Uses ReAct combined with chain-of-thought (CoT) that allows use of both internal
             - Observation: I have an action available "read_url". I'll use that
             - Action: "read_url"(['https://www.google.com','https://www.example.com'])
 [END EXAMPLES]
+```
 
 # Interactive Retrieval Augmented Generation
 
