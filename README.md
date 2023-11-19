@@ -67,6 +67,9 @@ For a more in-depth understanding of how this bot works under the hood, please r
 Additionally, you can explore the [ActionWeaver](https://github.com/TengHu/ActionWeaver/tree/main) repository for further details.
 
 
+## Credit
+This was inspired by https://github.com/TengHu/Interactive-RAG
+
 
 ## Contributing
 We welcome contributions from the open-source community.
