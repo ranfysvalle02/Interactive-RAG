@@ -1,24 +1,26 @@
 from typing import List
 from actionweaver import RequireNext, action
-from actionweaver.llms.azure.chat import ChatCompletion
+#from actionweaver.llms.azure.chat import ChatCompletion
+from actionweaver.llms.openai.chat import OpenAIChatCompletion
 from actionweaver.llms.openai.tokens import TokenUsageTracker
 from langchain.vectorstores import MongoDBAtlasVectorSearch
 from langchain.embeddings import GPT4AllEmbeddings
 from langchain.document_loaders import PlaywrightURLLoader
 import openai
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+import params
 
 
 
-openai.api_key = ""
+openai.api_key = params.OPENAI_API_KEY
 openai.api_version = "2023-10-01-preview"
 openai.api_type = "azure"
 
 import pymongo 
 
-MONGODB_URI = ""  
-DATABASE_NAME = ""  
-COLLECTION_NAME = ""
+MONGODB_URI = params.MONGODB_URI  
+DATABASE_NAME = params.DATABASE_NAME
+COLLECTION_NAME = params.COLLECTION_NAME
 
 
 class AzureAgent:
@@ -32,10 +34,12 @@ class AzureAgent:
             add_start_index=True,
         )
         self.token_tracker = TokenUsageTracker(budget=None, logger=logger)
-        self.llm = ChatCompletion(
-            model="gpt-3.5-turbo", azure_deployment="",
-            azure_endpoint="https://.openai.azure.com/", api_key="",
-            api_version="2023-10-01-preview", 
+        self.llm = OpenAIChatCompletion(
+            model="gpt-3.5-turbo", 
+            #model="gpt-4", 
+            #azure_deployment="",
+            #azure_endpoint="https://.openai.azure.com/", #api_key=params.OPENAI_API_KEY,
+            #api_version="2023-10-01-preview", 
             token_usage_tracker = TokenUsageTracker(budget=2000, logger=logger), 
             logger=logger)
 
@@ -155,9 +159,11 @@ class RAGAgent(AzureAgent):
                 "gl": "us",
                 "num":5,
                 "google_domain": "google.com",
-                "api_key": ""
+                "api_key": params.SERPAPI_KEY
             })
             res = search.get_dict()
+
+            print(res)
             
             formatted_data = ""
 
@@ -167,6 +173,7 @@ class RAGAgent(AzureAgent):
                 formatted_data += f"[Source]: {item['link']}\n\n"
 
             return f"Here are the Google search results for '{query}':\n\n{formatted_data}\n"
+   
     @action("remove_source", orch_expr=RequireNext(["remove_source"]), stop=True)
     def remove_source(self,url:str) -> List:
         """
@@ -195,6 +202,7 @@ class RAGAgent(AzureAgent):
             return f"VectorStore Search Results (source=URL):\n{str_response}"[:5000]
         else:
             return "N/A"
+        
     @action(name="answer_question", stop=True)
     def answer_question(self, query: str):
         """
@@ -208,6 +216,7 @@ class RAGAgent(AzureAgent):
         print("CTX"+context_str)
         if context_str == "N/A":
                 return self.search_web(query)
+                #return self.search(query)
         PRECISE_SYS_PROMPT = """
         Given the following verified sources and a question, create a final concise answer in markdown. 
         If uncertain, search the web.
