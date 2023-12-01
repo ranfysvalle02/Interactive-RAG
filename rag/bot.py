@@ -1,8 +1,7 @@
 from typing import List
 from actionweaver import RequireNext, action
-#from actionweaver.llms.azure.chat import ChatCompletion
-from actionweaver.llms.openai.chat import OpenAIChatCompletion
-from actionweaver.llms.openai.tokens import TokenUsageTracker
+from actionweaver.llms.azure.chat import ChatCompletion
+from actionweaver.llms.openai.functions.tokens import TokenUsageTracker
 from langchain.vectorstores import MongoDBAtlasVectorSearch
 from langchain.embeddings import GPT4AllEmbeddings
 from langchain.document_loaders import PlaywrightURLLoader
@@ -13,8 +12,8 @@ import params
 
 
 openai.api_key = params.OPENAI_API_KEY
-openai.api_version = "2023-10-01-preview"
-openai.api_type = "azure"
+openai.api_version = params.OPENAI_API_VERSION
+openai.api_type = params.OPENAI_TYPE #azure or openai
 
 import pymongo 
 
@@ -34,15 +33,21 @@ class AzureAgent:
             add_start_index=True,
         )
         self.token_tracker = TokenUsageTracker(budget=None, logger=logger)
-        self.llm = OpenAIChatCompletion(
-            model="gpt-3.5-turbo", 
-            #model="gpt-4", 
-            #azure_deployment="",
-            #azure_endpoint="https://.openai.azure.com/", #api_key=params.OPENAI_API_KEY,
-            #api_version="2023-10-01-preview", 
-            token_usage_tracker = TokenUsageTracker(budget=2000, logger=logger), 
-            logger=logger)
-
+        if(params.OPENAI_TYPE != "azure"):
+            from actionweaver.llms.openai.tools.chat import OpenAIChatCompletion
+            self.llm = OpenAIChatCompletion(
+                model="gpt-3.5-turbo",
+                token_usage_tracker = TokenUsageTracker(budget=2000, logger=logger), 
+                logger=logger)
+        else:
+            self.llm = ChatCompletion(
+                model="gpt-3.5-turbo", 
+                #model="gpt-4", 
+                azure_deployment=params.OPENAI_AZURE_DEPLOYMENT,
+                azure_endpoint=params.OPENAI_AZURE_ENDPOINT, api_key=params.OPENAI_API_KEY,
+                api_version=params.OPENAI_API_VERSION, 
+                token_usage_tracker = TokenUsageTracker(budget=2000, logger=logger), 
+                logger=logger)
         self.messages = [
             {"role": "system", "content": "You are a resourceful AI assistant.."},
             {"role": "system", "content": "Think critically and step by step. Do not answer directly."},
