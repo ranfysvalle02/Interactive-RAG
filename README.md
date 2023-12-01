@@ -9,7 +9,9 @@ Took an outdated Interactive RAG demo and changed it to use MongoDB Atlas (along
 
 # VIDEO
 
-[DEMO](https://apollo-fv-mneqk.mongodbstitch.com/INTERACTIVE-RAG.mp4)
+[DEMO 1](https://apollo-fv-mneqk.mongodbstitch.com/INTERACTIVE-RAG.mp4)
+
+[DEMO 2](https://apollo-fv-mneqk.mongodbstitch.com/INTERACTIVE-RAG.mp4)
 
 # ReAct Prompt Technique + Chain of Thought
 Generating reasoning traces allow the model to induce, track, and update action plans, and even handle exceptions.
