@@ -9,7 +9,8 @@ import openai
 import serpapi
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import params
-
+import urllib.parse
+from collections import Counter
 openai.api_key = params.OPENAI_API_KEY
 openai.api_version = params.OPENAI_API_VERSION
 openai.api_type = params.OPENAI_TYPE #azure or openai
@@ -20,9 +21,26 @@ MONGODB_URI = params.MONGODB_URI
 DATABASE_NAME = params.DATABASE_NAME
 COLLECTION_NAME = params.COLLECTION_NAME
 
+def get_unique_urls(collection):  
+    urls = []  
+    for item in collection:  
+        # Extract the URL from the item in the collection  
+        url = urllib.parse.urlparse(item['url']).netloc  
+        urls.append(url)  
+      
+    unique_urls = set(urls)  
+    url_counts = Counter(urls)  
+      
+    return unique_urls, url_counts  
 
 class AzureAgent:
     def __init__(self, logger, st):
+        self.rag_config = {
+            "num_sources": 2,
+            "source_chunk_size": 1000,
+            "min_rel_score": 0,
+            "unique": True
+        }
         self.logger = logger
         self.text_splitter = RecursiveCharacterTextSplitter(
             # Set a really small chunk size, just to show.
@@ -48,7 +66,7 @@ class AzureAgent:
                 token_usage_tracker = TokenUsageTracker(budget=2000, logger=logger), 
                 logger=logger)
         self.messages = [
-            {"role": "system", "content": "You are a resourceful AI assistant.."},
+            {"role": "system", "content": "You are a resourceful AI assistant. You specialize in helping users build RAG pipelines interactively."},
             {"role": "system", "content": "Think critically and step by step. Do not answer directly."},
             {"role":"system", "content":"""\n\n[EXAMPLES]
             - User Input: What is MongoDB?
@@ -61,10 +79,10 @@ class AzureAgent:
             - Observation: I have an action available "reset_messages".
             - Action: "reset_messages"()
 
-            - User Input: remove source https://www.google.com
+            - User Input: remove sources https://www.google.com, https://www.example.com
             - Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
             - Observation: I have an action available "remove_source".
-            - Action: "remove_source"('https://www.google.com')
+            - Action: "remove_source"(['https://www.google.com','https://www.example.com'])
 
             - User Input: read https://www.google.com, https://www.example.com
             - Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
@@ -84,6 +102,34 @@ class AzureAgent:
 
 
 class RAGAgent(AzureAgent):
+    @action("iRAG", orch_expr=RequireNext(["iRAG"]), stop=True)
+    def iRAG(self, num_sources:int, chunk_size: int):
+        """
+        Invoke this ONLY when the user asks you to change the RAG configuration.
+
+        Parameters
+        ----------
+        num_sources : int (default=2)
+            how many documents should we use in the RAG pipeline?
+        chunk_size : int (default=1000)
+            how big should each chunk/source be?
+        Returns successful response message. 
+
+        -------
+        str
+            A message indicating success
+        """
+        with self.st.spinner(f"Changing RAG configuration..."):
+            if num_sources > 0:
+                self.rag_config["num_sources"] = int(num_sources)
+            else:
+                return f"Please provide a valid number of sources."
+            if chunk_size > 0:
+                self.rag_config["source_chunk_size"] = int(chunk_size)
+            else:
+                return f"Please provide a valid chunk size."
+            print(self.rag_config)
+            return f"New RAG config:{str(self.rag_config)}."
     @action("read_url", orch_expr=RequireNext(["read_url"]), stop=True)
     def read_url(self, urls: List[str]):
         """
@@ -130,10 +176,10 @@ class RAGAgent(AzureAgent):
             - Observation: I have an action available "reset_messages".
             - Action: "reset_messages"()
 
-            - User Input: remove source https://www.google.com
+            - User Input: remove source https://www.google.com, https://www.example.com
             - Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
             - Observation: I have an action available "remove_source".
-            - Action: "remove_source"('https://www.google.com')
+            - Action: "remove_source"(['https://www.google.com','https://www.example.com'])
 
             - User Input: read https://www.google.com, https://www.example.com
             - Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
@@ -165,8 +211,6 @@ class RAGAgent(AzureAgent):
                 "api_key": params.SERPAPI_KEY
             })
             res = search
-
-            print(res)
             
             formatted_data = ""
 
@@ -178,33 +222,61 @@ class RAGAgent(AzureAgent):
             return f"Here are the Google search results for '{query}':\n\n{formatted_data}\n"
    
     @action("remove_source", orch_expr=RequireNext(["remove_source"]), stop=True)
-    def remove_source(self,url:str) -> List:
+    def remove_source(self, urls: List[str]) -> str:
         """
-        Invoke this if you need to remove a source. User query will begin with: "remove source {url_goes_here}"
-
+        Invoke this if you need to remove one or more sources
         Args:
-            url (str): The url to be removed
-
+            urls (List[str]): The list of URLs to be removed
         Returns:
             str: Text with confirmation
         """
-        with self.st.spinner(f"Deleting source '{url}'..."):
-            self.collection.delete_many({"source":str(url)})
-            return f"Source ("+str(url)+") successfully deleted.\n"
+        with self.st.spinner(f"Deleting sources {', '.join(urls)}..."):
+            self.collection.delete_many({"source": {"$in": urls}})
+            return f"Sources ({', '.join(urls)}) successfully deleted.\n"
 
-    def recall(self, text):
-        response = self.index.similarity_search_with_score(text) #default to 2 chunks for simplicity
+
+    def recall(self, text, n_docs=2, min_rel_score=0.25, chunk_max_length=800,unique=True):
+        response = self.index.similarity_search_with_score(query=text, k=15)
+        print(response)
         str_response = []
+        tmp_docs = []
+        print("recall"+"n_docs=="+str(n_docs))
+        print("recall"+"min_rel_score=="+str(min_rel_score))
         for vs in response:
             score = vs[1]
             v = vs[0]
             print("URL"+v.metadata["source"]+";"+str(score))
-            str_response.append({"URL":v.metadata["source"],"content":v.page_content[:800]})
+            # lets only include stuff with at least X relevance
+            if score < min_rel_score:
+                continue
+            else:
+                if len(tmp_docs) == n_docs:
+                    break
+                if unique and v.metadata["source"] in tmp_docs:
+                    continue
+                str_response.append({"URL":v.metadata["source"],"content":v.page_content[:chunk_max_length]})
+                tmp_docs.append(v.metadata["source"])
         
         if len(str_response)>0:
-            return f"VectorStore Search Results (source=URL):\n{str_response}"[:5000]
+            return f"VectorStore Search Results[{len(str_response)}] (source=URL):\n{str_response}"[:5000]
         else:
             return "N/A"
+    @action(name="get_sources_list", stop=True)
+    def get_sources_list(self):
+        """
+        Invoke this to respond to list all the available sources in your knowledge base.
+        Parameters
+        ----------
+        None
+        """
+        sources = self.collection.distinct("source")  
+        
+        if sources:  
+            result = f"Available Sources [{len(sources)}]:\n"  
+            result += "\n".join(sources[:5000])  
+            return result  
+        else:  
+            return "N/A"  
         
     @action(name="answer_question", stop=True)
     def answer_question(self, query: str):
@@ -215,11 +287,18 @@ class RAGAgent(AzureAgent):
         query : str
             The query to be used for answering a question.
         """
-        context_str = str(self.recall(query)).strip()
+        context_str = str(
+            self.recall(
+                query,
+                n_docs=self.rag_config["num_sources"],
+                min_rel_score=self.rag_config["min_rel_score"],
+                chunk_max_length=self.rag_config["source_chunk_size"],
+                unique=self.rag_config["unique"],
+            )).strip()
         print("CTX"+context_str)
         if context_str == "N/A":
                 return self.search_web(query)
-                #return self.search(query)
+        # if there is context available, let's try to answer the question
         PRECISE_SYS_PROMPT = """
         Given the following verified sources and a question, create a final concise answer in markdown. 
         If uncertain, search the web.
@@ -234,21 +313,26 @@ class RAGAgent(AzureAgent):
             * If the verified sources can answer the question in multiple different ways, ask a follow up question to clarify what the user wants to exactly to know about.
             * Questions might be vague or have multiple interpretations, you must ask follow up questions in this case.
             * You have access to the previous messages in the conversation which helps you help you answer questions that are related to previous questions. Always formulate your answer accounting for the previous messages.  
-            * Final response must be less than 1000 characters.
+            * Final response must be less than 1200 characters.
+            * Final response must begin with RAG config: __rag_config__
 
         [REQUIRED RESPONSE FORMAT]
-        Answer: <concise response, include source URLs from verified sources. must be less than 1000 characters>
+        <concise well-formatted markdown response using ALL of the verified sources content including in text citation + a sources section including the title, and the URL. Must be valid markdown.>
 
         [START VERIFIED SOURCES]
         __context_str__
         [END VERIFIED SOURCES]
 
 
-        [ACTUAL QUESTION BASED ON VERIFIED SOURCES]:
+        IMPORTANT! IF VERIFIED SOURCES DO NOT INCLUDE ENOUGH INFORMATION TO ANSWER, SEARCH THE WEB!
+
+        [ACTUAL QUESTION. ANSWER BASED ON VERIFIED SOURCES]:
         __text__
-        Begin!"""
+        Begin! REMEMBER! IF VERIFIED SOURCES DO NOT INCLUDE ENOUGH INFORMATION TO ANSWER, SEARCH THE WEB!"""
         PRECISE_SYS_PROMPT = str(PRECISE_SYS_PROMPT).replace("__context_str__",context_str)
         PRECISE_SYS_PROMPT = str(PRECISE_SYS_PROMPT).replace("__text__",query)
+        PRECISE_SYS_PROMPT = str(PRECISE_SYS_PROMPT).replace("__rag_config__",str(self.rag_config))
+
         print(PRECISE_SYS_PROMPT)
         self.messages += [{"role": "user", "content":PRECISE_SYS_PROMPT}]
         response = self.llm.create(messages=self.messages, actions = [
@@ -258,9 +342,9 @@ class RAGAgent(AzureAgent):
     def __call__(self, text):
         self.messages += [{"role": "user", "content":text}]
         response = self.llm.create(messages=self.messages, actions = [
-            self.read_url,self.answer_question,self.remove_source,self.reset_messages
+            self.read_url,self.answer_question,self.remove_source,self.reset_messages,
+            self.iRAG, self.get_sources_list
         ], stream=True)
-
         return response
 
 
