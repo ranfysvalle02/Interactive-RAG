@@ -317,7 +317,7 @@ class RAGAgent(AzureAgent):
             * Final response must begin with RAG config: __rag_config__
 
         [REQUIRED RESPONSE FORMAT]
-        <concise well-formatted markdown response using ALL of the verified sources content including in text citation + a sources section including the title, and the URL. Must be valid markdown.>
+        <concise well-formatted markdown response using the verified sources. include a sources section including the title, and the URL. Must be valid markdown.>
 
         [START VERIFIED SOURCES]
         __context_str__
