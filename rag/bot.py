@@ -109,9 +109,9 @@ class RAGAgent(AzureAgent):
 
         Parameters
         ----------
-        num_sources : int (default=2)
+        num_sources : int
             how many documents should we use in the RAG pipeline?
-        chunk_size : int (default=1000)
+        chunk_size : int
             how big should each chunk/source be?
         Returns successful response message. 
 
@@ -163,7 +163,7 @@ class RAGAgent(AzureAgent):
             A message indicating success
         """
         self.messages = [
-            {"role": "system", "content": "You are a resourceful AI assistant.."},
+            {"role": "system", "content": "You are a resourceful AI assistant. You specialize in helping users build RAG pipelines interactively."},
             {"role": "system", "content": "Think critically and step by step. Do not answer directly."},
             {"role":"system", "content":"""\n\n[EXAMPLES]
             - User Input: What is MongoDB?
