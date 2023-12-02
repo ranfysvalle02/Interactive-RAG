@@ -447,9 +447,7 @@ BEGIN!
         ], stream=True)
         return response
     def __call__(self, text):
-        print(text)
         text = self.preprocess_query(text)
-        print(text)
         if text == "SECURITY ALERT: User query was not approved. Please try again.":
             return text
         self.messages += [{"role": "user", "content":text}]

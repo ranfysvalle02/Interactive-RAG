@@ -100,6 +100,9 @@ Ex: "set RAG config to 3 sources and chunk size 1250" => New RAG config:{'num_so
 
 ```
 def __call__(self, text):
+        text = self.preprocess_query(text)
+        if text == "SECURITY ALERT: User query was not approved. Please try again.":
+            return text
         self.messages += [{"role": "user", "content":text}]
         response = self.llm.create(messages=self.messages, actions = [
             self.read_url,self.answer_question,self.remove_source,self.reset_messages,
