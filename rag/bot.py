@@ -10,6 +10,7 @@ import serpapi
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import params
 import urllib.parse
+import datetime
 from collections import Counter
 openai.api_key = params.OPENAI_API_KEY
 openai.api_version = params.OPENAI_API_VERSION
@@ -40,7 +41,8 @@ class AzureAgent:
             "source_chunk_size": 1000,
             "min_rel_score": 0,
             "unique": True,
-            "security_token":"_irag_x012837fhs7392"
+            "security_token":"_irag_x"+datetime.datetime.now().strftime("%Y%m%d%H%M%S"),
+            "max_synth_size":5000
         }
         self.logger = logger
         self.text_splitter = RecursiveCharacterTextSplitter(
@@ -274,9 +276,14 @@ class RAGAgent(AzureAgent):
                 continue
             tmp_docs.append(d["source"])
             str_response.append({"URL":d["source"],"content":d["text"][:chunk_max_length]})
-        
+        synthesized_response = self.llm.create(messages=[
+            {"role":"system","content":"You are an expert writer with 30 years of experience. You will receive 'chunks' of relevant information to respond to:"+text+". Your goal is to create a detailed summary that best helps answer the question. MIN LENGTH = "+str(self.rag_config["source_chunk_size"] * self.rag_config["num_sources"])+" characters. MAX LENGTH = "+str(self.rag_config["max_synth_size"])+" characters."},
+            {"role": "user", "content": "User: Generate a detailed summary of the following content:\n\n" + str(str_response) + "\n\nAssistant: Summary:"},
+        ], actions = [
+            
+        ], stream=False)
         if len(str_response)>0:
-            return f"VectorStore Search Results[{len(str_response)}] (source=URL):\n{str_response}"
+            return f"Knowledgebase Results[{len(tmp_docs)}]:\n{synthesized_response}\n## SOURCES: "+str(tmp_docs)+"\n\n"
         else:
             return "N/A"
     @action(name="get_sources_list", stop=True)
@@ -381,10 +388,11 @@ BEGIN!
             The query to be used for answering a question.
         """
         #before checking if we have any context available, lets make the query more conversationally and semantically relevant.
+        print("QUERY_OG=>"+query)
         query = self.preprocess_query(query)
         if query == "SECURITY ALERT: User query was not approved. Please try again.":
             return query
-        print("QUERY=>"+query)
+        print("QUERY_PREPROCESSED=>"+query)
         context_str = str(
             self.recall(
                 query,
@@ -413,6 +421,7 @@ BEGIN!
             * You have access to the previous messages in the conversation which helps you help you answer questions that are related to previous questions. Always formulate your answer accounting for the previous messages.  
             * Final response must be less than 1200 characters.
             * Final response must begin with RAG config: __rag_config__
+            * Final response must include total character count.
 
         [REQUIRED RESPONSE FORMAT]
         <concise well-formatted markdown response using the verified sources. include a sources section including the title, and the URL. Must be valid markdown.>
