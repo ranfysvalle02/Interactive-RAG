@@ -102,7 +102,7 @@ class AzureAgent:
 
 
 class RAGAgent(AzureAgent):
-    @action("iRAG", orch_expr=RequireNext(["iRAG"]), stop=True)
+    @action("iRAG", stop=True)
     def iRAG(self, num_sources:int, chunk_size: int):
         """
         Invoke this ONLY when the user asks you to change the RAG configuration.
@@ -130,7 +130,7 @@ class RAGAgent(AzureAgent):
                 return f"Please provide a valid chunk size."
             print(self.rag_config)
             return f"New RAG config:{str(self.rag_config)}."
-    @action("read_url", orch_expr=RequireNext(["read_url"]), stop=True)
+    @action("read_url", stop=True)
     def read_url(self, urls: List[str]):
         """
         Invoke this ONLY when the user asks you to read. This function reads the content from specified sources.
@@ -152,7 +152,7 @@ class RAGAgent(AzureAgent):
                     documents
             )       
             return f"Contents in URLs {urls} have been successfully learned."
-    @action("reset_messages", orch_expr=RequireNext(["reset_messages"]), stop=True)
+    @action("reset_messages", stop=True)
     def reset_messages(self) -> str:
         """
         Invoke this ONLY when the user asks you to reset chat history.
@@ -189,7 +189,7 @@ class RAGAgent(AzureAgent):
                          ]
         return f"Message history successfully reset."
     
-    @action("search_web", orch_expr=RequireNext(["search_web"]), stop=True)
+    @action("search_web", stop=True)
     def search_web(self,query:str) -> List:
         """
         Invoke this if you need to search the web
@@ -221,7 +221,7 @@ class RAGAgent(AzureAgent):
 
             return f"Here are the Google search results for '{query}':\n\n{formatted_data}\n"
    
-    @action("remove_source", orch_expr=RequireNext(["remove_source"]), stop=True)
+    @action("remove_source", stop=True)
     def remove_source(self, urls: List[str]) -> str:
         """
         Invoke this if you need to remove one or more sources
