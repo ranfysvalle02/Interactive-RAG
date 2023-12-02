@@ -206,20 +206,22 @@ Additionally, you can explore the [ActionWeaver](https://github.com/TengHu/Actio
 
 ## RAG Strategy
 ## ![Alt text](./images/rag.png)
-
-CLASSIC RAG: noisy chunks, "spray and pray 🙏"
+### CLASSIC RAG: noisy chunks, "spray and pray 🙏"
+```
 [VERIFIED SOURCES]
 {chunk1}
 {chunk2}
 {chunk3}
 {chunk4}
 [END VERIFIED SOURCES]
+```
 vs
-RAG++
+### RAG++
+```
 [VERIFIED SOURCES]
 {SPECIALIZED SUMMARY OF CHUNKS TO ANSWER ORIGINAL QUERY} #limit to x chars; get more "bang" for your token
 [END VERIFIED SOURCES]
-
+```
 ## NO SUMMARIZATION OF CHUNKS
 ## ![Alt text](./images/no_synth.png) 
 
