@@ -138,9 +138,9 @@ Since the bot is unable to provide an answer, it initiated a Google search to fi
 ![](./images/remove_source.png)
 
 ## ActionWeaver Basics: stop=True
-```
+
 stop=True when added to an action means that the LLM will immediately return the function's output, but this also restrict the LLM from making multiple function calls. For instance, if asked about the weather in NYC and San Francisco, the model would invoke two separate functions sequentially for each city. However, with `stop=True`, this process is interrupted once the first function returns weather information  for either NYC or San Francisco, depending on which city it queries first.
-```
+
 
 
 For a more in-depth understanding of how this bot works under the hood, please refer to the bot.py file. 
