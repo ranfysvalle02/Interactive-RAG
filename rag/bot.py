@@ -236,26 +236,43 @@ class RAGAgent(AzureAgent):
 
 
     def recall(self, text, n_docs=2, min_rel_score=0.25, chunk_max_length=800,unique=True):
-        response = self.index.similarity_search_with_score(query=text, k=15)
-        print(response)
-        str_response = []
+        #$vectorSearch
+        response = self.collection.aggregate([
+        {
+            "$vectorSearch": {
+                "index": "default",
+                "queryVector": self.gpt4all_embd.embed_query(text),
+                "path": "embedding",
+                #"filter": {},
+                "limit": 15, #Number (of type int only) of documents to return in the results. Value can't exceed the value of numCandidates.
+                "numCandidates": 30 #Number of nearest neighbors to use during the search. You can't specify a number less than the number of documents to return (limit).
+            }
+        },
+        {
+            "$addFields": 
+            {
+                "score": {
+                "$meta": "vectorSearchScore"
+            }
+        }
+        },
+        {
+            "$match": {
+                "score": {
+                "$gte": min_rel_score
+            }
+        }
+        },{"$project":{"score":1,"_id":0, "source":1, "text":1}}])
         tmp_docs = []
-        print("recall"+"n_docs=="+str(n_docs))
-        print("recall"+"min_rel_score=="+str(min_rel_score))
-        for vs in response:
-            score = vs[1]
-            v = vs[0]
-            print("URL"+v.metadata["source"]+";"+str(score))
-            # lets only include stuff with at least X relevance
-            if score < min_rel_score:
+        str_response = []
+        for d in response:
+            print(d)
+            if len(tmp_docs) == n_docs:
+                break
+            if unique and d["source"] in tmp_docs:
                 continue
-            else:
-                if len(tmp_docs) == n_docs:
-                    break
-                if unique and v.metadata["source"] in tmp_docs:
-                    continue
-                str_response.append({"URL":v.metadata["source"],"content":v.page_content[:chunk_max_length]})
-                tmp_docs.append(v.metadata["source"])
+            tmp_docs.append(d["source"])
+            str_response.append({"URL":d["source"],"content":d["text"][:chunk_max_length]})
         
         if len(str_response)>0:
             return f"VectorStore Search Results[{len(str_response)}] (source=URL):\n{str_response}"[:5000]
