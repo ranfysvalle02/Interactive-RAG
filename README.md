@@ -138,7 +138,14 @@ Since the bot is unable to provide an answer, it initiated a Google search to fi
 ![](./images/remove_source.png)
 
 ## ActionWeaver Basics: What is an Agent anyway?
-Large Language Models (LLMs) are great, but they have some limitations (context window, lack of access to real-time data, inability to interact with APIs, etc). LLM agents help overcome those limitations. The definition of an agent in the AI world depends on who you ask - but in a nutshell an agent empowers the LLM to take action.
+Although the term “agents” can be used to describe a wide range of applications, OpenAI’s usage of the term is consistent with our understanding: using the LLM alone to define transition options. This can best be thought of as a loop. Given user input, this loop will be entered. 
+
+![]("https://blog.langchain.dev/content/images/size/w1600/2023/11/CleanShot-2023-11-14-at-19.09.59@2x.png)
+
+An LLM is then called, resulting in either a response to the user OR action(s) to be taken. If it is determined that a response is required, then that is passed to the user, and that cycle is finished. If it is determined that an action is required, that action is then taken, and an observation (action result) is made. That action & corresponding observation are added back to the prompt (we call this an “agent scratchpad”), and the loop resets, ie. the LLM is called again (with the updated agent scratchpad).
+
+Large Language Models (LLMs) are great, but they have some limitations (context window, lack of access to real-time data, inability to interact with APIs, etc). LLM agents help overcome those limitations. The definition of an agent in the AI world depends on who you ask - but in a nutshell an agent empowers the LLM to take action. 
+
 ![](./images/scale_tools.png)
 
 The ActionWeaver agent framework is an AI application framework that puts function-calling at its core. It is designed to enable seamless merging of traditional computing systems with the powerful reasoning capabilities of Language Model Models. 
@@ -316,6 +323,8 @@ This was inspired by https://github.com/TengHu/Interactive-RAG
 - https://www.mongodb.com/basics/large-language-models
 - https://www.mongodb.com/basics/retrieval-augmented-generation
 
+## Additional Reading
+- https://blog.langchain.dev/openais-bet-on-a-cognitive-architecture/
 
 ## Contributing
 We welcome contributions from the open-source community.

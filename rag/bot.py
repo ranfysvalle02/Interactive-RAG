@@ -283,7 +283,7 @@ class RAGAgent(AzureAgent):
             
         ], stream=False)
         if len(str_response)>0:
-            return f"Knowledgebase Results[{len(tmp_docs)}]:\n{synthesized_response}\n## SOURCES: "+str(tmp_docs)+"\n\n"
+            return f"Knowledgebase Results[{len(tmp_docs)}]:\n{str(synthesized_response)}\n## SOURCES: "+str(tmp_docs)+"\n\n"
         else:
             return "N/A"
     @action(name="get_sources_list", stop=True)
