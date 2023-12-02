@@ -229,7 +229,7 @@ RAG++
 The LLM will appreciate a well formatted context. Rather than spray and pray 🙏, let's start optimizing chunk strategies. 
 
 ## RAG SECURITY
-## Pre-Process the Query to defend against Prompt attacks and controversial topics
+## Pre-Process the Query to defend against Prompt attacks
 ```
 def preprocess_query(self, query:str):
         #before checking if we have any context available, lets make the query more conversationally and semantically relevant.
