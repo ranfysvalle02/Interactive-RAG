@@ -233,6 +233,26 @@ vs
 
 The LLM will appreciate a well formatted context. Rather than spray and pray 🙏, let's start optimizing chunk strategies. 
 
+## Why are these specialized summaries so cool?
+## Same Chunks, Different Question, Different Summary!
+### Is MongoDB good for mobile?
+```
+[START VERIFIED SOURCES]
+        Knowledgebase Results[2]:
+MongoDB is a popular choice for storing data in mobile apps due to its scale-out architecture and excellent user experience. It is built on a scale-out architecture that allows multiple machines to work together, making it ideal for handling large amounts of data. MongoDB is a document database that stores structured or unstructured data in a JSON-like format, which directly maps to native objects in most programming languages. This eliminates the need for developers to normalize data. MongoDB can handle high volume and can scale both vertically and horizontally. It also offers powerful features such as ad hoc queries, indexing, and real-time aggregation for accessing and analyzing data. Additionally, MongoDB is a distributed database, providing high availability, horizontal scaling, and geographic distribution. It is free to use, with versions released prior to October 16, 2018 published under the AGPL and all versions released after that date being free to use.
+## SOURCES: ['https://www.mongodb.com/why-use-mongodb', 'https://www.mongodb.com/what-is-mongodb']
+[END VERIFIED SOURCES]
+```
+### Is MongoDB good for C# developers?
+```
+[START VERIFIED SOURCES]
+        Knowledgebase Results[2]:
+MongoDB is a popular choice for developers using C# due to its scale-out architecture and excellent user experience. It allows developers to store structured or unstructured data using a JSON-like format, which directly maps to native objects in most modern programming languages. This eliminates the need for data normalization and makes MongoDB a natural choice for developers. Additionally, MongoDB can handle high volumes of data and can scale both vertically and horizontally. It also offers powerful features such as ad hoc queries, indexing, and real-time aggregation for accessing and analyzing data. MongoDB is a distributed database, providing high availability, horizontal scaling, and geographic distribution. It is also free to use, making it an attractive option for developers.
+## SOURCES: ['https://www.mongodb.com/why-use-mongodb', 'https://www.mongodb.com/what-is-mongodb']
+[END VERIFIED SOURCES]
+```
+
+
 ## RAG SECURITY
 ## Pre-Process the Query to defend against Prompt attacks
 ```
