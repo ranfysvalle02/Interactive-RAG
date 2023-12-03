@@ -77,9 +77,9 @@ Create a Search index with the following definition
     "dynamic": true,
     "fields": {
       "embedding": {
-        "type": "knnVector",
-        "dimensions": 354,
-        "similarity": "euclidean"
+        "dimensions": 384,
+        "similarity": "cosine",
+        "type": "knnVector"
       }
     }
   }
