@@ -251,7 +251,13 @@ MongoDB is a popular choice for developers using C# due to its scale-out archite
 ## SOURCES: ['https://www.mongodb.com/why-use-mongodb', 'https://www.mongodb.com/what-is-mongodb']
 [END VERIFIED SOURCES]
 ```
-
+## What happens if chunks do not help answer the question?
+### The verified sources content will be N/A and agent will search the web
+```
+[START VERIFIED SOURCES]
+        Knowledgebase Results[0]:N/A
+[END VERIFIED SOURCES]
+```
 
 ## RAG SECURITY
 ## Pre-Process the Query to defend against Prompt attacks
