@@ -1,7 +1,6 @@
 import logging
-import os
+import time
 
-import openai
 import streamlit as st
 from bot import RAGAgent
 
@@ -25,35 +24,66 @@ def get_agent():
     return RAGAgent(logger, st)
 
 
-if __name__ == "__main__":
-    agent = get_agent()
+font_size = 30
 
-    st.subheader("Interactive Retrieval Augmented Generation")
-    user_input = st.text_input("You: ", placeholder="Ask me anything ...", key="input")
+st.markdown(
+    f'<span style="font-size:{font_size}px;">Interactive RAG powered by MongoDB and ActionWeaver</span>',
+    unsafe_allow_html=True,
+)
+st.markdown("----")
 
-    if st.button("Submit", type="primary"):
-        st.markdown("----")
-        res_box = st.empty()
 
-        response = agent(user_input)
+agent = get_agent()
+
+# Initialize chat history
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+# Display chat messages from history on app rerun
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+
+
+# Accept user input
+if prompt := st.chat_input(placeholder="What's up"):
+    # Add user message to chat history
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    # Display user message in chat message container
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    response = agent(prompt)
+
+    # Display assistant response in chat message container
+    with st.chat_message("assistant"):
+        message_placeholder = st.empty()
+        full_response = ""
 
         if type(response) == str:
-            res_box.markdown(f"*{response}*")
-            res_box.write(response)
+            assistant_response = response
 
+            full_response += assistant_response + " "
+
+            # Simulate stream of response with milliseconds delay
+            # for chunk in assistant_response.split():
+            #     full_response += chunk + " "
+            #     time.sleep(0.05)
+            #     # Add a blinking cursor to simulate typing
+            #     message_placeholder.markdown(full_response + "▌")
             agent.messages.append({"role": "assistant", "content": response})
+            message_placeholder.markdown(full_response)
         else:
-            report = []
-            result_to_display = ""
-            # Looping over the response
-            for resp in response:
-                if hasattr(resp.choices[0].delta, "content"):
-                    if resp.choices and len(resp.choices) > 0:
-                        if resp.choices[0].delta and resp.choices[0].delta.content:
-                            report.append(resp.choices[0].delta.content)
-                        result_to_display = "".join(report).strip()
-                        res_box.markdown(f"*{result_to_display}*")
-                res_box.write(result_to_display)
+            for chunk in response:
+                if isinstance(chunk, str):
+                    full_response += chunk
+                    time.sleep(0.05)
+                elif chunk.choices[0].delta.content:
+                    full_response += chunk.choices[0].delta.content + " "
 
-            agent.messages.append({"role": "assistant", "content": result_to_display})
-    st.markdown("----")
+                # Add a blinking cursor to simulate typing
+                message_placeholder.markdown(full_response + "▌")
+            agent.messages.append({"role": "assistant", "content": full_response})
+
+    # Add assistant response to chat history
+    st.session_state.messages.append({"role": "assistant", "content": full_response})
