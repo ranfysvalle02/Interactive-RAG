@@ -200,6 +200,7 @@ class RAGAgent(AzureAgent):
             - Action: "read_url"(['https://www.google.com','https://www.example.com'])
         [END EXAMPLES]\n\n"""}
                          ]
+        self.st.session_state.clear()
         return f"Message history successfully reset."
     
     @action("search_web", stop=True)

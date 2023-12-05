@@ -79,7 +79,7 @@ if prompt := st.chat_input(placeholder="What's up"):
                     full_response += chunk
                     time.sleep(0.05)
                 elif chunk.choices[0].delta.content:
-                    full_response += chunk.choices[0].delta.content + " "
+                    full_response += chunk.choices[0].delta.content
 
                 # Add a blinking cursor to simulate typing
                 message_placeholder.markdown(full_response + "▌")
