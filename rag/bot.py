@@ -143,7 +143,9 @@ class RAGAgent(AzureAgent):
     @action("read_url", stop=True)
     def read_url(self, urls: List[str]):
         """
-        Invoke this ONLY when the user asks you to read or learn some URL(s). This function reads/learns the content from specified sources.
+        Invoke this ONLY when the user asks you to read or learn some URL(s). 
+        This function reads/learns the content from specified sources.
+        Source may be: in conversation history search results, or a specific URL.
 
         Parameters
         ----------
