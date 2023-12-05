@@ -1,6 +1,7 @@
 from typing import List
 from actionweaver import RequireNext, action
 from actionweaver.llms.azure.chat import ChatCompletion
+from actionweaver.llms.openai.tools.chat import OpenAIChatCompletion
 from actionweaver.llms.openai.functions.tokens import TokenUsageTracker
 from langchain.vectorstores import MongoDBAtlasVectorSearch
 from langchain.embeddings import GPT4AllEmbeddings
@@ -12,11 +13,12 @@ import params
 import urllib.parse
 import datetime
 from collections import Counter
-openai.api_key = params.OPENAI_API_KEY
-openai.api_version = params.OPENAI_API_VERSION
-openai.api_type = params.OPENAI_TYPE #azure or openai
-
+import os
 import pymongo 
+
+os.environ["OPENAI_API_KEY"] = params.OPENAI_API_KEY
+os.environ["OPENAI_API_VERSION"] = params.OPENAI_API_VERSION
+os.environ["OPENAI_API_TYPE"] = params.OPENAI_TYPE
 
 MONGODB_URI = params.MONGODB_URI  
 DATABASE_NAME = params.DATABASE_NAME
@@ -54,10 +56,9 @@ class AzureAgent:
         )
         self.token_tracker = TokenUsageTracker(budget=None, logger=logger)
         if(params.OPENAI_TYPE != "azure"):
-            from actionweaver.llms.openai.tools.chat import OpenAIChatCompletion
             self.llm = OpenAIChatCompletion(
                 model="gpt-3.5-turbo",
-                token_usage_tracker = TokenUsageTracker(budget=2000, logger=logger), 
+                token_usage_tracker = TokenUsageTracker(budget=2000, logger=logger),
                 logger=logger)
         else:
             self.llm = ChatCompletion(
