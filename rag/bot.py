@@ -6,8 +6,7 @@ from actionweaver.llms.openai.functions.tokens import TokenUsageTracker
 from langchain.vectorstores import MongoDBAtlasVectorSearch
 from langchain.embeddings import GPT4AllEmbeddings
 from langchain.document_loaders import PlaywrightURLLoader
-import openai
-import serpapi
+from langchain.document_loaders import BraveSearchLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import params
 import urllib.parse
@@ -15,6 +14,9 @@ import datetime
 from collections import Counter
 import os
 import pymongo 
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from bs4 import BeautifulSoup
 
 os.environ["OPENAI_API_KEY"] = params.OPENAI_API_KEY
 os.environ["OPENAI_API_VERSION"] = params.OPENAI_API_VERSION
@@ -46,6 +48,13 @@ class AzureAgent:
             "security_token":"_irag_x"+datetime.datetime.now().strftime("%Y%m%d%H%M%S"),
             "max_synth_size":5000
         }
+
+        browser_options = Options()
+        browser_options.headless = True
+        browser_options.add_argument("--headless") 
+        browser_options.add_argument('--disable-gpu')
+        self.browser = webdriver.Chrome(options=browser_options)
+
         self.logger = logger
         self.text_splitter = RecursiveCharacterTextSplitter(
             # Set a really small chunk size, just to show.
@@ -226,22 +235,28 @@ class RAGAgent(AzureAgent):
             str: Text with the Google Search results
         """
         with self.st.spinner(f"Searching '{query}'..."):
-            search = serpapi.search({
-                "q": str(query)+" -site:youtube.com",
-                "location": "Austin, Texas, United States",
-                "hl": "en",
-                "gl": "us",
-                "num":5,
-                "google_domain": "google.com",
-                "api_key": params.SERPAPI_KEY
-            })
-            res = search
+            # Use the headless browser to search the web
+            self.browser.get('https://www.google.com/search?q=python+api+free')
+            html = self.browser.page_source
+            soup = BeautifulSoup(html, 'html.parser')
+            search_results = soup.find_all('div', {'class': 'g'})
+
+            # Print the search results
+            print('Search results using headless browser:')
+            results = []
+            for result in search_results:
+                if result.find('h3') is not None:    
+                    print(result.find('h3').text)
+                    print(result.find('a')['href'])
+                    results.append({'title': result.find('h3').text, 'link': result.find('a')['href']})
+            
+            res = results
             
             formatted_data = ""
 
             # Iterate through the data and append each item to the formatted_data string
-            for idx, item in enumerate(res["organic_results"]):
-                formatted_data += f"({idx}) {item['title']}: {item['snippet']}\n"
+            for idx, item in enumerate(res):
+                formatted_data += f"({idx}) {item['title']}:\n"
                 formatted_data += f"[Source]: {item['link']}\n\n"
 
             return f"Here are the Google search results for '{query}':\n\n{formatted_data}\n"
