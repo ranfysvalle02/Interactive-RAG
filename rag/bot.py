@@ -7,7 +7,7 @@ from langchain.vectorstores import MongoDBAtlasVectorSearch
 from langchain.embeddings import GPT4AllEmbeddings
 from langchain.document_loaders import PlaywrightURLLoader
 import openai
-import serpapi
+from serpapi import GoogleSearch
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import params
 import urllib.parse
@@ -215,7 +215,7 @@ class RAGAgent(AzureAgent):
             str: Text with the Google Search results
         """
         with self.st.spinner(f"Searching '{query}'..."):
-            search = serpapi.search({
+            search_params = {
                 "q": str(query)+" -site:youtube.com",
                 "location": "Austin, Texas, United States",
                 "hl": "en",
@@ -223,8 +223,10 @@ class RAGAgent(AzureAgent):
                 "num":5,
                 "google_domain": "google.com",
                 "api_key": params.SERPAPI_KEY
-            })
-            res = search
+            }
+
+            search = GoogleSearch(search_params)
+            res = search.get_dict()
             
             formatted_data = ""
 
