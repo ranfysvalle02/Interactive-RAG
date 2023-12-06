@@ -277,9 +277,9 @@ class RAGAgent(AzureAgent):
         Returns:
             str: Text with confirmation
         """
-        with self.st.spinner(f"Deleting sources {', '.join(urls)}..."):
+        with self.st.spinner(f"```Deleting sources {', '.join(urls)}...```"):
             self.collection.delete_many({"source": {"$in": urls}})
-            return f"Sources ({', '.join(urls)}) successfully deleted.\n"
+            return f"```Sources ({', '.join(urls)}) successfully deleted.```\n"
 
 
     def recall(self, text, n_docs=2, min_rel_score=0.25, chunk_max_length=800,unique=True):
