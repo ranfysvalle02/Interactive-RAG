@@ -222,7 +222,14 @@ class RAGAgent(AzureAgent):
                          ]
         
         return f"Message history successfully reset."
-    
+    def encode_google_search(self,query):
+        # Remove whitespace and replace with '+'  
+        query = query.strip().replace(' ', '+')
+        # Encode the query using urllib.parse  
+        encoded_query = urllib.parse.quote(query)
+        # Construct the Google search string  
+        search_string = f"https://www.google.com/search?q={encoded_query}&exclude=youtube.com"  
+        return search_string  
     @action("search_web", stop=True)
     def search_web(self,query:str) -> List:
         """
@@ -236,7 +243,7 @@ class RAGAgent(AzureAgent):
         """
         with self.st.spinner(f"Searching '{query}'..."):
             # Use the headless browser to search the web
-            self.browser.get('https://www.google.com/search?q=python+api+free')
+            self.browser.get(self.encode_google_search(query))
             html = self.browser.page_source
             soup = BeautifulSoup(html, 'html.parser')
             search_results = soup.find_all('div', {'class': 'g'})
