@@ -172,13 +172,13 @@ class RAGAgent(AzureAgent):
         str
             A message indicating successful reading of content from the provided URLs.
         """
-        with self.st.spinner(f"Analyzing the content in {urls}"):
+        with self.st.spinner(f"```Analyzing the content in {urls}```"):
             loader = PlaywrightURLLoader(urls=urls, remove_selectors=["header", "footer"])  
             documents = loader.load_and_split(self.text_splitter)
             self.index.add_documents(
                     documents
             )       
-            return f"Contents in URLs {urls} have been successfully ingested (vector embeddings + content)."
+            return f"```Contents in URLs {urls} have been successfully ingested (vector embeddings + content).```"
     @action("reset_messages", stop=True)
     def reset_messages(self) -> str:
         """
