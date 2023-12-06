@@ -104,7 +104,7 @@ If the bot is unable to provide an answer to the question from data stored in th
 
 ## Example
 
-![](./images/question.png)
+![](./images/ask_question.png)
 
 Since the bot is unable to provide an answer, it initiated a Google search to find relevant information.
 
