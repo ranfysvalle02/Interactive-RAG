@@ -4,8 +4,8 @@ Took an outdated Interactive RAG demo and changed it to use MongoDB Atlas (along
 
 # FLOW
 1. Ask Question
-2. Check VectorStore -> If VectorStore results are not enough to answer, offer to do a web search
-3. Add/Remove sources conversationally
+2. Check VectorStore -> If VectorStore results are not enough to answer, conversationally perform a web search
+3. Add/Remove sources to VectorStore
 
 # VIDEO
 
