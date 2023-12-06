@@ -13,38 +13,6 @@ Took an outdated Interactive RAG demo and changed it to use MongoDB Atlas (along
 
 [DEMO 2](https://apollo-fv-mneqk.mongodbstitch.com/IRAG.mp4)
 
-# ReAct Prompt Technique + Chain of Thought
-Generating reasoning traces allow the model to induce, track, and update action plans, and even handle exceptions.
-This example uses ReAct combined with chain-of-thought (CoT).
-
-[Chain of Thought](https://www.promptingguide.ai/techniques/cot)
-
-[Reasoning + Action](https://www.promptingguide.ai/techniques/react)
-
-```
-[EXAMPLES]
-- User Input: What is MongoDB?
-- Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
-- Observation: I have an action available "answer_question".
-- Action: "answer_question"('What is MongoDB?')
-
-- User Input: Reset chat history
-- Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
-- Observation: I have an action available "reset_messages".
-- Action: "reset_messages"()
-
-- User Input: remove source https://www.google.com, https://www.example.com
-- Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
-- Observation: I have an action available "remove_source".
-- Action: "remove_source"(['https://www.google.com', 'https://www.example.com'])
-
-- User Input: read https://www.google.com, https://www.example.com
-- Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
-- Observation: I have an action available "read_url".
-- Action: "read_url"(['https://www.google.com','https://www.example.com'])
-[END EXAMPLES]
-```
-
 # Interactive Retrieval Augmented Generation
 
 This demo app uses [ActionWeaver](https://github.com/TengHu/ActionWeaver/tree/main) to organize and orchestrate tools/functions and implement an interactive RAG bot.
@@ -232,6 +200,40 @@ Additionally, you can explore the [ActionWeaver](https://github.com/TengHu/Actio
 {chunk4}
 [END VERIFIED SOURCES]
 ```
+
+
+# ReAct Prompt Technique + Chain of Thought
+Generating reasoning traces allow the model to induce, track, and update action plans, and even handle exceptions.
+This example uses ReAct combined with chain-of-thought (CoT).
+
+[Chain of Thought](https://www.promptingguide.ai/techniques/cot)
+
+[Reasoning + Action](https://www.promptingguide.ai/techniques/react)
+
+```
+[EXAMPLES]
+- User Input: What is MongoDB?
+- Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
+- Observation: I have an action available "answer_question".
+- Action: "answer_question"('What is MongoDB?')
+
+- User Input: Reset chat history
+- Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
+- Observation: I have an action available "reset_messages".
+- Action: "reset_messages"()
+
+- User Input: remove source https://www.google.com, https://www.example.com
+- Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
+- Observation: I have an action available "remove_source".
+- Action: "remove_source"(['https://www.google.com', 'https://www.example.com'])
+
+- User Input: read https://www.google.com, https://www.example.com
+- Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
+- Observation: I have an action available "read_url".
+- Action: "read_url"(['https://www.google.com','https://www.example.com'])
+[END EXAMPLES]
+```
+
 
 ## Credit
 This was inspired by https://github.com/TengHu/Interactive-RAG
