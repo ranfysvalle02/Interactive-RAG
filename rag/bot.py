@@ -402,11 +402,20 @@ You are a helpful AI assistant. USING ONLY THE VERIFIED SOURCES, ANSWER TO THE B
     * Final response must cite verified sources used in the answer (include URL).
     * Final response must be expert quality markdown
 """
+            #ReAct Prompt Technique
+            EXAMPLE_PROMPT = """\n\n[EXAMPLES]
+            - User Input: "What is kubernetes?"
+            - Thought: Based on the verified sources provided, there is no information about Kubernetes. Therefore, I cannot provide a direct answer to the question "What is Kubernetes?" based on the verified sources. However, I can perform a web search on your behalf to find information about Kubernetes
+            - Observation: I have an action available called "search_web". I will use this action to answer the user's question about Kubernetes.
+            - Action: "search_web"('What is kubernetes?')
+            [END EXAMPLES]
+"""
             self.messages += [{"role": "user", "content":PRECISE_PROMPT}]
             response = self.llm.create(messages=[
                     {"role":"system", "content":SYS_PROMPT},
-                    {"role": "user", "content":PRECISE_PROMPT}
-                    ], actions = [], stream=False)
+                    {"role": "user", "content":PRECISE_PROMPT},
+                    {"role":"system","content":EXAMPLE_PROMPT}
+                    ], actions = [self.search_web], stream=False)
             print("RESPONSE=>"+str(response))
             return response
     def __call__(self, text):
