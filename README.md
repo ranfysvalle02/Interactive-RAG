@@ -1,6 +1,13 @@
 # UPDATE
 
 Took an outdated Interactive RAG demo and changed it to use MongoDB Atlas (along with a few other changes and prompt engineering).
+
+# INTRODUCTION
+
+Agents are systems that use language models to make decisions and perform tasks. They are designed to handle complex scenarios and provide more flexibility compared to traditional approaches. Agents can be thought of as reasoning engines that leverage language models to process information, retrieve relevant data, ingest(chunk/embed) and generate responses. 
+
+In the future, agents will play a vital role in processing text, automating tasks, and improving human-computer interactions as language models advance.
+
 # VIDEO
 
 [DEMO 1](https://apollo-fv-mneqk.mongodbstitch.com/INTERACTIVE-RAG.mp4)
