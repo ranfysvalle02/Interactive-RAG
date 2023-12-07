@@ -355,7 +355,7 @@ ActionWeaver is built around the concept of LLM function calling, while popular 
 
 ![](./images/function_calling.jpeg)
 
-[READ_MORE]('https://thinhdanggroup.github.io/function-calling-openai/')
+Read more at: https://thinhdanggroup.github.io/function-calling-openai/
 
 
 ## ActionWeaver Basics: actions
