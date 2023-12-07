@@ -175,9 +175,9 @@ class RAGAgent(UserProxyAgent):
             else:
                 self.rag_config["source_chunk_size"] = 1000
             if unique_sources == True:
-                self.rag_config["unique_sources"] = True
+                self.rag_config["unique"] = True
             else:
-                self.rag_config["unique_sources"] = False
+                self.rag_config["unique"] = False
             if min_rel_threshold:
                 self.rag_config["min_rel_score"] = min_rel_threshold
             else:

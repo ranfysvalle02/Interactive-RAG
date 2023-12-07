@@ -14,9 +14,11 @@ Took an outdated Interactive RAG demo and changed it to use MongoDB Atlas (along
 
 # BUILDING A RAG-AGENT
 
-Using [ActionWeaver](https://github.com/TengHu/ActionWeaver/tree/main), a lightweight wrapper for function calling API, we can build a user proxy agent that efficiently retrieves and ingests relevant information from a database. This agent presents the data to the user in an interactive and customizable manner, enhancing the overall user experience.
+Using [ActionWeaver](https://github.com/TengHu/ActionWeaver/tree/main), a lightweight wrapper for function calling API, we can build a user proxy agent that efficiently retrieves and ingests relevant information using MongoDB Atlas. 
 
-The `UserProxyAgent` has several RAG parameters that can be customized, such as `chunk_size`(e.g. 1000), `num_sources`(e.g. 2), `unique_sources`(e.g. True) and `min_rel_score`(e.g. 0.00).
+This agent presents the data to the user in an interactive and customizable manner, enhancing the overall user experience.
+
+The `UserProxyAgent` has several RAG parameters that can be customized, such as `chunk_size`(e.g. 1000), `num_sources`(e.g. 2), `unique`(e.g. True) and `min_rel_score`(e.g. 0.00).
 
 ```
 class UserProxyAgent:
@@ -65,9 +67,9 @@ This is the "magic" that empowers the LLM to act as an agent on your behalf, and
             else:
                 self.rag_config["source_chunk_size"] = 1000
             if unique_sources == True:
-                self.rag_config["unique_sources"] = True
+                self.rag_config["unique"] = True
             else:
-                self.rag_config["unique_sources"] = False
+                self.rag_config["unique"] = False
             if min_rel_threshold:
                 self.rag_config["min_rel_score"] = min_rel_threshold
             else:
