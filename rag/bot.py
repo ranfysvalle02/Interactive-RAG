@@ -406,7 +406,7 @@ You are a helpful AI assistant. USING ONLY THE VERIFIED SOURCES, ANSWER TO THE B
             response = self.llm.create(messages=[
                     {"role":"system", "content":SYS_PROMPT},
                     {"role": "user", "content":PRECISE_PROMPT}
-                    ], actions = [], stream=True)
+                    ], actions = [], stream=False)
             print("RESPONSE=>"+str(response))
             return response
     def __call__(self, text):
@@ -416,12 +416,12 @@ You are a helpful AI assistant. USING ONLY THE VERIFIED SOURCES, ANSWER TO THE B
             response = self.llm.create(messages=self.messages[-3:], actions = [
                 self.read_url,self.answer_question,self.remove_source,self.reset_messages,
                 self.iRAG, self.get_sources_list,self.search_web
-            ], stream=True)
+            ], stream=False)
         else:
             response = self.llm.create(messages=self.messages, actions = [
                 self.read_url,self.answer_question,self.remove_source,self.reset_messages,
                 self.iRAG, self.get_sources_list,self.search_web
-            ], stream=True)
+            ], stream=False)
         return response
 
 
