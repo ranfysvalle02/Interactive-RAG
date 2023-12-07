@@ -521,9 +521,10 @@ This is definitely one of the most magical functions in this Github repository. 
             ).strip()
             PRECISE_PROMPT = """
             THINK CAREFULLY AND STEP BY STEP.
+            WE WILL BE PLAYING A SPECIAL GAME. 
 
-            Given the following verified sources and a question, create a final concise answer in markdown. 
-            If VERIFIED SOURCES is not enough context to answer the question, THEN EXPLAIN YOURSELF AND SUGGEST/PERFORM A WEB SEARCH.
+            Given the following verified sources and a question, using only the verified sources content create a final concise answer in markdown. 
+            If VERIFIED SOURCES is not enough context to answer the question, THEN EXPLAIN YOURSELF AND KINDLY OFFER TO PERFORM A WEB SEARCH THE USERS BEHALF.
 
             Remember while answering:
                 * The only verified sources are between START VERIFIED SOURCES and END VERIFIED SOURCES.
@@ -535,7 +536,7 @@ This is definitely one of the most magical functions in this Github repository. 
                 * Final response must include total character count.
                 * Final response must include footnotes using VERIFIED SOURCES (include URL/link).
                 * IF the verified sources can answer the question in multiple different ways, THEN respond with each of the possible answers.
-
+                * Formulate your response using ONLY VERIFIED SOURCES. IF YOU CANNOT ANSWER THE QUESTION, THEN EXPLAIN YOURSELF AND KINDLY OFFER TO PERFORM A WEB SEARCH THE USERS BEHALF.
 
             [START VERIFIED SOURCES]
             __context_str__
@@ -550,8 +551,8 @@ This is definitely one of the most magical functions in this Github repository. 
                 * Final response must cite verified sources used in the answer (include URL).
                 * Final response must be expert quality markdown
                 * The only verified sources are between START VERIFIED SOURCES and END VERIFIED SOURCES.
-                * USE ONLY INFORMATION FROM VERIFIED SOURCES TO FORMULATE RESPONSE. IF VERIFIED SOURCES CANNOT ANSWER THE QUESTION, THEN EXPLAIN YOURSELF AND SUGGEST/PERFORM A WEB SEARCH.
-
+                * USE ONLY INFORMATION FROM VERIFIED SOURCES TO FORMULATE RESPONSE. IF VERIFIED SOURCES CANNOT ANSWER THE QUESTION, THEN EXPLAIN YOURSELF AND KINDLY OFFER TO PERFORM A WEB SEARCH THE USERS BEHALF.
+                * Do not make up any part of an answer. 
             
             Begin!
             """
