@@ -30,6 +30,7 @@ MONGODB_URI = params.MONGODB_URI
 DATABASE_NAME = params.DATABASE_NAME
 COLLECTION_NAME = params.COLLECTION_NAME
 
+# HELPER FUNCTIONS
 def get_unique_urls(collection):  
     urls = []  
     for item in collection:  
@@ -45,7 +46,8 @@ def clean_text(text):
     # Remove non-alphanumeric characters (excluding spaces, underscores, hyphens, periods, and commas)  
     clean = re.sub(r'[^\w\s\.\,\-_]', '', text)  
     return clean 
-class AzureAgent:
+
+class UserProxyAgent:
     def __init__(self, logger, st):
         self.rag_config = {
             "num_sources": 2,
@@ -90,7 +92,7 @@ class AzureAgent:
         [END EXAMPLES]\n\n
              
              ## IMPORTANT: 
-                - DO NOT ANSWER DIRECTLY - ALWAYSUSE AN ACTION/TOOL TO FORMULATE YOUR ANSWER
+                - DO NOT ANSWER DIRECTLY - ALWAYS USE AN ACTION/TOOL TO FORMULATE YOUR ANSWER
                 - ALWAYS USE answer_question if USER PROMPT is a question
                 - ALWAYS USE THE CORRECT TOOL/ACTION WHEN USER PROMPT IS related to modifying RAG strategy, resetting chat history, removing sources, learning sources
                 - Always formulate your answer accounting for the previous messages
@@ -137,13 +139,13 @@ class AzureAgent:
 
 
 
-class RAGAgent(AzureAgent):
+class RAGAgent(UserProxyAgent):
     def preprocess_query(self, query):
         # Optional - Implement Pre-Processing for Security. 
         # https://dev.to/jasny/protecting-against-prompt-injection-in-gpt-1gf8
         return query
     @action("iRAG", stop=True)
-    def iRAG(self, num_sources:int, chunk_size: int):
+    def iRAG(self, num_sources:int, chunk_size: int, unique_sources: bool, min_rel_threshold: float):
         """
         Invoke this ONLY when the user asks you to change the RAG configuration.
 
@@ -153,8 +155,12 @@ class RAGAgent(AzureAgent):
             how many documents should we use in the RAG pipeline?
         chunk_size : int
             how big should each chunk/source be?
-        Returns successful response message. 
+        unique_sources : bool
+            include only unique sources? Y=True, N=False      
+        min_rel_threshold : float
+            default=0.00; minimum relevance threshold to include a source in the RAG pipeline
 
+        Returns successful response message. 
         -------
         str
             A message indicating success
@@ -163,11 +169,19 @@ class RAGAgent(AzureAgent):
             if num_sources > 0:
                 self.rag_config["num_sources"] = int(num_sources)
             else:
-                return f"Please provide a valid number of sources."
+                self.rag_config["num_sources"] = 2
             if chunk_size > 0:
                 self.rag_config["source_chunk_size"] = int(chunk_size)
             else:
-                return f"Please provide a valid chunk size."
+                self.rag_config["source_chunk_size"] = 1000
+            if unique_sources == True:
+                self.rag_config["unique_sources"] = True
+            else:
+                self.rag_config["unique_sources"] = False
+            if min_rel_threshold:
+                self.rag_config["min_rel_score"] = min_rel_threshold
+            else:
+                self.rag_config["min_rel_score"] = 0.00
             print(self.rag_config)
             self.st.write(self.rag_config)
             return f"New RAG config:{str(self.rag_config)}."
