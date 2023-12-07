@@ -22,7 +22,9 @@ In the future, agents will play a vital role in processing text, automating task
 
 # BUILDING A RAG-AGENT
 
-Using [ActionWeaver](https://github.com/TengHu/ActionWeaver/tree/main), a lightweight wrapper for function calling API, we can build a user proxy agent that efficiently retrieves and ingests relevant information using MongoDB Atlas. A proxy agent is a middleman sending client requests to other servers or resources and then bringing responses back. 
+Using [ActionWeaver](https://github.com/TengHu/ActionWeaver/tree/main), a lightweight wrapper for function calling API, we can build a user proxy agent that efficiently retrieves and ingests relevant information using MongoDB Atlas. 
+
+A proxy agent is a middleman sending client requests to other servers or resources and then bringing responses back. 
 
 This agent presents the data to the user in an interactive and customizable manner, enhancing the overall user experience.
 
