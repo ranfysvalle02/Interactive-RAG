@@ -494,7 +494,7 @@ RAGAgent class will contain all the actions available to the agent.
 
 # ACTIONS EXPLAINED
 ## ANSWER QUESTION
-This is definitely one of the most magical functions in this Github repository. If the user asks a question, this method should be invoked first. It works by pre-processing the query, then recalling relevant documents from the knowledge base. It generates a context string from these documents which is used to formulate a precise prompt for the AI model. The prompt instructs the model to carefully consider the verified sources and formulate a response in markdown format. The method also sets various rules for the AI model such as not making up any part of an answer, keeping the response under 1200 characters, and citing verified sources in the response. If the verified sources cannot answer the question, the AI model is instructed to explain this and offer to do a web search.
+This is definitely one of the most magical functions in this Github repository. If the user asks a question, this method should be invoked first. It works by pre-processing the query, then recalling relevant documents from the knowledge base. It generates a context string from these documents which is used to formulate a precise prompt for the AI model. The prompt instructs the model to carefully consider the verified sources and formulate a response in markdown format. The method also sets various rules for the AI model such as not making up any part of an answer, keeping the response under 1200 characters, and citing verified sources in the response. If the verified sources cannot answer the question, the AI model is instructed to explain this and suggest/perform a WEB SEARCH.
 
 ```
 @action(name="answer_question", stop=True)
@@ -523,7 +523,7 @@ This is definitely one of the most magical functions in this Github repository. 
             THINK CAREFULLY AND STEP BY STEP.
 
             Given the following verified sources and a question, create a final concise answer in markdown. 
-            If VERIFIED SOURCES is not enough context to answer the question, THEN EXPLAIN YOURSELF AND KINDLY OFFER TO DO A WEB SEARCH.
+            If VERIFIED SOURCES is not enough context to answer the question, THEN EXPLAIN YOURSELF AND SUGGEST/PERFORM A WEB SEARCH.
 
             Remember while answering:
                 * The only verified sources are between START VERIFIED SOURCES and END VERIFIED SOURCES.
@@ -550,7 +550,7 @@ This is definitely one of the most magical functions in this Github repository. 
                 * Final response must cite verified sources used in the answer (include URL).
                 * Final response must be expert quality markdown
                 * The only verified sources are between START VERIFIED SOURCES and END VERIFIED SOURCES.
-                * USE ONLY INFORMATION FROM VERIFIED SOURCES TO FORMULATE RESPONSE. IF VERIFIED SOURCES CANNOT ANSWER THE QUESTION, THEN EXPLAIN YOURSELF AND KINDLY OFFER TO DO A WEB SEARCH.
+                * USE ONLY INFORMATION FROM VERIFIED SOURCES TO FORMULATE RESPONSE. IF VERIFIED SOURCES CANNOT ANSWER THE QUESTION, THEN EXPLAIN YOURSELF AND SUGGEST/PERFORM A WEB SEARCH.
 
             
             Begin!
