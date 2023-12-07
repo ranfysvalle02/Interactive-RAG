@@ -14,9 +14,9 @@ Took an outdated Interactive RAG demo and changed it to use MongoDB Atlas (along
 
 # BUILDING A RAG-AGENT
 
-Using [ActionWeaver](https://github.com/TengHu/ActionWeaver/tree/main), a lightweight wrapper for function calling API, we can build a user proxy agent (RAG-AGENT) that efficiently retrieves and ingests relevant information from a database. This agent presents the data to the user in an interactive and customizable manner, enhancing the overall user experience.
+Using [ActionWeaver](https://github.com/TengHu/ActionWeaver/tree/main), a lightweight wrapper for function calling API, we can build a user proxy agent that efficiently retrieves and ingests relevant information from a database. This agent presents the data to the user in an interactive and customizable manner, enhancing the overall user experience.
 
-The `RAG-Agent` has several RAG parameters that can be customized, such as `chunk_size`(e.g. 1000), `num_sources`(e.g. 2), `unique_sources`(e.g. True) and `min_rel_score`(e.g. 0.00).
+The `UserProxyAgent` has several RAG parameters that can be customized, such as `chunk_size`(e.g. 1000), `num_sources`(e.g. 2), `unique_sources`(e.g. True) and `min_rel_score`(e.g. 0.00).
 
 ```
 class UserProxyAgent:
