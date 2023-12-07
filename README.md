@@ -322,8 +322,10 @@ Without thinking through both, you won’t be able to build a working agent. If 
 
 An LLM is then called, resulting in either a response to the user OR action(s) to be taken. If it is determined that a response is required, then that is passed to the user, and that cycle is finished. If it is determined that an action is required, that action is then taken, and an observation (action result) is made. That action & corresponding observation are added back to the prompt (we call this an “agent scratchpad”), and the loop resets, ie. the LLM is called again (with the updated agent scratchpad).
 
-In ActionWeaver, we can influence the loop adding `stop=True` to an action. 
-The LLM will immediately return the function's output, but this will also restrict the LLM from making multiple function calls.
+In ActionWeaver, we can influence the loop adding `stop=True|False` to an action. 
+If `stop=True`, the LLM will immediately return the function's output. This will also restrict the LLM from making multiple function calls.
+In this demo we will only be using `stop=True`
+
 ActionWeaver also supports more complex loop control using `orch_expr(SelectOne[actions])` and `orch_expr(RequireNext[actions])`, but I'll leave that for PART II.
 
 ![](./images/scale_tools.png)
