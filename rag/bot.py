@@ -307,23 +307,38 @@ class RAGAgent(UserProxyAgent):
     ):
         # $vectorSearch
         print("recall=>" + str(text))
-        response = self.collection.aggregate(
-            [
-                {
-                    "$vectorSearch": {
-                        "index": "default",
-                        "queryVector": self.gpt4all_embd.embed_query(text),
-                        "path": "embedding",
-                        # "filter": {},
-                        "limit": 15,  # Number (of type int only) of documents to return in the results. Value can't exceed the value of numCandidates.
-                        "numCandidates": 50,  # Number of nearest neighbors to use during the search. You can't specify a number less than the number of documents to return (limit).
-                    }
-                },
-                {"$addFields": {"score": {"$meta": "vectorSearchScore"}}},
-                {"$match": {"score": {"$gte": min_rel_score}}},
-                {"$project": {"score": 1, "_id": 0, "source": 1, "text": 1}},
-            ]
-        )
+     
+        try: 
+            response = self.collection.aggregate(
+                [
+                    {
+                        "$vectorSearch": {
+                            "index": "default",
+                            "queryVector": self.gpt4all_embd.embed_query(text),
+                            "path": "embedding",
+                            # "filter": {},
+                            "limit": 15,  # Number (of type int only) of documents to return in the results. Value can't exceed the value of numCandidates.
+                            "numCandidates": 50,  # Number of nearest neighbors to use during the search. You can't specify a number less than the number of documents to return (limit).
+                        }
+                    },
+                    {"$addFields": {"score": {"$meta": "vectorSearchScore"}}},
+                    {"$match": {"score": {"$gte": min_rel_score}}},
+                    {"$project": {"score": 1, "_id": 0, "source": 1, "text": 1}},
+                ]
+            )
+
+        except pymongo.errors.OperationFailure as ex:
+             template = "Verify Atlas Search index exists. An exception of type {0} occurred. Arguments:\n{1!r}"
+             message = template.format(type(ex).__name__, ex.args)
+             print(message)
+             raise Exception(message)
+             
+        except Exception as ex:
+            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            message = template.format(type(ex).__name__, ex.args)
+            print(message)
+            raise Exception(message)
+
         tmp_docs = []
         str_response = []
         for d in response:
@@ -464,6 +479,8 @@ class RAGAgent(UserProxyAgent):
             )
             print("RESPONSE=>" + str(response))
             return response
+
+
 
     def __call__(self, text):
         text = self.preprocess_query(text)

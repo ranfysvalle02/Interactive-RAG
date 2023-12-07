@@ -32,7 +32,6 @@ st.markdown(
 )
 st.markdown("----")
 
-
 agent = get_agent()
 
 # Initialize chat history
@@ -43,7 +42,6 @@ if "messages" not in st.session_state:
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
-
 
 # Accept user input
 if prompt := st.chat_input(placeholder="What's up"):
