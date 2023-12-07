@@ -322,7 +322,9 @@ Without thinking through both, you won’t be able to build a working agent. If 
 
 An LLM is then called, resulting in either a response to the user OR action(s) to be taken. If it is determined that a response is required, then that is passed to the user, and that cycle is finished. If it is determined that an action is required, that action is then taken, and an observation (action result) is made. That action & corresponding observation are added back to the prompt (we call this an “agent scratchpad”), and the loop resets, ie. the LLM is called again (with the updated agent scratchpad).
 
-Large Language Models (LLMs) are great, but they have some limitations (context window, lack of access to real-time data, inability to interact with APIs, etc). LLM agents help overcome those limitations. The definition of an agent in the AI world depends on who you ask - but in a nutshell an agent empowers the LLM to take action. 
+In ActionWeaver, we can influence the loop adding `stop=True` to an action. 
+The LLM will immediately return the function's output, but this will also restrict the LLM from making multiple function calls.
+ActionWeaver also supports more complex loop control using `orch_expr(SelectOne[actions])` and `orch_expr(RequireNext[actions])`, but I'll leave that for PART II.
 
 ![](./images/scale_tools.png)
 
