@@ -295,8 +295,6 @@ Since the bot is unable to provide an answer, it initiated a Google search to fi
 ![](./images/remove_sources.png)
 
 ## ActionWeaver Basics: What is an Agent anyway?
-Although the term “agents” can be used to describe a wide range of applications, OpenAI’s usage of the term is consistent with our understanding: using the LLM alone to define transition options. This can best be thought of as a loop. Given user input, this loop will be entered. 
-
 ### Agents (according to LangChain)
 
 The core idea of agents is to use a language model to choose a sequence of actions to take. In chains, a sequence of actions is hardcoded (in code). In agents, a language model is used as a reasoning engine to determine which actions to take and in which order.
