@@ -34,6 +34,8 @@ class UserProxyAgent:
 
 ## RAG Strategy
 ## ![Alt text](./images/rag.png)
+When using GenAI, users may encounter limitations when asking questions that require information not covered in the LLM's training. This can result in incorrect or evasive answers. RAG helps fill these knowledge gaps by treating the question-answering task like an "open-book quiz."
+
 This is the "magic" that empowers the LLM to act as an agent on your behalf, and change the configuration.
 
 ```
