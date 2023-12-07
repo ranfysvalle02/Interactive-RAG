@@ -164,7 +164,9 @@ class RAGAgent(UserProxyAgent):
     ):
         """
         Invoke this ONLY when the user explicitly asks you to change the RAG configuration in the most recent USER PROMPT.
-
+        [EXAMPLE]
+        - User Input: change chunk size to be 500 and num_sources to be 5
+        
         Parameters
         ----------
         num_sources : int
