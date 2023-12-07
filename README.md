@@ -15,7 +15,7 @@ Took an outdated Interactive RAG demo and changed it to use MongoDB Atlas (along
 
 # BUILDING A RAG-AGENT
 
-Using [ActionWeaver](https://github.com/TengHu/ActionWeaver/tree/main), a lightweight wrapper for function calling API, we can build a user proxy agent that efficiently retrieves and ingests relevant information using MongoDB Atlas. 
+Using [ActionWeaver](https://github.com/TengHu/ActionWeaver/tree/main), a lightweight wrapper for function calling API, we can build a user proxy agent that efficiently retrieves and ingests relevant information using MongoDB Atlas. A proxy agent is a middleman sending client requests to other servers or resources and then bringing responses back. 
 
 This agent presents the data to the user in an interactive and customizable manner, enhancing the overall user experience.
 
@@ -297,6 +297,29 @@ Since the bot is unable to provide an answer, it initiated a Google search to fi
 ## ActionWeaver Basics: What is an Agent anyway?
 Although the term “agents” can be used to describe a wide range of applications, OpenAI’s usage of the term is consistent with our understanding: using the LLM alone to define transition options. This can best be thought of as a loop. Given user input, this loop will be entered. 
 
+### Agents (according to LangChain)
+
+The core idea of agents is to use a language model to choose a sequence of actions to take. In chains, a sequence of actions is hardcoded (in code). In agents, a language model is used as a reasoning engine to determine which actions to take and in which order.
+
+This is the chain responsible for deciding what step to take next. This is powered by a language model and a prompt. The inputs to this chain are:
+
+    Tools: Descriptions of available tools
+    User input: The high level objective
+    Intermediate steps: Any (action, tool output) pairs previously executed in order to achieve the user input
+
+The output is the next action(s) to take or the final response to send to the user. An action specifies a tool and the input to that tool.
+
+Different agents have different prompting styles for reasoning, different ways of encoding inputs, and different ways of parsing the output. 
+
+### Tools
+
+Tools are functions that an agent can invoke. There are two important design considerations around tools:
+
+    Giving the agent access to the right tools
+    Describing the tools in a way that is most helpful to the agent
+
+Without thinking through both, you won’t be able to build a working agent. If you don’t give the agent access to a correct set of tools, it will never be able to accomplish the objectives you give it. If you don’t describe the tools well, the agent won’t know how to use them properly.
+
 ![](./images/llm_agent.png)
 
 An LLM is then called, resulting in either a response to the user OR action(s) to be taken. If it is determined that a response is required, then that is passed to the user, and that cycle is finished. If it is determined that an action is required, that action is then taken, and an observation (action result) is made. That action & corresponding observation are added back to the prompt (we call this an “agent scratchpad”), and the loop resets, ie. the LLM is called again (with the updated agent scratchpad).
@@ -325,6 +348,11 @@ ActionWeaver is built around the concept of LLM function calling, while popular 
 - Function calling is supported by specific model versions, including gpt-4 and gpt-3.5-turbo.
 - Parallel function calling allows multiple function calls to be performed together, reducing round-trips with the API.
 - Tokens are used to inject functions into the system message and count against the model's context limit and billing.
+
+![](./images/function_calling.jpeg)
+
+[READ_MORE]('https://thinhdanggroup.github.io/function-calling-openai/')
+
 
 ## ActionWeaver Basics: actions
 Developers can attach ANY Python function as a tool with a simple decorator. In the following example, we introduce action get_sources_list, which will be invoked by the OpenAI API.
