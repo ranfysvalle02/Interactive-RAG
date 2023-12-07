@@ -297,7 +297,7 @@ Since the bot is unable to provide an answer, it initiated a Google search to fi
 ## ActionWeaver Basics: What is an Agent anyway?
 ### Agents (according to LangChain)
 
-The core idea of agents is to use a language model to choose a sequence of actions to take. In chains, a sequence of actions is hardcoded (in code). In agents, a language model is used as a reasoning engine to determine which actions to take and in which order.
+The core idea of agents is to use a language model to choose a sequence of actions to take. In chains, a sequence of actions is hardcoded (in code). In agents, a language model is used as a reasoning engine to determine which actions to take and in which order. We will call this the 'Agent Chain'.
 
 ### Agent Chain
 
