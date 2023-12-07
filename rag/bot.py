@@ -89,6 +89,12 @@ class UserProxyAgent:
             - Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
             - Observation: I have an action available "read_url".
             - Action: "read_url"(['https://www.google.com','https://www.example.com'])
+             
+            - User Input: change chunk size to be 500 and num_sources to be 5
+            - Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
+            - Observation: I have an action available "iRAG".
+            - Action: "iRAG"(num_sources=5, chunk_size=500)
+             
         [END EXAMPLES]\n\n
              
              ## IMPORTANT: 
@@ -96,6 +102,8 @@ class UserProxyAgent:
                 - ALWAYS USE answer_question if USER PROMPT is a question
                 - ALWAYS USE THE CORRECT TOOL/ACTION WHEN USER PROMPT IS related to modifying RAG strategy, resetting chat history, removing sources, learning sources
                 - Always formulate your answer accounting for the previous messages
+             
+             REMEMBER! ALWAYS USE answer_question if USER PROMPT is a question
              """}
                          ]
         browser_options = Options()
@@ -147,7 +155,7 @@ class RAGAgent(UserProxyAgent):
     @action("iRAG", stop=True)
     def iRAG(self, num_sources:int, chunk_size: int, unique_sources: bool, min_rel_threshold: float):
         """
-        Invoke this ONLY when the user asks you to change the RAG configuration.
+        Invoke this ONLY when the user explicitly asks you to change the RAG configuration in the most recent USER PROMPT.
 
         Parameters
         ----------
@@ -360,7 +368,7 @@ class RAGAgent(UserProxyAgent):
             WE WILL BE PLAYING A SPECIAL GAME. 
 
             Given the following verified sources and a question, using only the verified sources content create a final concise answer in markdown. 
-            If VERIFIED SOURCES is not enough context to answer the question, THEN EXPLAIN YOURSELF AND KINDLY OFFER TO PERFORM A WEB SEARCH THE USERS BEHALF.
+            If VERIFIED SOURCES is not enough context to answer the question, THEN EXPLAIN YOURSELF AND KINDLY PERFORM A WEB SEARCH THE USERS BEHALF.
 
             Remember while answering:
                 * The only verified sources are between START VERIFIED SOURCES and END VERIFIED SOURCES.
@@ -370,9 +378,8 @@ class RAGAgent(UserProxyAgent):
                 * Questions might be vague or have multiple interpretations, you must ask follow up questions in this case.
                 * Final response must be less than 1200 characters.
                 * Final response must include total character count.
-                * Final response must include footnotes using VERIFIED SOURCES (include URL/link).
                 * IF the verified sources can answer the question in multiple different ways, THEN respond with each of the possible answers.
-                * Formulate your response using ONLY VERIFIED SOURCES. IF YOU CANNOT ANSWER THE QUESTION, THEN EXPLAIN YOURSELF AND KINDLY OFFER TO PERFORM A WEB SEARCH THE USERS BEHALF.
+                * Formulate your response using ONLY VERIFIED SOURCES. IF YOU CANNOT ANSWER THE QUESTION, THEN EXPLAIN YOURSELF AND KINDLY PERFORM A WEB SEARCH THE USERS BEHALF.
 
             [START VERIFIED SOURCES]
             __context_str__
@@ -384,10 +391,9 @@ class RAGAgent(UserProxyAgent):
             __text__
 
             # IMPORTANT! 
-                * Final response must cite verified sources used in the answer (include URL).
                 * Final response must be expert quality markdown
                 * The only verified sources are between START VERIFIED SOURCES and END VERIFIED SOURCES.
-                * USE ONLY INFORMATION FROM VERIFIED SOURCES TO FORMULATE RESPONSE. IF VERIFIED SOURCES CANNOT ANSWER THE QUESTION, THEN EXPLAIN YOURSELF AND KINDLY OFFER TO PERFORM A WEB SEARCH THE USERS BEHALF.
+                * USE ONLY INFORMATION FROM VERIFIED SOURCES TO FORMULATE RESPONSE. IF VERIFIED SOURCES CANNOT ANSWER THE QUESTION, THEN EXPLAIN YOURSELF AND KINDLY PERFORM A WEB SEARCH THE USERS BEHALF.
                 * Do not make up any part of an answer. 
             
             Begin!
@@ -401,6 +407,8 @@ You are a helpful AI assistant. USING ONLY THE VERIFIED SOURCES, ANSWER TO THE B
 # IMPORTANT! 
     * Final response must cite verified sources used in the answer (include URL).
     * Final response must be expert quality markdown
+    * Must cite verified sources used in the answer (include URL) in a pretty format
+
 """
             #ReAct Prompt Technique
             EXAMPLE_PROMPT = """\n\n[EXAMPLES]
@@ -408,7 +416,17 @@ You are a helpful AI assistant. USING ONLY THE VERIFIED SOURCES, ANSWER TO THE B
             - Thought: Based on the verified sources provided, there is no information about Kubernetes. Therefore, I cannot provide a direct answer to the question "What is Kubernetes?" based on the verified sources. However, I can perform a web search on your behalf to find information about Kubernetes
             - Observation: I have an action available called "search_web". I will use this action to answer the user's question about Kubernetes.
             - Action: "search_web"('What is kubernetes?')
+
+            - User Input: "What is MongoDB?"
+            - Thought: Based on the verified sources provided, there is enough information about MongoDB. 
+            - Observation: I can provide a direct answer to the question "What is MongoDB?" based on the verified sources.
+            - Action: N/A
             [END EXAMPLES]
+
+            [RESPONSE FORMAT]
+            - Must be valid markdown
+            - Must cite verified sources used in the answer (include URL) in a pretty format
+            - Must be expert quality markdown. You are a technical writer with 30+ years of experience.
 """
             self.messages += [{"role": "user", "content":PRECISE_PROMPT}]
             response = self.llm.create(messages=[
