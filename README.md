@@ -11,6 +11,7 @@ Took an outdated Interactive RAG demo and changed it to use MongoDB Atlas (along
 1. Ask Question
 2. Check VectorStore -> If VectorStore results are not enough to answer, conversationally perform a web search
 3. Add/Remove sources to VectorStore
+4. Fine-tune RAG strategy for desired response quality
 
 # BUILDING A RAG-AGENT
 
