@@ -53,7 +53,6 @@ if prompt := st.chat_input(placeholder="What's up"):
 
     utils.format_and_print_user_input(prompt)
     response = agent(prompt)
-    
 
     # Display assistant response in chat message container
     with st.chat_message("assistant"):
@@ -73,6 +72,7 @@ if prompt := st.chat_input(placeholder="What's up"):
             #     message_placeholder.markdown(full_response + "▌")
             agent.messages.append({"role": "assistant", "content": response})
             message_placeholder.markdown(full_response)
+            utils.format_and_print_genai_response(full_response)
         else:
             for chunk in response:
                 if isinstance(chunk, str):
@@ -84,6 +84,8 @@ if prompt := st.chat_input(placeholder="What's up"):
                 # Add a blinking cursor to simulate typing
                 message_placeholder.markdown(full_response + "▌")
             agent.messages.append({"role": "assistant", "content": full_response})
+            utils.format_and_print_genai_response(full_response)
+
 
     # Add assistant response to chat history
     st.session_state.messages.append({"role": "assistant", "content": full_response})

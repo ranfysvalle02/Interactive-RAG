@@ -476,7 +476,6 @@ class RAGAgent(UserProxyAgent):
                 actions=[self.search_web],
                 stream=False,
             )
-            print("RESPONSE=>" + str(response))
             return response
 
 
