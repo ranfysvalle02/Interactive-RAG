@@ -10,17 +10,13 @@ from langchain.document_loaders import BraveSearchLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import params
 import urllib.parse
-import datetime
-from collections import Counter
 import os
-import json
 import pymongo
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 import pandas as pd
 from tabulate import tabulate
-import re
 import utils
 
 os.environ["OPENAI_API_KEY"] = params.OPENAI_API_KEY
@@ -327,17 +323,20 @@ class RAGAgent(UserProxyAgent):
                 ]
             )
 
-        except pymongo.errors.OperationFailure as ex:
-             template = "Verify Atlas Search index exists. An exception of type {0} occurred. Arguments:\n{1!r}"
-             message = template.format(type(ex).__name__, ex.args)
-             print(message)
-             raise Exception(message)
-             
-        except Exception as ex:
-            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-            message = template.format(type(ex).__name__, ex.args)
-            print(message)
-            raise Exception(message)
+        except pymongo.errors.OperationFailure as ex:  
+            err_type = type(ex).__name__  
+            err_args = ex.args  
+            message = f"<b>Error! Please verify Atlas Search index exists.</b><hr/> An exception of type {err_type} occurred with the following arguments:\n{err_args}"  
+            self.st.write(f"<div>{message}</div>", unsafe_allow_html=True)  
+            raise  
+        except Exception as ex:  
+            err_type = type(ex).__name__  
+            err_args = ex.args  
+            message = f"<b>Error! An exception of type {err_type} occurred with the following arguments:\n{err_args}"  
+            self.st.write("<div>{message}</div>", unsafe_allow_html=True)  
+            raise  
+
+
 
         tmp_docs = []
         str_response = []

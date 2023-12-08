@@ -1,4 +1,6 @@
 import re
+import urllib
+from collections import Counter
 
 # HELPER FUNCTIONS
 def get_unique_urls(collection):  
