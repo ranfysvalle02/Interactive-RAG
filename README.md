@@ -25,26 +25,56 @@ In this example, we will specifically focus on its application in dynamic Retrie
 3. Add/Remove sources to VectorStore
 4. Fine-tune RAG strategy for desired response quality
 
-# BUILDING A RAG-AGENT
 
-Using [ActionWeaver](https://github.com/TengHu/ActionWeaver/tree/main), a lightweight wrapper for function calling API, we can build a user proxy agent that efficiently retrieves and ingests relevant information using MongoDB Atlas. 
+# Understanding the Limitations of Large Language Models (LLMs) and Introducing Retrieval-Augmented Generation (RAG)  
+   
+As the field of natural language processing continues to evolve, large language models (LLMs) have emerged as a significant breakthrough. Trained on vast amounts of text data, LLMs possess the ability to generate human-like text, revolutionizing various applications. However, it is crucial to comprehend the limitations associated with these models. In this blog post, we will delve into the challenges presented by LLMs and explore the retrieval-augmented generation (RAG) architecture as a solution.  
+   
+## Limitations of LLMs  
+   
+While LLMs have proven to be incredibly powerful, they do have some drawbacks that need to be acknowledged:  
+   
+### 1. Hallucinations  
+   
+One of the limitations of LLMs is their propensity to generate factually inaccurate or ungrounded information, often referred to as "hallucinations." This can pose a challenge in real-world applications where precision and accuracy are paramount.  
+   
+### 2. Stale Data  
+   
+LLMs are trained on static datasets that were only current up to a specific point in time. Consequently, they may lack awareness of recent events or developments that occurred after the training data was collected. This temporal limitation can hinder their ability to provide up-to-date information.  
+   
+### 3. Limited Access to User's Data  
+   
+LLMs do not have access to a user's local data or personal databases. They rely solely on the knowledge acquired during training, which restricts their capacity to provide personalized or context-specific responses. This limitation can hamper the user experience, particularly when dealing with highly specific or individualized queries.  
+   
+### 4. Token Limits  
+   
+LLMs have a maximum token limit, which determines the amount of text they can process in a single interaction. Tokens can represent individual characters, words, subwords, or larger linguistic units. This constraint, such as the token limit of 4096 in OpenAI's gpt-3.5-turbo, can pose challenges when dealing with lengthy or complex queries.  
+   
+## Introducing Retrieval-Augmented Generation (RAG)  
+   
+To address these limitations, the retrieval-augmented generation (RAG) architecture was developed. RAG combines the power of vector search, embeddings, and generative AI to enhance the capabilities of LLMs. Here's how RAG overcomes the challenges posed by LLMs:  
+   
+### 1. Minimizing Hallucinations  
+   
+By incorporating vector search and retrieval techniques, RAG grounds the generated text in factual information from relevant documents. This approach significantly reduces the occurrence of hallucinations and improves the overall accuracy of the LLM's responses.  
+   
+### 2. Keeping Information Up-to-Date  
+   
+RAG leverages vector search to retrieve information from up-to-date sources. By incorporating recent documents, RAG ensures that the LLM's responses reflect the most current and accurate information available, mitigating the issue of stale data.  
+   
+### 3. Enhanced Personalization  
+   
+Although LLMs do not have direct access to a user's local data, RAG allows them to utilize external databases or knowledge bases. This enables the inclusion of user-specific information and facilitates more personalized responses, overcoming the limitation of limited access to user data.  
+   
+### 4. Optimized Token Usage  
+   
+While RAG does not increase the token limit of an LLM, it optimizes token usage by retrieving only the most relevant documents for generating a response. This ensures that the limited token capacity of LLMs is utilized efficiently, enabling more effective and comprehensive answers.  
+   
+## Leveraging RAG with Atlas Vector Search  
+   
+To demonstrate the practical application of the RAG architecture, we will explore how it can be leveraged with Atlas Vector Search, and ActionWeaver to build a AI Agent for interactive retrieval augmented generation. 
 
-A proxy agent is a middleman sending client requests to other servers or resources and then bringing responses back. 
-
-This agent presents the data to the user in an interactive and customizable manner, enhancing the overall user experience.
-
-The `UserProxyAgent` has several RAG parameters that can be customized, such as `chunk_size`(e.g. 1000), `num_sources`(e.g. 2), `unique`(e.g. True) and `min_rel_score`(e.g. 0.00).
-
-```
-class UserProxyAgent:
-    def __init__(self, logger, st):
-        self.rag_config = {
-            "num_sources": 2,
-            "source_chunk_size": 1000,
-            "min_rel_score": 0.00,
-            "unique": True,
-        }
-```
+By combining RAG with Atlas Vector Search and ActionWeaver, we can build a simple question-answering application that operates on your own terms. 
 
 ## RAG Strategy
 ## ![Alt text](./images/rag.png)
@@ -207,6 +237,27 @@ def recall(self, text, n_docs=2, min_rel_score=0.25, chunk_max_length=800,unique
         return str(kb_output)
 ```
 
+
+# BUILDING A RAG-AGENT
+
+Using [ActionWeaver](https://github.com/TengHu/ActionWeaver/tree/main), a lightweight wrapper for function calling API, we can build a user proxy agent that efficiently retrieves and ingests relevant information using MongoDB Atlas. 
+
+A proxy agent is a middleman sending client requests to other servers or resources and then bringing responses back. 
+
+This agent presents the data to the user in an interactive and customizable manner, enhancing the overall user experience.
+
+The `UserProxyAgent` has several RAG parameters that can be customized, such as `chunk_size`(e.g. 1000), `num_sources`(e.g. 2), `unique`(e.g. True) and `min_rel_score`(e.g. 0.00).
+
+```
+class UserProxyAgent:
+    def __init__(self, logger, st):
+        self.rag_config = {
+            "num_sources": 2,
+            "source_chunk_size": 1000,
+            "min_rel_score": 0.00,
+            "unique": True,
+        }
+```
 
 ## Getting Started
 Create a new Python environment
