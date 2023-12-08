@@ -18,6 +18,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 from tabulate import tabulate
 import utils
+import vector_search
 
 os.environ["OPENAI_API_KEY"] = params.OPENAI_API_KEY
 os.environ["OPENAI_API_VERSION"] = params.OPENAI_API_VERSION
@@ -280,7 +281,7 @@ class RAGAgent(UserProxyAgent):
         Returns:
             str: Text with the Google Search results
         """
-        utils.print_log("Action: iRAG")
+        utils.print_log("Action: search_web")
         with self.st.spinner(f"Searching '{query}'..."):
             # Use the headless browser to search the web
             self.browser.get(utils.encode_google_search(query))
@@ -321,69 +322,6 @@ class RAGAgent(UserProxyAgent):
             self.collection.delete_many({"source": {"$in": urls}})
             return f"```Sources ({', '.join(urls)}) successfully removed.```\n"
 
-    def recall(
-        self, text, n_docs=2, min_rel_score=0.25, chunk_max_length=800, unique=True
-    ):
-        # $vectorSearch
-        print("recall=>" + str(text))
-     
-        try: 
-            response = self.collection.aggregate(
-                [
-                    {
-                        "$vectorSearch": {
-                            "index": "default",
-                            "queryVector": self.gpt4all_embd.embed_query(text),
-                            "path": "embedding",
-                            # "filter": {},
-                            "limit": 15,  # Number (of type int only) of documents to return in the results. Value can't exceed the value of numCandidates.
-                            "numCandidates": 50,  # Number of nearest neighbors to use during the search. You can't specify a number less than the number of documents to return (limit).
-                        }
-                    },
-                    {"$addFields": {"score": {"$meta": "vectorSearchScore"}}},
-                    {"$match": {"score": {"$gte": min_rel_score}}},
-                    {"$project": {"score": 1, "_id": 0, "source": 1, "text": 1}},
-                ]
-            )
-
-        except pymongo.errors.OperationFailure as ex:  
-            err_type = type(ex).__name__  
-            err_args = ex.args  
-            message = f"<b>Error! Please verify Atlas Search index exists.</b><hr/> An exception of type {err_type} occurred with the following arguments:\n{err_args}"  
-            self.st.write(f"<div>{message}</div>", unsafe_allow_html=True)  
-            raise  
-        except Exception as ex:  
-            err_type = type(ex).__name__  
-            err_args = ex.args  
-            message = f"<b>Error! An exception of type {err_type} occurred with the following arguments:\n{err_args}"  
-            self.st.write("<div>{message}</div>", unsafe_allow_html=True)  
-            raise  
-
-
-
-        tmp_docs = []
-        str_response = []
-        for d in response:
-            if len(tmp_docs) == n_docs:
-                break
-            if unique and d["source"] in tmp_docs:
-                continue
-            tmp_docs.append(d["source"])
-            str_response.append(
-                {
-                    "URL": d["source"],
-                    "content": d["text"][:chunk_max_length],
-                    "score": d["score"],
-                }
-            )
-        kb_output = (
-            f"Knowledgebase Results[{len(tmp_docs)}]:\n```{str(str_response)}```\n## \n```SOURCES: "
-            + str(tmp_docs)
-            + "```\n\n"
-        )
-        self.st.write(kb_output)
-        return str(kb_output)
-
     @action(name="get_sources_list", stop=True)
     def get_sources_list(self):
         """
@@ -392,7 +330,7 @@ class RAGAgent(UserProxyAgent):
         ----------
         None
         """
-        utils.print_log("get_sources_list")
+        utils.print_log("Action: get_sources_list")
         sources = self.collection.distinct("source")
         sources = [{"source": source} for source in sources]
         df = pd.DataFrame(sources)
@@ -417,7 +355,9 @@ class RAGAgent(UserProxyAgent):
         with self.st.spinner(f"Attemtping to answer question: {query}"):
             query = self.preprocess_query(query)
             context_str = str(
-                self.recall(
+                #self.recall(
+                vector_search.recall(
+                    self,
                     query,
                     n_docs=self.rag_config["num_sources"],
                     min_rel_score=self.rag_config["min_rel_score"],
