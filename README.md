@@ -10,6 +10,9 @@ In the future, agents will play a vital role in processing text, automating task
 
 In this example, we will specifically focus on its application in dynamic Retrieval Augmented Generation (RAG). Using ActionWeaver and MongoDB Atlas, you will have the ability to modify your RAG strategy in real-time through conversational interactions. Whether it's selecting more chunks, increasing chunk size, or tweaking other parameters, you can fine-tune your RAG approach to achieve the desired response quality and accuracy. You can even add/remove sources to your vector database using natural language! 
 
+
+## ![Alt text](./images/actionweaver_mdb.png)
+
 # VIDEO
 
 [DEMO 1](https://apollo-fv-mneqk.mongodbstitch.com/INTERACTIVE-RAG.mp4)
