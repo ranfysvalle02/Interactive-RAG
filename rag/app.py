@@ -1,8 +1,8 @@
 import logging
 import time
-
 import streamlit as st
 from bot import RAGAgent
+import utils
 
 st.set_page_config(layout="wide")
 
@@ -51,7 +51,9 @@ if prompt := st.chat_input(placeholder="What's up"):
     with st.chat_message("user"):
         st.markdown(prompt)
 
+    utils.format_and_print_user_input(prompt)
     response = agent(prompt)
+    
 
     # Display assistant response in chat message container
     with st.chat_message("assistant"):
