@@ -7,7 +7,7 @@ import pandas as pd
 # n_docs - the number of results to evaluate
 def recall(self, text, n_docs=2, min_rel_score=0.25, chunk_max_length=800, unique=True):
     # $vectorSearch
-    utils.print_log("recall (VectorSearch)=>" + str(text))
+    utils.print_log("recall (VectorSearch) => " + str(text))
 
     try:
         response = self.collection.aggregate(

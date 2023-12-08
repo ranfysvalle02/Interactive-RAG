@@ -369,12 +369,14 @@ class RAGAgent(UserProxyAgent):
                     unique=self.rag_config["unique"],
                 )
             ).strip()
+            utils.print_log("Instructions given to the LLM:")
+
             PRECISE_PROMPT = """
             THINK CAREFULLY AND STEP BY STEP.
             WE WILL BE PLAYING A SPECIAL GAME. 
 
             Given the following verified sources and a question, using only the verified sources content create a final concise answer in markdown. 
-            If VERIFIED SOURCES is not enough context to answer the question, THEN EXPLAIN YOURSELF AND KINDLY PERFORM A WEB SEARCH THE USERS BEHALF.
+            If VERIFIED SOURCES is not enough context to answer the question, THEN EXPLAIN YOURSELF AND KINDLY PERFORM A WEB SEARCH ON THE USERS BEHALF.
 
             Remember while answering:
                 * The only verified sources are between START VERIFIED SOURCES and END VERIFIED SOURCES.
@@ -391,8 +393,6 @@ class RAGAgent(UserProxyAgent):
             __context_str__
             [END VERIFIED SOURCES]
 
-
-
             [ACTUAL QUESTION. ANSWER ONLY BASED ON VERIFIED SOURCES]:
             __text__
 
@@ -407,7 +407,8 @@ class RAGAgent(UserProxyAgent):
             PRECISE_PROMPT = str(PRECISE_PROMPT).replace("__context_str__", context_str)
             PRECISE_PROMPT = str(PRECISE_PROMPT).replace("__text__", query)
 
-            print(PRECISE_PROMPT)
+            utils.print_log(PRECISE_PROMPT)
+            
             SYS_PROMPT = """
                 You are a helpful AI assistant. USING ONLY THE VERIFIED SOURCES, ANSWER TO THE BEST OF YOUR ABILITY.
                 # IMPORTANT! 
