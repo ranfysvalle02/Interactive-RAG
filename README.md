@@ -369,11 +369,9 @@ Here are some key benefits that influenced our decision to choose ActionWeaver:
 
 ## ActionWeaver Basics: What is an Agent anyway?
 
-The core idea of agents is to use a language model to choose a sequence of actions to take. In chains, a sequence of actions is hardcoded (in code). In agents, a language model is used as a reasoning engine to determine which actions to take and in which order.
-
 An agent is basically just a computer program or system designed to perceive its environment, make decisions, and achieve specific goals.
 
-In ActionWeaver, the tools available to an LLM are called *ACTIONS*
+An agent is a software entity that displays some degree of autonomy and performs actions in its environment on behalf of its user or owner, but in a relatively independent way. It takes initiatives to perform actions on its own by deliberating its options to achieve its goal(s). The core idea of agents is to use a language model to choose a sequence of actions to take. In contrast to chains, where a sequence of actions is hardcoded in code, agents use a language model as a reasoning engine to determine which actions to take and in which order.
 
 ### Actions
 
