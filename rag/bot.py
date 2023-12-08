@@ -18,6 +18,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 from tabulate import tabulate
 import utils
+import vector_search
 
 os.environ["OPENAI_API_KEY"] = params.OPENAI_API_KEY
 os.environ["OPENAI_API_VERSION"] = params.OPENAI_API_VERSION
@@ -26,7 +27,6 @@ os.environ["OPENAI_API_TYPE"] = params.OPENAI_TYPE
 MONGODB_URI = params.MONGODB_URI
 DATABASE_NAME = params.DATABASE_NAME
 COLLECTION_NAME = params.COLLECTION_NAME
-
 
 class UserProxyAgent:
     def __init__(self, logger, st):
@@ -61,6 +61,11 @@ class UserProxyAgent:
             - Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
             - Observation: I have an action available "answer_question".
             - Action: "answer_question"('What is MongoDB?')
+
+            - User Input: Show chat history
+            - Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
+            - Observation: I have an action available "show_messages".
+            - Action: "show_messages"()
 
             - User Input: Reset chat history
             - Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
@@ -143,7 +148,6 @@ class UserProxyAgent:
         )
         self.st = st
 
-
 class RAGAgent(UserProxyAgent):
     def preprocess_query(self, query):
         # Optional - Implement Pre-Processing for Security.
@@ -179,6 +183,7 @@ class RAGAgent(UserProxyAgent):
         str
             A message indicating success
         """
+        utils.print_log("Action: iRAG")
         with self.st.spinner(f"Changing RAG configuration..."):
             if num_sources > 0:
                 self.rag_config["num_sources"] = int(num_sources)
@@ -218,6 +223,7 @@ class RAGAgent(UserProxyAgent):
         str
             A message indicating successful reading of content from the provided URLs.
         """
+        utils.print_log("Action: read_url")
         with self.st.spinner(f"```Analyzing the content in {urls}```"):
             loader = PlaywrightURLLoader(
                 urls=urls, remove_selectors=["header", "footer"]
@@ -225,6 +231,28 @@ class RAGAgent(UserProxyAgent):
             documents = loader.load_and_split(self.text_splitter)
             self.index.add_documents(documents)
             return f"```Contents in URLs {urls} have been successfully ingested (vector embeddings + content).```"
+
+    @action("show_messages", stop=True)
+    def show_messages(self) -> str:
+        """
+        Invoke this ONLY when the user asks you to see the chat history.
+
+        Returns
+        -------
+        str
+            A message indicating success
+        """
+        utils.print_log("Action: show_messages")
+        messages = self.st.session_state.messages
+        messages = [{"message": message} for message in messages]
+        df = pd.DataFrame(messages)
+        if messages:
+            result = f"Chat history [{len(sources)}]:\n"
+            result += df.to_markdown()
+            return result
+        else:
+            return "No chat history found."
+
 
     @action("reset_messages", stop=True)
     def reset_messages(self) -> str:
@@ -236,19 +264,13 @@ class RAGAgent(UserProxyAgent):
         str
             A message indicating success
         """
+        utils.print_log("Action: reset_messages")
         self.messages = self.init_messages
         self.st.empty()
         self.st.session_state.messages = []
         return f"Message history successfully reset."
 
-    def encode_google_search(self, query):
-        # Remove whitespace and replace with '+'
-        query = query.strip().replace(" ", "+")
-        # Encode the query using urllib.parse
-        encoded_query = urllib.parse.quote(query)
-        # Construct the Google search string
-        search_string = f"https://www.google.com/search?q={encoded_query}&num=15"
-        return search_string
+    
 
     @action("search_web", stop=True)
     def search_web(self, query: str) -> List:
@@ -259,9 +281,10 @@ class RAGAgent(UserProxyAgent):
         Returns:
             str: Text with the Google Search results
         """
+        utils.print_log("Action: search_web")
         with self.st.spinner(f"Searching '{query}'..."):
             # Use the headless browser to search the web
-            self.browser.get(self.encode_google_search(query))
+            self.browser.get(utils.encode_google_search(query))
             html = self.browser.page_source
             soup = BeautifulSoup(html, "html.parser")
             search_results = soup.find_all("div", {"class": "g"})
@@ -294,72 +317,10 @@ class RAGAgent(UserProxyAgent):
         Returns:
             str: Text with confirmation
         """
+        utils.print_log("Action: remove_source")
         with self.st.spinner(f"```Removing sources {', '.join(urls)}...```"):
             self.collection.delete_many({"source": {"$in": urls}})
             return f"```Sources ({', '.join(urls)}) successfully removed.```\n"
-
-    def recall(
-        self, text, n_docs=2, min_rel_score=0.25, chunk_max_length=800, unique=True
-    ):
-        # $vectorSearch
-        print("recall=>" + str(text))
-     
-        try: 
-            response = self.collection.aggregate(
-                [
-                    {
-                        "$vectorSearch": {
-                            "index": "default",
-                            "queryVector": self.gpt4all_embd.embed_query(text),
-                            "path": "embedding",
-                            # "filter": {},
-                            "limit": 15,  # Number (of type int only) of documents to return in the results. Value can't exceed the value of numCandidates.
-                            "numCandidates": 50,  # Number of nearest neighbors to use during the search. You can't specify a number less than the number of documents to return (limit).
-                        }
-                    },
-                    {"$addFields": {"score": {"$meta": "vectorSearchScore"}}},
-                    {"$match": {"score": {"$gte": min_rel_score}}},
-                    {"$project": {"score": 1, "_id": 0, "source": 1, "text": 1}},
-                ]
-            )
-
-        except pymongo.errors.OperationFailure as ex:  
-            err_type = type(ex).__name__  
-            err_args = ex.args  
-            message = f"<b>Error! Please verify Atlas Search index exists.</b><hr/> An exception of type {err_type} occurred with the following arguments:\n{err_args}"  
-            self.st.write(f"<div>{message}</div>", unsafe_allow_html=True)  
-            raise  
-        except Exception as ex:  
-            err_type = type(ex).__name__  
-            err_args = ex.args  
-            message = f"<b>Error! An exception of type {err_type} occurred with the following arguments:\n{err_args}"  
-            self.st.write("<div>{message}</div>", unsafe_allow_html=True)  
-            raise  
-
-
-
-        tmp_docs = []
-        str_response = []
-        for d in response:
-            if len(tmp_docs) == n_docs:
-                break
-            if unique and d["source"] in tmp_docs:
-                continue
-            tmp_docs.append(d["source"])
-            str_response.append(
-                {
-                    "URL": d["source"],
-                    "content": d["text"][:chunk_max_length],
-                    "score": d["score"],
-                }
-            )
-        kb_output = (
-            f"Knowledgebase Results[{len(tmp_docs)}]:\n```{str(str_response)}```\n## \n```SOURCES: "
-            + str(tmp_docs)
-            + "```\n\n"
-        )
-        self.st.write(kb_output)
-        return str(kb_output)
 
     @action(name="get_sources_list", stop=True)
     def get_sources_list(self):
@@ -369,6 +330,7 @@ class RAGAgent(UserProxyAgent):
         ----------
         None
         """
+        utils.print_log("Action: get_sources_list")
         sources = self.collection.distinct("source")
         sources = [{"source": source} for source in sources]
         df = pd.DataFrame(sources)
@@ -389,11 +351,13 @@ class RAGAgent(UserProxyAgent):
         query : str
             The query to be used for answering a question.
         """
-
+        utils.print_log("Action: answer_question")
         with self.st.spinner(f"Attemtping to answer question: {query}"):
             query = self.preprocess_query(query)
             context_str = str(
-                self.recall(
+                #self.recall(
+                vector_search.recall(
+                    self,
                     query,
                     n_docs=self.rag_config["num_sources"],
                     min_rel_score=self.rag_config["min_rel_score"],
@@ -476,10 +440,7 @@ class RAGAgent(UserProxyAgent):
                 actions=[self.search_web],
                 stream=False,
             )
-            print("RESPONSE=>" + str(response))
             return response
-
-
 
     def __call__(self, text):
         text = self.preprocess_query(text)
