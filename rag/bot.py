@@ -36,6 +36,8 @@ class UserProxyAgent:
             "min_rel_score": 0.00,
             "unique": True,
         }
+
+        # Initial brain washing
         self.init_messages = [
             {
                 "role": "system",
@@ -47,7 +49,7 @@ class UserProxyAgent:
             },
             {
                 "role": "system",
-                "content": "If user prompt is not related to modifying RAG strategy, resetting chat history, removing sources, learning sources, or a question - Respectfully decline to respond.",
+                "content": "If user prompt is not related to modifying RAG strategy, showing chat history, resetting chat history, removing sources, learning sources, or a question - Respectfully decline to respond.",
             },
             {
                 "role": "system",
@@ -97,7 +99,7 @@ class UserProxyAgent:
              ## IMPORTANT: 
                 - DO NOT ANSWER DIRECTLY - ALWAYS USE AN ACTION/TOOL TO FORMULATE YOUR ANSWER
                 - ALWAYS USE answer_question if USER PROMPT is a question
-                - ALWAYS USE THE CORRECT TOOL/ACTION WHEN USER PROMPT IS related to modifying RAG strategy, resetting chat history, removing sources, learning sources
+                - ALWAYS USE THE CORRECT TOOL/ACTION WHEN USER PROMPT IS related to modifying RAG strategy, showing chat history, resetting chat history, removing sources, learning sources
                 - Always formulate your answer accounting for the previous messages
              
              REMEMBER! ALWAYS USE answer_question if USER PROMPT is a question
@@ -235,7 +237,10 @@ class RAGAgent(UserProxyAgent):
     @action("show_messages", stop=True)
     def show_messages(self) -> str:
         """
-        Invoke this ONLY when the user asks you to see the chat history.
+        Invoke this ONLY when the user asks you to see the chat history. 
+
+        [EXAMPLE]
+        - User Input: What's my chat history?
 
         Returns
         -------
@@ -247,7 +252,7 @@ class RAGAgent(UserProxyAgent):
         messages = [{"message": message} for message in messages]
         df = pd.DataFrame(messages)
         if messages:
-            result = f"Chat history [{len(sources)}]:\n"
+            result = f"Chat history [{len(messages)}]:\n"
             result += df.to_markdown()
             return result
         else:
@@ -355,7 +360,6 @@ class RAGAgent(UserProxyAgent):
         with self.st.spinner(f"Attemtping to answer question: {query}"):
             query = self.preprocess_query(query)
             context_str = str(
-                #self.recall(
                 vector_search.recall(
                     self,
                     query,
@@ -454,6 +458,7 @@ class RAGAgent(UserProxyAgent):
                     self.read_url,
                     self.answer_question,
                     self.remove_source,
+                    self.show_messages,
                     self.reset_messages,
                     self.iRAG,
                     self.get_sources_list,
@@ -468,6 +473,7 @@ class RAGAgent(UserProxyAgent):
                     self.read_url,
                     self.answer_question,
                     self.remove_source,
+                    self.show_messages,
                     self.reset_messages,
                     self.iRAG,
                     self.get_sources_list,
