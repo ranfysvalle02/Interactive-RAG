@@ -373,7 +373,7 @@ The core idea of agents is to use a language model to choose a sequence of actio
 
 An agent is basically just a computer program or system designed to perceive its environment, make decisions, and achieve specific goals.
 
-In ActionWeaver, the actions available to an LLM are called *ACTIONS*
+In ActionWeaver, the tools available to an LLM are called *ACTIONS*
 
 ### Actions
 
