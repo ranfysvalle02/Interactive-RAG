@@ -308,31 +308,30 @@ Since the bot is unable to provide an answer, it initiated a Google search to fi
 ## Remove a source of information
 ![](./images/remove_sources.png)
 
+## Why Choose ActionWeaver? 
+Here are some key benefits that influenced our decision to choose ActionWeaver:
+1. Lightweight and Single-Purposed: ActionWeaver is very lightweight and designed with a singular focus on building LLM applications with function calling. This specialization ensures that it excels in its core function without unnecessary complexity.
+2. Ease of Use:  ActionWeaver streamlines the process of integrating external tools into agent's toolkit. Using a simple decorator, developers can effortlessly add any Python function, and it also provides the flexibility to include tools from other ecosystems like LangChain or Llama Index.
+3. Versatility: Despite its simplicity, ActionWeaver offers a wide range of capabilities, including support for forced function execution, parallel function calling and structured data extraction. Such versatility makes it a Swiss Army knife, equipped to handle a variety of AI-related tasks and adapt seamlessly to changing project demands.
+4. Minimal Dependency: ActionWeaver has minimal dependencies, relying only on the openai and pydantic libraries. This reduces the overhead of managing dependencies.
+5. Complex Function Orchestration: The framework empowers us to create intricate sequences of function calls, allowing us to build complex hierarchies or chains of functions. This capability enables us to execute sophisticated workflows with ease. 
+
 ## ActionWeaver Basics: What is an Agent anyway?
-### Agents (according to LangChain)
 
-The core idea of agents is to use a language model to choose a sequence of actions to take. In chains, a sequence of actions is hardcoded (in code). In agents, a language model is used as a reasoning engine to determine which actions to take and in which order. We will call this the 'Agent Chain'.
+The core idea of agents is to use a language model to choose a sequence of actions to take. In chains, a sequence of actions is hardcoded (in code). In agents, a language model is used as a reasoning engine to determine which actions to take and in which order.
 
-### Agent Chain
+An agent is basically just a computer program or system designed to perceive its environment, make decisions, and achieve specific goals.
 
-This is the chain responsible for deciding what step to take next. This is powered by a language model and a prompt. The inputs to this chain are:
+In ActionWeaver, the actions available to an LLM are called *ACTIONS*
 
-    Tools: Descriptions of available tools
-    User input: The high level objective
-    Intermediate steps: Any (action, tool output) pairs previously executed in order to achieve the user input
+### Actions
 
-The output is the next action(s) to take or the final response to send to the user. An action specifies a tool and the input to that tool.
+Actions are functions that an agent can invoke. There are two important design considerations around actions:
 
-Different agents have different prompting styles for reasoning, different ways of encoding inputs, and different ways of parsing the output. 
+    Giving the agent access to the right actions
+    Describing the actions in a way that is most helpful to the agent
 
-### Tools
-
-Tools are functions that an agent can invoke. There are two important design considerations around tools:
-
-    Giving the agent access to the right tools
-    Describing the tools in a way that is most helpful to the agent
-
-Without thinking through both, you won’t be able to build a working agent. If you don’t give the agent access to a correct set of tools, it will never be able to accomplish the objectives you give it. If you don’t describe the tools well, the agent won’t know how to use them properly.
+Without thinking through both, you won’t be able to build a working agent. If you don’t give the agent access to a correct set of actions, it will never be able to accomplish the objectives you give it. If you don’t describe the actions well, the agent won’t know how to use them properly.
 
 ![](./images/llm_agent.png)
 
