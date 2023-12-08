@@ -27,7 +27,6 @@ MONGODB_URI = params.MONGODB_URI
 DATABASE_NAME = params.DATABASE_NAME
 COLLECTION_NAME = params.COLLECTION_NAME
 
-
 class UserProxyAgent:
     def __init__(self, logger, st):
         self.rag_config = {
@@ -61,6 +60,11 @@ class UserProxyAgent:
             - Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
             - Observation: I have an action available "answer_question".
             - Action: "answer_question"('What is MongoDB?')
+
+            - User Input: Show chat history
+            - Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
+            - Observation: I have an action available "show_messages".
+            - Action: "show_messages"()
 
             - User Input: Reset chat history
             - Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
@@ -143,7 +147,6 @@ class UserProxyAgent:
         )
         self.st = st
 
-
 class RAGAgent(UserProxyAgent):
     def preprocess_query(self, query):
         # Optional - Implement Pre-Processing for Security.
@@ -179,6 +182,7 @@ class RAGAgent(UserProxyAgent):
         str
             A message indicating success
         """
+        utils.print_log("Action: iRAG")
         with self.st.spinner(f"Changing RAG configuration..."):
             if num_sources > 0:
                 self.rag_config["num_sources"] = int(num_sources)
@@ -218,6 +222,7 @@ class RAGAgent(UserProxyAgent):
         str
             A message indicating successful reading of content from the provided URLs.
         """
+        utils.print_log("Action: read_url")
         with self.st.spinner(f"```Analyzing the content in {urls}```"):
             loader = PlaywrightURLLoader(
                 urls=urls, remove_selectors=["header", "footer"]
@@ -225,6 +230,28 @@ class RAGAgent(UserProxyAgent):
             documents = loader.load_and_split(self.text_splitter)
             self.index.add_documents(documents)
             return f"```Contents in URLs {urls} have been successfully ingested (vector embeddings + content).```"
+
+    @action("show_messages", stop=True)
+    def show_messages(self) -> str:
+        """
+        Invoke this ONLY when the user asks you to see the chat history.
+
+        Returns
+        -------
+        str
+            A message indicating success
+        """
+        utils.print_log("Action: show_messages")
+        messages = self.st.session_state.messages
+        messages = [{"message": message} for message in messages]
+        df = pd.DataFrame(messages)
+        if messages:
+            result = f"Chat history [{len(sources)}]:\n"
+            result += df.to_markdown()
+            return result
+        else:
+            return "No chat history found."
+
 
     @action("reset_messages", stop=True)
     def reset_messages(self) -> str:
@@ -236,19 +263,13 @@ class RAGAgent(UserProxyAgent):
         str
             A message indicating success
         """
+        utils.print_log("Action: reset_messages")
         self.messages = self.init_messages
         self.st.empty()
         self.st.session_state.messages = []
         return f"Message history successfully reset."
 
-    def encode_google_search(self, query):
-        # Remove whitespace and replace with '+'
-        query = query.strip().replace(" ", "+")
-        # Encode the query using urllib.parse
-        encoded_query = urllib.parse.quote(query)
-        # Construct the Google search string
-        search_string = f"https://www.google.com/search?q={encoded_query}&num=15"
-        return search_string
+    
 
     @action("search_web", stop=True)
     def search_web(self, query: str) -> List:
@@ -259,9 +280,10 @@ class RAGAgent(UserProxyAgent):
         Returns:
             str: Text with the Google Search results
         """
+        utils.print_log("Action: iRAG")
         with self.st.spinner(f"Searching '{query}'..."):
             # Use the headless browser to search the web
-            self.browser.get(self.encode_google_search(query))
+            self.browser.get(utils.encode_google_search(query))
             html = self.browser.page_source
             soup = BeautifulSoup(html, "html.parser")
             search_results = soup.find_all("div", {"class": "g"})
@@ -294,6 +316,7 @@ class RAGAgent(UserProxyAgent):
         Returns:
             str: Text with confirmation
         """
+        utils.print_log("Action: remove_source")
         with self.st.spinner(f"```Removing sources {', '.join(urls)}...```"):
             self.collection.delete_many({"source": {"$in": urls}})
             return f"```Sources ({', '.join(urls)}) successfully removed.```\n"
@@ -369,6 +392,7 @@ class RAGAgent(UserProxyAgent):
         ----------
         None
         """
+        utils.print_log("get_sources_list")
         sources = self.collection.distinct("source")
         sources = [{"source": source} for source in sources]
         df = pd.DataFrame(sources)
@@ -389,7 +413,7 @@ class RAGAgent(UserProxyAgent):
         query : str
             The query to be used for answering a question.
         """
-
+        utils.print_log("Action: answer_question")
         with self.st.spinner(f"Attemtping to answer question: {query}"):
             query = self.preprocess_query(query)
             context_str = str(
@@ -477,8 +501,6 @@ class RAGAgent(UserProxyAgent):
                 stream=False,
             )
             return response
-
-
 
     def __call__(self, text):
         text = self.preprocess_query(text)

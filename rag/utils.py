@@ -21,6 +21,15 @@ def clean_text(text):
     clean = re.sub(r'[^\w\s\.\,\-_]', '', text)  
     return clean 
 
+def encode_google_search(query):
+        # Remove whitespace and replace with '+'
+        query = query.strip().replace(" ", "+")
+        # Encode the query using urllib.parse
+        encoded_query = urllib.parse.quote(query)
+        # Construct the Google search string
+        search_string = f"https://www.google.com/search?q={encoded_query}&num=15"
+        return search_string    
+
 def format_and_print_user_input(user_input):
     # Get the current timestamp
     current_time = datetime.now()
@@ -44,3 +53,15 @@ def format_and_print_genai_response(response):
     formatted_message = f"\n{timestamp_str} GenAI \n           {response}\n"
 
     print(formatted_message)
+
+def print_log(log):
+    # Get the current timestamp
+    current_time = datetime.now()
+
+    # Format the timestamp as a string
+    timestamp_str = current_time.strftime("[%I:%M %p]")
+
+    # Combine timestamp and user input
+    formatted_message = f"\n{timestamp_str} Application Log \n           {log}\n"
+
+    print(formatted_message)    
