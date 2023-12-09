@@ -374,3 +374,8 @@ stop=True when added to an action means that the LLM will immediately return the
 For a more in-depth understanding of how this bot works under the hood, please refer to the bot.py file. 
 Additionally, you can explore the [ActionWeaver](https://github.com/TengHu/ActionWeaver/tree/main) repository for further details.
 
+## Conclusion
+
+This blog post has provided a comprehensive overview of Interactive Retrieval Augmented Generation (RAG) with MongoDB Atlas. We have discussed the importance of chunking, embedding, and the retrieval vector relevance score in optimizing RAG performance. We have also explored the concept of ActionWeaver, a lightweight framework for building LLM applications with function calling.
+
+Overall, this blog post has demonstrated the potential of integrating RAG with MongoDB Atlas and ActionWeaver to build powerful and versatile AI applications. By leveraging the strengths of these technologies, we can unlock new possibilities for information retrieval and knowledge management.
