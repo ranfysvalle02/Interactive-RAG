@@ -118,7 +118,7 @@ class UserProxyAgent:
         # Initialize logger
         self.logger = logger
 
-        # Chunking Strategy
+        # Chunk Ingest Strategy
         self.text_splitter = RecursiveCharacterTextSplitter(
             # Set a really small chunk size, just to show.
             chunk_size=4000,
