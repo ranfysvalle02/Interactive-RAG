@@ -4,7 +4,9 @@
 - Understand the basics of LLMs
 - Understand the basic concept of RAG
 - Understand the basics of using a vector database
- 
+
+## ![Alt text](https://cdn.stackoverflow.co/images/jo7n4k8s/production/ef172115fca9aa6b3b99eeb1c749acf9f8c183a0-6000x3150.png?w=1200&h=630&auto=format&dpr=2)
+
 Imagine you're a detective trying to solve a complex case. You wouldn't try to analyze every piece of evidence at once, right? You'd break it down into smaller, more manageable pieces - documents, witness statements, physical objects - and examine each one carefully. In the world of large language models (LLMs), this process of breaking down information is called **chunking**, and it plays a crucial role in unlocking the full potential of Retrieval Augmented Generation (RAG).
 
 Just like a detective, an LLM can't process a mountain of information all at once. Chunking helps it break down text into smaller, more digestible pieces called **chunks**. Think of these chunks as bite-sized pieces of knowledge that the LLM can easily analyze and understand. This allows the LLM to focus on specific sections of the text, extract relevant information, and generate more accurate and insightful responses.
