@@ -358,12 +358,6 @@ Read more at: https://thinhdanggroup.github.io/function-calling-openai/
 
 ## Embracing the Future of Information Access with Interactive RAG
 
-So far, we've explored the intricacies of chunking and its impact on the effectiveness of RAG. Now, let's shift our focus to the revolutionary possibilities unlocked by **Interactive RAG**, a game-changer in the landscape of information access and knowledge management.
-
-Interactive RAG empowers users to move beyond static RAG strategies and dynamically adjust their strategy in real-time. This is achieved through the integration of cutting-edge tools like ActionWeaver, which seamlessly integrates external tools and services with LLMs through function calls.
-
-## Conclusion
-
 This blog post has explored the exciting potential of **Interactive Retrieval Augmented Generation (RAG)** with the powerful combination of MongoDB Atlas and ActionWeaver. We've delved into the crucial role of **chunking, embedding, and retrieval vector relevance score** in optimizing RAG performance, unlocking its true potential for information retrieval and knowledge management.
 
 Furthermore, we introduced **ActionWeaver**, a lightweight framework that simplifies the integration of external tools with language models through **function calling**. This remarkable synergy empowers us to build robust and versatile AI applications, expanding the boundaries of what's possible.
