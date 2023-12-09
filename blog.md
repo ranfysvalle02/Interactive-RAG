@@ -200,6 +200,65 @@ class UserProxyAgent:
         }
 ```
 
+```
+class RAGAgent(UserProxyAgent):
+    def __call__(self, text):
+            text = self.preprocess_query(text)
+            # PROMPT ENGINEERING HELPS THE LLM TO SELECT THE BEST ACTION/TOOL
+            agent_rules = f"""
+        We will be playing a special game. Trust me, you do not want to lose.
+
+        ## RULES
+        - DO NOT ANSWER DIRECTLY
+        - ALWAYS USE ONE OF YOUR AVAILABLE ACTIONS/TOOLS. 
+        - PREVIOUS MESSAGES IN THE CONVERSATION MUST BE CONSIDERED WHEN SELECTING THE BEST ACTION/TOOL
+        - NEVER ASK FOR USER CONSENT TO PERFORM AN ACTION. ALWAYS PERFORM IT THE USERS BEHALF.
+        Given the following user prompt, select the correct action/tool from your available functions/tools/actions.
+
+        ## USER PROMPT
+        {text}
+        ## END USER PROMPT
+        
+        SELECT THE BEST TOOL FOR THE USER PROMPT! BEGIN!
+    """
+            self.messages += [{"role": "user", "content": agent_rules + "\n\n## IMPORTANT! REMEMBER THE GAME RULES! DO NOT ANSWER DIRECTLY! IF YOU ANSWER DIRECTLY YOU WILL LOSE. BEGIN!"}]
+            if (
+                len(self.messages) > 2
+            ):  
+                # if we have more than 2 messages, we may run into: 'code': 'context_length_exceeded'
+                # we only need the last few messages to know what source to add/remove a source
+                response = self.llm.create(
+                    messages=self.messages[-2:],
+                    actions=[
+                        self.read_url,
+                        self.answer_question,
+                        self.remove_source,
+                        self.reset_messages,
+                        self.show_messages,
+                        self.iRAG,
+                        self.get_sources_list,
+                        self.search_web
+                    ],
+                    stream=False,
+                )
+            else:
+                response = self.llm.create(
+                    messages=self.messages,
+                    actions=[
+                        self.read_url,
+                        self.answer_question,
+                        self.remove_source,
+                        self.reset_messages,
+                        self.show_messages,
+                        self.iRAG,
+                        self.get_sources_list,
+                        self.search_web
+                    ],
+                    stream=False,
+                )
+            return response
+```
+
 ## Key features of OpenAI function calling:
 - Function calling allows you to connect large language models to external tools.
 - The Chat Completions API generates JSON that can be used to call functions in your code.
