@@ -11,9 +11,7 @@ In this example, we will specifically focus on its application in dynamic Retrie
 
 # VIDEO
 
-[DEMO 1](https://apollo-fv-mneqk.mongodbstitch.com/INTERACTIVE-RAG.mp4)
-
-[DEMO 2](https://apollo-fv-mneqk.mongodbstitch.com/IRAG.mp4)
+[DEMO 1](https://apollo-fv-mneqk.mongodbstitch.com/IRAG.mp4)
 
 # FLOW
 1. Ask Question
