@@ -4,7 +4,7 @@ Agents are revolutionizing the way we leverage language models for decision-maki
 
 In the future, agents will play a vital role in processing text, automating tasks, and improving human-computer interactions as language models advance.
 
-In this example, we will specifically focus on its application in dynamic Retrieval Augmented Generation (RAG). Using ActionWeaver and MongoDB Atlas, you will have the ability to modify your RAG strategy in real-time through conversational interactions. Whether it's selecting more chunks, increasing chunk size, or tweaking other parameters, you can fine-tune your RAG approach to achieve the desired response quality and accuracy. You can even add/remove sources to your vector database using natural language! 
+In this example, we will specifically focus on leveraging agents in dynamic Retrieval Augmented Generation (RAG). Using ActionWeaver and MongoDB Atlas, you will have the ability to modify your RAG strategy in real-time through conversational interactions. Whether it's selecting more chunks, increasing chunk size, or tweaking other parameters, you can fine-tune your RAG approach to achieve the desired response quality and accuracy. You can even add/remove sources to your vector database using natural language! 
 
 
 ## ![Alt text](./images/actionweaver_mdb.png)
@@ -17,7 +17,7 @@ In this example, we will specifically focus on its application in dynamic Retrie
 1. Ask Question
 2. Check VectorStore -> If VectorStore results are not enough to answer, conversationally perform a web search
 3. Add/Remove sources to VectorStore
-4. Fine-tune RAG strategy for desired response quality
+4. Fine-tune RAG strategy for desired response quality 
 
 
 ## Getting Started
