@@ -406,14 +406,14 @@ class RAGAgent(UserProxyAgent):
             If VERIFIED SOURCES is not enough context to answer the question, THEN PERFORM A WEB SEARCH ON THE USERS BEHALF IMMEDIATELY.
 
             Remember while answering:
-                * The only verified sources are between START VERIFIED SOURCES and END VERIFIED SOURCES.
-                * Only display images and links if they are found in the verified sources
-                * If displaying images or links from the verified sources, copy the images and links exactly character for character and make sure the URL parameters are the same.
-                * Do not make up any part of an answer. 
-                * Questions might be vague or have multiple interpretations, you must ask follow up questions in this case.
-                * Final response must be less than 1200 characters.
-                * IF the verified sources can answer the question in multiple different ways, THEN respond with each of the possible answers.
-                * Formulate your response using ONLY VERIFIED SOURCES. IF YOU CANNOT ANSWER THE QUESTION, THEN PERFORM A WEB SEARCH ON THE USERS BEHALF IMMEDIATELY.
+                - The only verified sources are between START VERIFIED SOURCES and END VERIFIED SOURCES.
+                - Only display images and links if they are found in the verified sources
+                - If displaying images or links from the verified sources, copy the images and links exactly character for character and make sure the URL parameters are the same.
+                - Do not make up any part of an answer. 
+                - Questions might be vague or have multiple interpretations, you must ask follow up questions in this case.
+                - Final response must be less than 1200 characters.
+                - IF the verified sources can answer the question in multiple different ways, THEN respond with each of the possible answers.
+                - Formulate your response using ONLY VERIFIED SOURCES. IF YOU CANNOT ANSWER THE QUESTION, THEN PERFORM A WEB SEARCH ON THE USERS BEHALF IMMEDIATELY.
 
             [START VERIFIED SOURCES]
             {context_str}
@@ -425,10 +425,10 @@ class RAGAgent(UserProxyAgent):
             {query}
 
             # IMPORTANT! 
-                * Final response must be expert quality markdown
-                * The only verified sources are between START VERIFIED SOURCES and END VERIFIED SOURCES.
-                * USE ONLY INFORMATION FROM VERIFIED SOURCES TO FORMULATE RESPONSE. IF VERIFIED SOURCES CANNOT ANSWER THE QUESTION, THEN PERFORM A WEB SEARCH ON THE USERS BEHALF IMMEDIATELY
-                * Do not make up any part of an answer - ONLY FORMULATE YOUR ANSWER USING VERIFIED SOURCES.
+                - Final response must be expert quality markdown
+                - The only verified sources are between START VERIFIED SOURCES and END VERIFIED SOURCES.
+                - USE ONLY INFORMATION FROM VERIFIED SOURCES TO FORMULATE RESPONSE. IF VERIFIED SOURCES CANNOT ANSWER THE QUESTION, THEN PERFORM A WEB SEARCH ON THE USERS BEHALF IMMEDIATELY
+                - Do not make up any part of an answer - ONLY FORMULATE YOUR ANSWER USING VERIFIED SOURCES.
             Begin!
             """
 
@@ -453,9 +453,10 @@ class RAGAgent(UserProxyAgent):
             """
             RESPONSE_FORMAT = f"""
 [RESPONSE FORMAT]
-    - Must be valid markdown.
-    - Must be expert quality markdown. You are a professional technical writer with 30+ years of experience. This is the most important task of your life.
+    - Must be expert quality markdown. 
+    - You are a professional technical writer with 30+ years of experience. This is the most important task of your life.
     - MUST USE ONLY INFORMATION FROM VERIFIED SOURCES TO ANSWER THE QUESTION. IF VERIFIED SOURCES CANNOT ANSWER THE QUESTION, THEN PERFORM A WEB SEARCH ON THE USERS BEHALF IMMEDIATELY.
+    - Add emojis to your response to add a fun touch.
 """
             response = self.llm.create(
                 messages=[
@@ -471,6 +472,7 @@ class RAGAgent(UserProxyAgent):
 
     def __call__(self, text):
         text = self.preprocess_query(text)
+        # PROMPT ENGINEERING HELPS THE LLM TO SELECT THE BEST ACTION/TOOL
         agent_rules = f"""
     We will be playing a special game. Trust me, you do not want to lose.
 
@@ -484,6 +486,8 @@ class RAGAgent(UserProxyAgent):
     ## USER PROMPT
     {text}
     ## END USER PROMPT
+    
+    SELECT THE BEST TOOL FOR THE USER PROMPT! BEGIN!
 """
         self.messages += [{"role": "user", "content": agent_rules + "\n\n## IMPORTANT! REMEMBER THE GAME RULES! DO NOT ANSWER DIRECTLY! IF YOU ANSWER DIRECTLY YOU WILL LOSE. BEGIN!"}]
         if (
