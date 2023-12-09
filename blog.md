@@ -72,7 +72,7 @@ Ultimately, effective chunking is about finding the right balance between detail
 
 While an optimized chunk size is crucial, Interactive RAG goes a step further. It empowers users to dynamically adjust their RAG strategy in real-time, using ActionWeaver. This unlocks a new era of personalized information access and knowledge management.
 
-**Interactive RAG leverages:**
+**This Interactive RAG tutorial leverages:**
 
 * **Dynamic Strategy Adjustment:** Unlike traditional RAG approaches, users can fine-tune chunk size, number of sources, and other parameters on-the-fly, tailoring the LLM's response to their specific needs.
 * **ActionWeaver Integration:** ActionWeaver seamlessly integrates external tools and services with LLMs through function calling. This allows users to seamlessly incorporate their own data sources and tools into their RAG workflow.
