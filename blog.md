@@ -81,7 +81,7 @@ In developing an effective RAG strategy, the ingest process of web sources, chun
 
 Before we dive into 'Retrieval', let's first talk about "Ingest Process"
 
-## THE "Ingest Process"
+## The "Ingest Process"
 
 Why have a separate process to "ingest" your content into your vector database? Using the magic of agents, we can easily add new content to the vector database.
 
