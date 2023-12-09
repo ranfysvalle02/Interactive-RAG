@@ -178,7 +178,7 @@ def recall(self, text, n_docs=2, min_rel_score=0.25, chunk_max_length=800,unique
 
 In this tutorial/example, we will mainly be focusing on the **CHUNK RETRIEVAL** strategy. 
 
-# Building nn Interactive-RAG Agent
+# Building an Interactive-RAG Agent
 
 Using [ActionWeaver](https://github.com/TengHu/ActionWeaver/tree/main), a lightweight wrapper for function calling API, we can build a user proxy agent that efficiently retrieves and ingests relevant information using MongoDB Atlas. 
 
