@@ -9,7 +9,7 @@ from langchain.document_loaders import PlaywrightURLLoader
 from langchain.document_loaders import BraveSearchLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import params
-import urllib.parse
+import json
 import os
 import pymongo
 from selenium import webdriver
@@ -30,28 +30,15 @@ COLLECTION_NAME = params.COLLECTION_NAME
 
 class UserProxyAgent:
     def __init__(self, logger, st):
+        # LLM Config
         self.rag_config = {
             "num_sources": 2,
             "source_chunk_size": 1000,
             "min_rel_score": 0.00,
             "unique": True,
         }
-        self.init_messages = [
-            {
-                "role": "system",
-                "content": "You are a resourceful AI assistant. You specialize in helping users build RAG pipelines interactively.",
-            },
-            {
-                "role": "system",
-                "content": "Think critically and step by step. Do not answer directly. Always take the most reasonable available action.",
-            },
-            {
-                "role": "system",
-                "content": "If user prompt is not related to modifying RAG strategy, resetting chat history, removing sources, learning sources, or a question - Respectfully decline to respond.",
-            },
-            {
-                "role": "system",
-                "content": """\n\n[EXAMPLES]
+        self.action_examples_str = """
+[EXAMPLES]
             - User Input: "What is kubernetes?"
             - Thought: I have an action available called "answer_question". I will use this action to answer the user's question about Kubernetes.
             - Observation: I have an action available called "answer_question". I will use this action to answer the user's question about Kubernetes.
@@ -77,40 +64,61 @@ class UserProxyAgent:
             - Observation: I have an action available "remove_source".
             - Action: "remove_source"(['https://www.google.com','https://www.example.com'])
 
-            - User Input: add https://www.google.com, https://www.example.com
+            - User Input: add https://www.google.com, https://www.exa2mple.com
             - Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
             - Observation: I have an action available "read_url".
-            - Action: "read_url"(['https://www.google.com','https://www.example.com'])
+            - Action: "read_url"(['https://www.google.com','https://www.exa2mple.com'])
             
-            - User Input: learn https://www.google.com, https://www.example.com
+            - User Input: learn https://www.google.com, https://www.exa2mple.com
             - Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
             - Observation: I have an action available "read_url".
-            - Action: "read_url"(['https://www.google.com','https://www.example.com'])
-             
+            - Action: "read_url"(['https://www.google.com','https://www.exa2mple.com'])
+           
             - User Input: change chunk size to be 500 and num_sources to be 5
             - Thought: I have to think step by step. I should not answer directly, let me check my available actions before responding.
             - Observation: I have an action available "iRAG".
             - Action: "iRAG"(num_sources=5, chunk_size=500)
              
-        [END EXAMPLES]\n\n
-             
-             ## IMPORTANT: 
+[END EXAMPLES]
+"""
+        self.init_messages = [
+            {
+                "role": "system",
+                "content": "You are a resourceful AI assistant. You specialize in helping users build RAG pipelines interactively.",
+            },
+            {
+                "role": "system",
+                "content": "Think critically and step by step. Do not answer directly. ALWAYS use one of your available actions/tools.",
+            },
+            {
+                "role": "system",
+                "content": f"""\n\n## Here are some examples of the expected User Input, Thought, Observation and Action/Tool:\n
+            {self.action_examples_str}    
+            \n\n 
+
+            We will be playing a special game. Trust me, you do not want to lose. 
+
+             ## RULES: 
                 - DO NOT ANSWER DIRECTLY - ALWAYS USE AN ACTION/TOOL TO FORMULATE YOUR ANSWER
-                - ALWAYS USE answer_question if USER PROMPT is a question
-                - ALWAYS USE THE CORRECT TOOL/ACTION WHEN USER PROMPT IS related to modifying RAG strategy, resetting chat history, removing sources, learning sources
-                - Always formulate your answer accounting for the previous messages
+                - ALWAYS USE answer_question if USER PROMPT is a question. [exception=if USER PROMPT is related to one of the available actions/tools]
+                - NEVER ANSWER A QUESTION WITHOUT USING THE answer_question action/tool. THIS IS VERY IMPORTANT!
+             REMEMBER! ALWAYS USE answer_question if USER PROMPT is a question [exception=if USER PROMPT is related to one of the available actions/tools]
              
-             REMEMBER! ALWAYS USE answer_question if USER PROMPT is a question
+             LOSING AT THIS GAME IS NOT AN OPTION FOR YOU. YOU MUST PICK THE CORRECT TOOL/ANSWER ALWAYS. YOU MUST NEVER ANSWER DIRECTLY OR YOU LOSE!
              """,
             },
         ]
+        # Browser config
         browser_options = Options()
         browser_options.headless = True
         browser_options.add_argument("--headless")
         browser_options.add_argument("--disable-gpu")
         self.browser = webdriver.Chrome(options=browser_options)
 
+        # Initialize logger
         self.logger = logger
+
+        # Chunking Strategy
         self.text_splitter = RecursiveCharacterTextSplitter(
             # Set a really small chunk size, just to show.
             chunk_size=4000,
@@ -118,11 +126,22 @@ class UserProxyAgent:
             length_function=len,
             add_start_index=True,
         )
+        self.gpt4all_embd = GPT4AllEmbeddings()
+        self.client = pymongo.MongoClient(MONGODB_URI)
+        self.db = self.client[DATABASE_NAME]
+        self.collection = self.db[COLLECTION_NAME]
+        self.vectorstore = MongoDBAtlasVectorSearch(self.collection, self.gpt4all_embd)
+        self.index = self.vectorstore.from_documents(
+            [], self.gpt4all_embd, collection=self.collection
+        )
+
+        # OpenAI init
         self.token_tracker = TokenUsageTracker(budget=None, logger=logger)
         if params.OPENAI_TYPE != "azure":
             self.llm = OpenAIChatCompletion(
                 model="gpt-3.5-turbo",
-                token_usage_tracker=TokenUsageTracker(budget=2000, logger=logger),
+                # model="gpt-4",
+                token_usage_tracker=self.token_tracker,
                 logger=logger,
             )
         else:
@@ -133,19 +152,12 @@ class UserProxyAgent:
                 azure_endpoint=params.OPENAI_AZURE_ENDPOINT,
                 api_key=params.OPENAI_API_KEY,
                 api_version=params.OPENAI_API_VERSION,
-                token_usage_tracker=TokenUsageTracker(budget=2000, logger=logger),
+                token_usage_tracker=self.token_tracker,
                 logger=logger,
             )
         self.messages = self.init_messages
-        self.times = []
-        self.gpt4all_embd = GPT4AllEmbeddings()
-        self.client = pymongo.MongoClient(MONGODB_URI)
-        self.db = self.client[DATABASE_NAME]
-        self.collection = self.db[COLLECTION_NAME]
-        self.vectorstore = MongoDBAtlasVectorSearch(self.collection, self.gpt4all_embd)
-        self.index = self.vectorstore.from_documents(
-            [], self.gpt4all_embd, collection=self.collection
-        )
+        
+        # streamlit init
         self.st = st
 
 class RAGAgent(UserProxyAgent):
@@ -213,6 +225,12 @@ class RAGAgent(UserProxyAgent):
         URLs may be provided as a single string or as a list of strings.
         IMPORTANT! Use conversation history to make sure you are reading/learning/adding the right URLs.
 
+        [EXAMPLE]
+        - User Input: learn "https://www.google.com"
+        - User Input: learn 5
+
+        NOTE: When a user says learn/read <number>, the bot will learn/read URL in the search results list position <number> from the conversation history.
+
         Parameters
         ----------
         urls : List[str]
@@ -236,19 +254,22 @@ class RAGAgent(UserProxyAgent):
     def show_messages(self) -> str:
         """
         Invoke this ONLY when the user asks you to see the chat history.
-
+        [EXAMPLE]
+        - User Input: what have we been talking about?
+        
         Returns
         -------
         str
-            A message indicating success
+            A string containing the chat history in markdown format.
         """
         utils.print_log("Action: show_messages")
         messages = self.st.session_state.messages
-        messages = [{"message": message} for message in messages]
+        messages = [{"message": json.dumps(message)} for message in messages if message["role"] != "system"]
+        
         df = pd.DataFrame(messages)
         if messages:
-            result = f"Chat history [{len(sources)}]:\n"
-            result += df.to_markdown()
+            result = f"Chat history [{len(messages)}]:\n"
+            result += "<div style='text-align:left'>"+df.to_html()+"</div>"
             return result
         else:
             return "No chat history found."
@@ -258,7 +279,9 @@ class RAGAgent(UserProxyAgent):
     def reset_messages(self) -> str:
         """
         Invoke this ONLY when the user asks you to reset chat history.
-
+        [EXAMPLE]
+        - User Input: forget about everything we have talked about
+        
         Returns
         -------
         str
@@ -275,7 +298,10 @@ class RAGAgent(UserProxyAgent):
     @action("search_web", stop=True)
     def search_web(self, query: str) -> List:
         """
-        Invoke this if you need to search the web
+        Invoke this if you need to search the web.
+        [EXAMPLE]
+        - User Input: search the web for "harry potter"
+        
         Args:
             query (str): The user's query
         Returns:
@@ -306,12 +332,16 @@ class RAGAgent(UserProxyAgent):
                         )
 
             df = pd.DataFrame(results)
-            return f"Couldn't find enough information in my knowledge base. I need the right context from verified sources. \nTo improve the response: change the RAG strategy or add/remove sources. \nHere is what I found in the web for '{query}':\n{df.to_markdown()}\n\n"
+            df = df.iloc[1:, :] # remove i column
+            return f"Here is what I found in the web for '{query}':\n{df.to_markdown()}\n\n"
 
     @action("remove_source", stop=True)
     def remove_source(self, urls: List[str]) -> str:
         """
         Invoke this if you need to remove one or more sources
+        [EXAMPLE]
+        - User Input: remove source "https://www.google.com"
+        
         Args:
             urls (List[str]): The list of URLs to be removed
         Returns:
@@ -326,6 +356,9 @@ class RAGAgent(UserProxyAgent):
     def get_sources_list(self):
         """
         Invoke this to respond to list all the available sources in your knowledge base.
+        [EXAMPLE]
+        - User Input: show me the sources available in your knowledgebase
+        
         Parameters
         ----------
         None
@@ -365,12 +398,12 @@ class RAGAgent(UserProxyAgent):
                     unique=self.rag_config["unique"],
                 )
             ).strip()
-            PRECISE_PROMPT = """
+            PRECISE_PROMPT = f"""
+            LET'S PLAY A GAME. 
             THINK CAREFULLY AND STEP BY STEP.
-            WE WILL BE PLAYING A SPECIAL GAME. 
-
+            
             Given the following verified sources and a question, using only the verified sources content create a final concise answer in markdown. 
-            If VERIFIED SOURCES is not enough context to answer the question, THEN EXPLAIN YOURSELF AND KINDLY PERFORM A WEB SEARCH THE USERS BEHALF.
+            If VERIFIED SOURCES is not enough context to answer the question, THEN PERFORM A WEB SEARCH ON THE USERS BEHALF IMMEDIATELY.
 
             Remember while answering:
                 * The only verified sources are between START VERIFIED SOURCES and END VERIFIED SOURCES.
@@ -379,41 +412,34 @@ class RAGAgent(UserProxyAgent):
                 * Do not make up any part of an answer. 
                 * Questions might be vague or have multiple interpretations, you must ask follow up questions in this case.
                 * Final response must be less than 1200 characters.
-                * Final response must include total character count.
                 * IF the verified sources can answer the question in multiple different ways, THEN respond with each of the possible answers.
-                * Formulate your response using ONLY VERIFIED SOURCES. IF YOU CANNOT ANSWER THE QUESTION, THEN EXPLAIN YOURSELF AND KINDLY PERFORM A WEB SEARCH THE USERS BEHALF.
+                * Formulate your response using ONLY VERIFIED SOURCES. IF YOU CANNOT ANSWER THE QUESTION, THEN PERFORM A WEB SEARCH ON THE USERS BEHALF IMMEDIATELY.
 
             [START VERIFIED SOURCES]
-            __context_str__
+            {context_str}
             [END VERIFIED SOURCES]
 
 
 
             [ACTUAL QUESTION. ANSWER ONLY BASED ON VERIFIED SOURCES]:
-            __text__
+            {query}
 
             # IMPORTANT! 
                 * Final response must be expert quality markdown
                 * The only verified sources are between START VERIFIED SOURCES and END VERIFIED SOURCES.
-                * USE ONLY INFORMATION FROM VERIFIED SOURCES TO FORMULATE RESPONSE. IF VERIFIED SOURCES CANNOT ANSWER THE QUESTION, THEN EXPLAIN YOURSELF AND KINDLY PERFORM A WEB SEARCH THE USERS BEHALF.
-                * Do not make up any part of an answer. 
-            
+                * USE ONLY INFORMATION FROM VERIFIED SOURCES TO FORMULATE RESPONSE. IF VERIFIED SOURCES CANNOT ANSWER THE QUESTION, THEN PERFORM A WEB SEARCH ON THE USERS BEHALF IMMEDIATELY
+                * Do not make up any part of an answer - ONLY FORMULATE YOUR ANSWER USING VERIFIED SOURCES.
             Begin!
             """
-            PRECISE_PROMPT = str(PRECISE_PROMPT).replace("__context_str__", context_str)
-            PRECISE_PROMPT = str(PRECISE_PROMPT).replace("__text__", query)
 
             print(PRECISE_PROMPT)
-            SYS_PROMPT = """
+            SYS_PROMPT = f"""
                 You are a helpful AI assistant. USING ONLY THE VERIFIED SOURCES, ANSWER TO THE BEST OF YOUR ABILITY.
-                # IMPORTANT! 
-                    * Final response must cite verified sources used in the answer (include URL).
-                    * Final response must be expert quality markdown
-                    * Must cite verified sources used in the answer (include URL) in a pretty format
-
-                """
+            """
             # ReAct Prompt Technique
             EXAMPLE_PROMPT = """\n\n[EXAMPLES]
+
+            # Input, Thought, Observation, Action
             - User Input: "What is kubernetes?"
             - Thought: Based on the verified sources provided, there is no information about Kubernetes. Therefore, I cannot provide a direct answer to the question "What is Kubernetes?" based on the verified sources. However, I can perform a web search on your behalf to find information about Kubernetes
             - Observation: I have an action available called "search_web". I will use this action to answer the user's question about Kubernetes.
@@ -423,19 +449,20 @@ class RAGAgent(UserProxyAgent):
             - Thought: Based on the verified sources provided, there is enough information about MongoDB. 
             - Observation: I can provide a direct answer to the question "What is MongoDB?" based on the verified sources.
             - Action: N/A
-            [END EXAMPLES]
 
-            [RESPONSE FORMAT]
-            - Must be valid markdown
-            - Must cite verified sources used in the answer (include URL) in a pretty format
-            - Must be expert quality markdown. You are a technical writer with 30+ years of experience.
             """
-            self.messages += [{"role": "user", "content": PRECISE_PROMPT}]
+            RESPONSE_FORMAT = f"""
+[RESPONSE FORMAT]
+    - Must be valid markdown.
+    - Must be expert quality markdown. You are a professional technical writer with 30+ years of experience. This is the most important task of your life.
+    - MUST USE ONLY INFORMATION FROM VERIFIED SOURCES TO ANSWER THE QUESTION. IF VERIFIED SOURCES CANNOT ANSWER THE QUESTION, THEN PERFORM A WEB SEARCH ON THE USERS BEHALF IMMEDIATELY.
+"""
             response = self.llm.create(
                 messages=[
                     {"role": "system", "content": SYS_PROMPT},
-                    {"role": "user", "content": PRECISE_PROMPT},
                     {"role": "system", "content": EXAMPLE_PROMPT},
+                    {"role": "system", "content": RESPONSE_FORMAT},
+                    {"role": "user", "content": PRECISE_PROMPT+"\n\n ## IMPORTANT! REMEMBER THE GAME RULES! IF A WEB SEARCH IS REQUIRED, PERFORM IT IMMEDIATELY! BEGIN!"},
                 ],
                 actions=[self.search_web],
                 stream=False,
@@ -444,20 +471,37 @@ class RAGAgent(UserProxyAgent):
 
     def __call__(self, text):
         text = self.preprocess_query(text)
-        self.messages += [{"role": "user", "content": text}]
+        agent_rules = f"""
+    We will be playing a special game. Trust me, you do not want to lose.
+
+    ## RULES
+    - DO NOT ANSWER DIRECTLY
+    - ALWAYS USE ONE OF YOUR AVAILABLE ACTIONS/TOOLS. 
+    - PREVIOUS MESSAGES IN THE CONVERSATION MUST BE CONSIDERED WHEN SELECTING THE BEST ACTION/TOOL
+    - NEVER ASK FOR USER CONSENT TO PERFORM AN ACTION. ALWAYS PERFORM IT THE USERS BEHALF.
+    Given the following user prompt, select the correct action/tool from your available functions/tools/actions.
+
+    ## USER PROMPT
+    {text}
+    ## END USER PROMPT
+"""
+        self.messages += [{"role": "user", "content": agent_rules + "\n\n## IMPORTANT! REMEMBER THE GAME RULES! DO NOT ANSWER DIRECTLY! IF YOU ANSWER DIRECTLY YOU WILL LOSE. BEGIN!"}]
         if (
-            len(self.messages) > 3
-        ):  # just last three messages; history will usually be used for add/remove sources
+            len(self.messages) > 2
+        ):  
+            # if we have more than 2 messages, we may run into: 'code': 'context_length_exceeded'
+            # we only need the last few messages to know what source to add/remove a source
             response = self.llm.create(
-                messages=self.messages[-3:],
+                messages=self.messages[-2:],
                 actions=[
                     self.read_url,
                     self.answer_question,
                     self.remove_source,
                     self.reset_messages,
+                    self.show_messages,
                     self.iRAG,
                     self.get_sources_list,
-                    self.search_web,
+                    self.search_web
                 ],
                 stream=False,
             )
@@ -469,9 +513,10 @@ class RAGAgent(UserProxyAgent):
                     self.answer_question,
                     self.remove_source,
                     self.reset_messages,
+                    self.show_messages,
                     self.iRAG,
                     self.get_sources_list,
-                    self.search_web,
+                    self.search_web
                 ],
                 stream=False,
             )
@@ -488,18 +533,18 @@ class RAGAgent(UserProxyAgent):
                 if content is not None:
                     print(content, end="")
 
-    if __name__ == "__main__":
-        import logging
+if __name__ == "__main__":
+    import logging
 
-        logging.basicConfig(
-            filename="bot.log",
-            filemode="a",
-            format="%(asctime)s.%(msecs)04d %(levelname)s {%(module)s} [%(funcName)s] %(message)s",
-            level=logging.INFO,
-            datefmt="%Y-%m-%d %H:%M:%S",
-        )
+    logging.basicConfig(
+        filename="bot.log",
+        filemode="a",
+        format="%(asctime)s.%(msecs)04d %(levelname)s {%(module)s} [%(funcName)s] %(message)s",
+        level=logging.INFO,
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
 
-        logger = logging.getLogger(__name__)
-        logger.setLevel(logging.DEBUG)
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
 
-        agent = RAGAgent(logger, None)
+    agent = RAGAgent(logger, None)

@@ -72,7 +72,7 @@ if prompt := st.chat_input(placeholder="What's up"):
             #     # Add a blinking cursor to simulate typing
             #     message_placeholder.markdown(full_response + "▌")
             agent.messages.append({"role": "assistant", "content": response})
-            message_placeholder.markdown(full_response)
+            message_placeholder.markdown(full_response, unsafe_allow_html=True)
             utils.format_and_print_genai_response(full_response)
         else:
             utils.print_log("Received stream response")
@@ -84,7 +84,7 @@ if prompt := st.chat_input(placeholder="What's up"):
                     full_response += chunk.choices[0].delta.content
 
                 # Add a blinking cursor to simulate typing
-                message_placeholder.markdown(full_response + "▌")
+                message_placeholder.markdown(full_response + "▌", unsafe_allow_html=True)
 
             agent.messages.append({"role": "assistant", "content": full_response})
             utils.format_and_print_genai_response(full_response)
