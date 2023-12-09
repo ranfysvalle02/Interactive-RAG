@@ -89,7 +89,7 @@ There are many types of databases that can store these embeddings, each with its
 
 Think of MongoDB as a cake that you can both have and eat. It gives you the power of its language for making queries, Mongo Query Language. It also includes all the great features of MongoDB. On top of that, it lets you store these building blocks (vector embeddings) and do math operations on them, all in one place. This makes MongoDB Atlas a one-stop shop for all your vector embedding needs!
 
-![](https://imageio.forbes.com/specials-images/imageserve/6498b219c94a4a79ef8f46c4/Diagram-of-Vector-Search-with-MongoDB/960x0.png?height=372&width=711&fit=bounds)
+![](https://www.mongodb.com/developer/_next/image/?url=https%3A%2F%2Fimages.contentstack.io%2Fv3%2Fassets%2Fblt39790b633ee0d5a7%2Fbltb482d06c8f1f0674%2F65398a092c3581197ab3b07f%2Fimage3.png&w=1920&q=75)
 
 ### Detailed Breakdown:  
    
