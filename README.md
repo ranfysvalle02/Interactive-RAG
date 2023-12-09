@@ -234,27 +234,6 @@ class UserProxyAgent:
         }
 ```
 
-
-## Example
-
-![](./images/ask_question.png)
-
-Since the bot is unable to provide an answer, it initiated a Google search to find relevant information.
-
-## Tell the bot which results to learn from: 
-
-![](./images/add_sources.png)
-
-
-## Change RAG strategy
-![](./images/mod_rag.png)
-
-## List All Sources
-![](./images/list_sources.png)
-
-## Remove a source of information
-![](./images/remove_sources.png)
-
 ## Why Choose ActionWeaver? 
 Here are some key benefits that influenced our decision to choose ActionWeaver:
 1. Lightweight and Single-Purposed: ActionWeaver is very lightweight and designed with a singular focus on building LLM applications with function calling. This specialization ensures that it excels in its core function without unnecessary complexity.
@@ -386,6 +365,26 @@ This example uses ReAct combined with chain-of-thought (CoT).
 
 The core building block of our RAG-Agent is 'UserProxyAgent'. In UserProxyAgent, we use ReAct Prompt Technique to enhance the models abilities to select the right tool. GPT3.5 is not as good as GPT4 when it comes to picking the right 'action'. This type of prompt technique reduces the odds of your agent taking the wrong action.
 
+
+## DEMO
+
+![](./images/ask_question.png)
+
+Since the bot is unable to provide an answer, it initiated a Google search to find relevant information.
+
+## Tell the bot which results to learn from: 
+
+![](./images/add_sources.png)
+
+
+## Change RAG strategy
+![](./images/mod_rag.png)
+
+## List All Sources
+![](./images/list_sources.png)
+
+## Remove a source of information
+![](./images/remove_sources.png)
 
 ## Credit
 This was inspired by https://github.com/TengHu/Interactive-RAG
