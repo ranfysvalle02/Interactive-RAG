@@ -62,13 +62,11 @@ Finding the ideal chunk size is a delicate balance between focusing on specific 
 
 Effective chunking maximizes the retrieval vector relevance score, enabling LLMs to generate the most accurate and insightful responses possible. By understanding the impact of chunk size and other relevant factors, we can unleash the full potential of LLMs and unlock exciting opportunities for the future.
 
-Ultimately, effective chunking is about finding the right balance between detail and context, maximizing the retrieval vector relevance score and enabling the LLM to generate the most accurate and insightful responses possible. By understanding the impact of chunk size and other relevant factors, we can unleash the full potential of LLMs and unlock exciting possibilities!
-
 ## Interactive Retrieval Augmented Generation
 
 ## ![Alt text](./images/actionweaver_mdb.png)
 
-Effective chunking is about finding the right balance between detail and context, maximizing the retrieval vector relevance score, and enabling the LLM to generate the most accurate and insightful responses possible. By understanding the impact of chunk size and other relevant factors, we can unlock the full potential of RAG and explore exciting possibilities.
+Ultimately, effective chunking is about finding the right balance between detail and context, maximizing the retrieval vector relevance score and enabling the LLM to generate the most accurate and insightful responses possible. By understanding the impact of chunk size and other relevant factors, we can unleash the full potential of LLMs and unlock exciting possibilities!
 
 ## Taking Control with Interactive RAG:
 
