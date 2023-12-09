@@ -189,6 +189,12 @@ class UserProxyAgent:
 ```
 
 ## Getting Started
+
+Clone the demo Github repository
+```
+git clone git@github.com:ranfysvalle02/Interactive-RAG.git
+```
+
 Create a new Python environment
 ```bash 
 python3 -m venv env
@@ -340,11 +346,14 @@ Read more at: https://thinhdanggroup.github.io/function-calling-openai/
 
 
 ## Conclusion
+### Interactive Retrieval Augmented Generation with MongoDB Atlas and ActionWeaver: A Powerful Synergy
 
-This blog post has provided a comprehensive overview of Interactive Retrieval Augmented Generation (RAG) with MongoDB Atlas. We have discussed the importance of chunking, embedding, and the retrieval vector relevance score in optimizing RAG performance. We have also explored the concept of ActionWeaver, a lightweight framework for building LLM applications with function calling.
+This blog post has explored the exciting potential of **Interactive Retrieval Augmented Generation (RAG)** with the powerful combination of MongoDB Atlas and ActionWeaver. We've delved into the crucial role of **chunking, embedding, and retrieval vector relevance score** in optimizing RAG performance, unlocking its true potential for information retrieval and knowledge management.
 
-Overall, this blog post has demonstrated the potential of integrating RAG with MongoDB Atlas and ActionWeaver to build powerful and versatile AI applications. By leveraging the strengths of these technologies, we can unlock new possibilities for information retrieval and knowledge management.
+Furthermore, we introduced **ActionWeaver**, a lightweight framework that simplifies the integration of external tools with language models through **function calling**. This remarkable synergy empowers us to build robust and versatile AI applications, expanding the boundaries of what's possible.
+
+Intrigued by the possibilities? Explore the full source code for the **Interactive-RAG application** and unleash the power of RAG with MongoDB Atlas and ActionWeaver in your own projects!
+
+**Together, let's unlock the transformative potential of this potent combination and forge a future where information is effortlessly accessible and knowledge is readily available to all.**
 
 ![Here is the full source code for the Interactive-RAG application using MongoDB Atlas and ActionWeaver!](https://github.com/ranfysvalle02/Interactive-RAG/)
-
-
