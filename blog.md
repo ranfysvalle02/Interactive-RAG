@@ -339,43 +339,12 @@ ActionWeaver is built around the concept of LLM function calling, while popular 
 Read more at: https://thinhdanggroup.github.io/function-calling-openai/
 
 
-## ActionWeaver Basics: actions
-Developers can attach ANY Python function as a tool with a simple decorator. In the following example, we introduce action get_sources_list, which will be invoked by the OpenAI API.
-
-ActionWeaver utilizes the decorated method's signature and docstring as a description, passing them along to OpenAI's function API.
-
-ActionWeaver provides a light wrapper that takes care of converting the docstring/decorator information into the correct format for the OpenAI API.
-
-```
-@action(name="get_sources_list", stop=True)
-    def get_sources_list(self):
-        """
-        Invoke this to respond to list all the available sources in your knowledge base.
-        Parameters
-        ----------
-        None
-        """
-        sources = self.collection.distinct("source")  
-        
-        if sources:  
-            result = f"Available Sources [{len(sources)}]:\n"  
-            result += "\n".join(sources[:5000])  
-            return result  
-        else:  
-            return "N/A"  
-```
-
-## ActionWeaver Basics: stop=True
-
-stop=True when added to an action means that the LLM will immediately return the function's output, but this also restrict the LLM from making multiple function calls. For instance, if asked about the weather in NYC and San Francisco, the model would invoke two separate functions sequentially for each city. However, with `stop=True`, this process is interrupted once the first function returns weather information  for either NYC or San Francisco, depending on which city it queries first.
-
-
-
-For a more in-depth understanding of how this bot works under the hood, please refer to the bot.py file. 
-Additionally, you can explore the [ActionWeaver](https://github.com/TengHu/ActionWeaver/tree/main) repository for further details.
-
 ## Conclusion
 
 This blog post has provided a comprehensive overview of Interactive Retrieval Augmented Generation (RAG) with MongoDB Atlas. We have discussed the importance of chunking, embedding, and the retrieval vector relevance score in optimizing RAG performance. We have also explored the concept of ActionWeaver, a lightweight framework for building LLM applications with function calling.
 
 Overall, this blog post has demonstrated the potential of integrating RAG with MongoDB Atlas and ActionWeaver to build powerful and versatile AI applications. By leveraging the strengths of these technologies, we can unlock new possibilities for information retrieval and knowledge management.
+
+![Here is the full source code for the Interactive-RAG application using MongoDB Atlas and ActionWeaver!](https://github.com/ranfysvalle02/Interactive-RAG/)
+
+
