@@ -200,6 +200,22 @@ class UserProxyAgent:
         }
 ```
 
+## Key features of OpenAI function calling:
+- Function calling allows you to connect large language models to external tools.
+- The Chat Completions API generates JSON that can be used to call functions in your code.
+- The latest models have been trained to detect when a function should be called and respond with JSON that adheres to the function signature.
+- Building user confirmation flows is recommended before taking actions that impact the world on behalf of users.
+- Function calling can be used to create assistants that answer questions by calling external APIs, convert natural language into API calls, and extract structured data from text.
+- The basic sequence of steps for function calling involves calling the model, parsing the JSON response, calling the function with the provided arguments, and summarizing the results back to the user.
+- Function calling is supported by specific model versions, including gpt-4 and gpt-3.5-turbo.
+- Parallel function calling allows multiple function calls to be performed together, reducing round-trips with the API.
+- Tokens are used to inject functions into the system message and count against the model's context limit and billing.
+
+![](./images/function_calling.jpeg)
+
+Read more at: https://thinhdanggroup.github.io/function-calling-openai/
+
+
 ## Getting Started
 
 Clone the demo Github repository
@@ -340,21 +356,6 @@ ActionWeaver is built around the concept of LLM function calling, while popular 
 - Extensibility: Integration of any Python code into the agent's toolbox with a single line of code, including tools from other ecosystems like LangChain or Llama Index.
 - Function Orchestration: Building complex orchestration of function callings, including intricate hierarchies or chains.
 - Debuggability: Structured logging improves the developer experience.
-
-## Key features of OpenAI functions include:
-- Function calling allows you to connect large language models to external tools.
-- The Chat Completions API generates JSON that can be used to call functions in your code.
-- The latest models have been trained to detect when a function should be called and respond with JSON that adheres to the function signature.
-- Building user confirmation flows is recommended before taking actions that impact the world on behalf of users.
-- Function calling can be used to create assistants that answer questions by calling external APIs, convert natural language into API calls, and extract structured data from text.
-- The basic sequence of steps for function calling involves calling the model, parsing the JSON response, calling the function with the provided arguments, and summarizing the results back to the user.
-- Function calling is supported by specific model versions, including gpt-4 and gpt-3.5-turbo.
-- Parallel function calling allows multiple function calls to be performed together, reducing round-trips with the API.
-- Tokens are used to inject functions into the system message and count against the model's context limit and billing.
-
-![](./images/function_calling.jpeg)
-
-Read more at: https://thinhdanggroup.github.io/function-calling-openai/
 
 ## Embracing the Future of Information Access with Interactive RAG
 
