@@ -1,4 +1,4 @@
-## Chunking: A Hidden Hero in the Rise of Large Language Models, Powered by MongoDB Atlas Vector Search
+## Chunking: A Hidden Hero in the Rise of GenAI
 
 The recent boom in Large Language Models (LLMs) has opened up a new world of possibilities for understanding and interacting with language. One of the most exciting applications is their ability to automatically summarize long documents, saving us valuable time and effort. However, effectively summarizing longer documents with LLMs still presents some challenges. This blog post dives into the often-overlooked but crucial role of "chunking" and its potential to unlock the full power of LLMs in document summarization, particularly within the context of the Retrieval-Augmented Generation (RAG) model, **powered by the innovative capabilities of MongoDB Atlas Vector Search.**
 
