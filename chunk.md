@@ -16,6 +16,7 @@ Researchers have been actively exploring various chunking strategies to optimize
 * **Single-page chunks:** This simple approach uses entire pages as individual chunks. While efficient, it may not capture crucial details or effectively address the limitations of LLM processing capabilities. By leveraging the hybrid search capabilities of MongoDB Atlas Vector Search, we can combine traditional keyword search with vector similarity to achieve optimal chunk retrieval, even for single-page documents.
 
 **Other Strategies**
+
 **Parent Document Retrieval Strategies for RAG:**
 
 The effectiveness of RAG relies heavily on the initial retrieval of relevant passages from the "parent document." Here are some key strategies:
