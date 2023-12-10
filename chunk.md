@@ -179,7 +179,3 @@ These are just a few examples of how MongoDB Atlas Vector Search can be used to 
 **The Future of Chunking: Unlocking the Full Potential of LLMs:**
 
 Chunking experimentation, empowered by MongoDB Atlas Vector Search, is an exciting field with the potential to revolutionize the way LLMs approach document summarization. By exploring and optimizing different chunking strategies, researchers are paving the way for LLMs to generate informative, accurate, and concise summaries of even the most complex documents.
-
-**Looking Ahead:**
-
-Several promising research directions can further advance the field of chunk experimentation with the help of MongoDB Atlas Vector Search
