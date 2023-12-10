@@ -1,0 +1,43 @@
+# Ignore virtual environments
+.venv
+env/
+venv/
+
+# Ignore IDE specific settings
+.idea/
+.vscode/
+*.pyc
+
+# Ignore build files
+build/
+dist/
+*.egg-info/
+
+# Ignore temporary files
+*.pyo
+*.swp
+*~
+
+# Ignore test coverage reports
+.coverage
+
+# Ignore local configurations
+.env
+
+# Ignore documentation generated files
+docs/_build/
+
+# Ignore mypy and pytype cache
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+
+# Ignore Cython debug symbols
+cython_debug/
+
+# Ignore pytest cache
+.pytest_cache/
+
+# Ignore pipenv specific files
+Pipfile.lock

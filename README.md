@@ -288,7 +288,7 @@ ActionWeaver is built around the concept of LLM function calling, while popular 
 - Parallel function calling allows multiple function calls to be performed together, reducing round-trips with the API.
 - Tokens are used to inject functions into the system message and count against the model's context limit and billing.
 
-![](./images/function_calling.jpeg)
+![](./images/function_calling.png)
 
 Read more at: https://thinhdanggroup.github.io/function-calling-openai/
 
