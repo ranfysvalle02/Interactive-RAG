@@ -15,6 +15,118 @@ Researchers have been actively exploring various chunking strategies to optimize
 * **Paragraph-based chunking:** This method utilizes natural paragraph breaks to define chunk boundaries, making it suitable for documents with well-defined paragraphs. However, it may not be ideal for texts with more unstructured content. Here, the $filter capabilities of MongoDB Atlas Vector Search come in handy, allowing us to filter chunks based on specific keywords or semantic similarity to ensure we focus on the most relevant parts of the document.
 * **Single-page chunks:** This simple approach uses entire pages as individual chunks. While efficient, it may not capture crucial details or effectively address the limitations of LLM processing capabilities. By leveraging the hybrid search capabilities of MongoDB Atlas Vector Search, we can combine traditional keyword search with vector similarity to achieve optimal chunk retrieval, even for single-page documents.
 
+**Other Strategies**
+**Parent Document Retrieval Strategies for RAG:**
+
+The effectiveness of RAG relies heavily on the initial retrieval of relevant passages from the "parent document." Here are some key strategies:
+
+* **Keyword matching:** This traditional approach involves matching keywords from the query to keywords within the document. While simple and efficient, it may not capture the full semantic meaning of the query or the document.
+* **Passage embedding and retrieval:** This strategy uses vector representations of both the query and the document passages. This allows for more precise retrieval based on semantic similarity, even if the exact keywords don't match. MongoDB Atlas Vector Search excels at this, enabling efficient and accurate retrieval of relevant passages using the $vectorSearch operator.
+* **Hybrid search:** This approach combines keyword matching with passage embedding and retrieval. This leverages the strengths of both methods, ensuring both high recall (finding all relevant passages) and high precision (finding only relevant passages).
+
+```
+agg_pipeline = [{
+	        "$vectorSearch": {
+	            "index":'nested_search_index',
+	            "path": "text_embedding",
+	            "queryVector": query_vector,
+                "limit": k,
+	            "numCandidates": k * multiplier,
+	            },
+	        },
+	        },
+            {
+            "$match": {"sample_question": {"$exists": False}}
+            },
+	        {
+    		"$project": {"text_embedding": 0} 
+	        },
+	    {
+        '$lookup' : {"from": "hnsw_parent_retrieval_example",
+                      "localField": "parent_id",
+                      "foreignField": "_id",
+                      "as": 'parent_documents'
+                       }},
+        {'$unwind': {"path": "$parent_documents"}},
+        {"$limit": k}
+]
+```
+
+This aggregation pipeline in MongoDB Atlas vector search retrieves relevant documents based on a query vector and performs further filtering and processing. Here's a breakdown of each stage:
+
+**Stage 1: $vectorSearch:**
+
+- **index:** Specifies the name of the vector search index used for retrieval.
+- **path:** Defines the path within each document where the text embedding vector is stored (assumed to be "text_embedding").
+- **queryVector:** The vector representation of the query used for semantic search.
+- **limit:** Maximum number of documents to retrieve (k).
+- **numCandidates:** Number of candidate documents to consider before filtering (k * multiplier). This helps ensure enough relevant documents are retrieved even after filtering.
+
+**Stage 2: $match:**
+
+- **"sample_question": {"$exists": False}}:** This filters out documents having a field named "sample_question", ensuring we only deal with documents relevant to the current task.
+
+**Stage 3: $project:**
+
+- **"text_embedding": 0:** Excludes the "text_embedding" field from the output documents, potentially reducing document size and improving efficiency.
+
+**Stage 4: $lookup:**
+
+- **"from": "hnsw_parent_retrieval_example":** Specifies the name of the collection containing parent documents.
+- **"localField": "parent_id"**: Identifies the field in the current document that stores the parent document ID.
+- **"foreignField": "_id"**: Identifies the field in the parent document collection that stores the document ID.
+- **"as": 'parent_documents'**: Defines the alias for the retrieved parent documents in the output.
+
+**Stage 5: $unwind:**
+
+- **{"path": "$parent_documents"}**: "Unwinds" the "parent_documents" array, creating separate documents for each parent document associated with the current document.
+
+**Stage 6: $limit:**
+
+- **"limit": k**: Limits the final output to only the k most relevant documents, potentially based on a combination of vector search relevance and information from the parent documents.
+
+Overall, this pipeline uses vector search to retrieve relevant documents based on a query vector, performs further filtering and exclusion, associates each document with its corresponding parent document, and finally returns the k most relevant documents.
+
+**Hypothetical Question to Ask of a Chunk (Question/Answer Embedding) [RAG]:**
+
+Imagine you're summarizing a news article about a new scientific discovery. You have retrieved a relevant chunk containing technical jargon and complex concepts. To better understand this information and prepare it for summarization by the LLM, you could ask the following hypothetical question:
+
+**"What are the key implications of this new discovery for the field of medicine?"**
+
+By embedding both the question and the chunk into vector space, we can leverage MongoDB Atlas Vector Search's capabilities to find the most relevant sentence within the chunk that answers this question. This provides valuable context and insights to the LLM, enabling it to generate a more accurate and informative summary of the complex information.
+
+## Beyond Retrieval: Unlocking Deeper Insights with Question-Driven Chunking and LLM Processing
+
+Imagine summarizing a news article about a groundbreaking scientific discovery. You've retrieved a relevant chunk, brimming with technical jargon and intricate concepts. To truly grasp the essence of this discovery and prepare the information for LLM-based summarization, a more proactive approach is needed. Here's where **question-driven chunking**, powered by MongoDB Atlas Vector Search, comes into play.
+
+Instead of passively processing the entire chunk, we can ask a targeted question like: "What are the key implications of this new discovery for the field of medicine?" This simple act transforms the process from passive consumption to active exploration, focusing the LLM's attention on the most relevant information.
+
+**Leveraging the Power of Vector Search:**
+
+Through the magic of MongoDB Atlas Vector Search, both the question and the chunk are embedded into a "semantic landscape." This allows us to search for the sentence within the chunk that best aligns with the question's meaning, regardless of exact word matches. This targeted approach unlocks several key benefits:
+
+* **Enhanced Understanding:** By focusing solely on the relevant answer sentence, the LLM receives the most crucial information, leading to a more accurate and insightful summary.
+* **Reduced Workload:** The LLM doesn't have to sift through the entire chunk, minimizing processing time and computational resources.
+* **Unveiling Deeper Connections:** Asking questions allows us to uncover hidden insights within the information, generating summaries that go beyond just factual details.
+
+**The Power of LLM Processing:**
+
+Once the answer sentence is extracted through MongoDB Atlas Vector Search, the LLM can be used to further refine and summarize the extracted information. This process involves:
+
+* **Contextualization:** Providing the LLM with additional context, such as the original question, relevant sentences from the chunk, and the desired length and key points for the summary.
+* **LLM Processing:** The LLM then leverages its capabilities to extract key information, rephrase the answer sentence for clarity and conciseness, and ultimately generate a concise and informative summary.
+* **Integration:** This LLM-generated summary can be integrated into a larger summarization system that combines summaries from multiple chunks, performs fact-checking, and offers different summarization styles for diverse audiences and purposes.
+
+**A New Frontier for Text Analysis:**
+
+By combining the power of question-driven chunking with LLM processing, we unlock a new level of sophistication in text analysis and summarization. This approach allows us to:
+
+* Extract the most relevant and insightful information from complex documents.
+* Generate summaries that are not only factually accurate but also tailored to specific needs and goals.
+* Open up exciting possibilities for utilizing LLM technology for a wide range of applications.
+
+This is not just about summarizing text; it's about unlocking deeper understanding and transforming information into meaningful insights. By embracing a question-driven approach and leveraging the power of LLM processing, we open a new chapter in the field of text analysis and summarization, paving the way for a more insightful and impactful future.
+
 **Beyond Chunking: LLM-powered Enhancements:**
 
 Several innovative approaches leverage LLMs to further improve chunking effectiveness, all powered by MongoDB Atlas Vector Search:
