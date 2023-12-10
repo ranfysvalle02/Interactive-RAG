@@ -88,14 +88,6 @@ This aggregation pipeline in MongoDB Atlas vector search retrieves relevant docu
 
 Overall, this pipeline uses vector search to retrieve relevant documents based on a query vector, performs further filtering and exclusion, associates each document with its corresponding parent document, and finally returns the k most relevant documents.
 
-**Hypothetical Question to Ask of a Chunk (Question/Answer Embedding) [RAG]:**
-
-Imagine you're summarizing a news article about a new scientific discovery. You have retrieved a relevant chunk containing technical jargon and complex concepts. To better understand this information and prepare it for summarization by the LLM, you could ask the following hypothetical question:
-
-**"What are the key implications of this new discovery for the field of medicine?"**
-
-By embedding both the question and the chunk into vector space, we can leverage MongoDB Atlas Vector Search's capabilities to find the most relevant sentence within the chunk that answers this question. This provides valuable context and insights to the LLM, enabling it to generate a more accurate and informative summary of the complex information.
-
 ## Beyond Retrieval: Unlocking Deeper Insights with Question-Driven Chunking and LLM Processing
 
 Imagine summarizing a news article about a groundbreaking scientific discovery. You've retrieved a relevant chunk, brimming with technical jargon and intricate concepts. To truly grasp the essence of this discovery and prepare the information for LLM-based summarization, a more proactive approach is needed. Here's where **question-driven chunking**, powered by MongoDB Atlas Vector Search, comes into play.
