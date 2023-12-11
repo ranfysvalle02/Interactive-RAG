@@ -385,7 +385,7 @@ An agent is a computer program or system designed to perceive its environment, m
 
 Think of an agent as a software entity that displays some degree of autonomy and performs actions in its environment on behalf of its user or owner, but in a relatively independent way. It takes initiatives to perform actions on its own by deliberating its options to achieve its goal(s). The core idea of agents is to use a language model to choose a sequence of actions to take. In contrast to chains, where a sequence of actions is hardcoded in code, agents use a language model as a reasoning engine to determine which actions to take and in which order.
 
-### Actions
+## ActionWeaver Basics: Actions
 
 Actions are functions that an agent can invoke. There are two important design considerations around actions:
 
