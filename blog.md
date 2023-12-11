@@ -16,7 +16,7 @@ However, the size of each chunk isn't just about convenience for the LLM; it als
 
 **NOTE:** "chunk size" = character length
 
-![Chunk Visualization](./images/chunkviz.png)
+![Chunk Visualization](./images/chunkviz-1.png)
 (image from ChunkViz v0.1 - https://www.chunkviz.com/)
 
 **Balancing Detail and Context:**
