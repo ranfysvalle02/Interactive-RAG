@@ -70,7 +70,7 @@ Effective chunking maximizes the retrieval vector relevance score, enabling LLMs
 
 ## Interactive Retrieval Augmented Generation
 
-## ![Alt text](./images/rag-agent.png)
+## ![RAG Agent Architecture for this Tutorial](./images/rag-agent.png)
 
 ## Taking Control with Interactive RAG:
 
@@ -95,7 +95,7 @@ There are many types of databases that can store these embeddings, each with its
 
 Think of MongoDB as a cake that you can both have and eat. It gives you the power of its language for making queries, Mongo Query Language. It also includes all the great features of MongoDB. On top of that, it lets you store these building blocks (vector embeddings) and do math operations on them, all in one place. This makes MongoDB Atlas a one-stop shop for all your vector embedding needs!
 
-![](https://www.mongodb.com/developer/_next/image/?url=https%3A%2F%2Fimages.contentstack.io%2Fv3%2Fassets%2Fblt39790b633ee0d5a7%2Fbltb482d06c8f1f0674%2F65398a092c3581197ab3b07f%2Fimage3.png&w=1920&q=75)
+![RAG architecture diagram with MongoDB Atlas](https://www.mongodb.com/developer/_next/image/?url=https%3A%2F%2Fimages.contentstack.io%2Fv3%2Fassets%2Fblt39790b633ee0d5a7%2Fbltb482d06c8f1f0674%2F65398a092c3581197ab3b07f%2Fimage3.png&w=1920&q=75)
 
 ### Detailed Breakdown:  
    
@@ -180,7 +180,7 @@ def recall(self, text, n_docs=2, min_rel_score=0.25, chunk_max_length=800,unique
         return str(kb_output)
 ```
 
-In this tutorial, we will mainly be focusing on the **CHUNK RETRIEVAL** strategy using MongoDB Atlas as our **data platform** and the function calling API (orchestrated by ActionWeaver). 
+In this tutorial, we will mainly be focusing on the **CHUNK RETRIEVAL** strategy using the function calling API of LLMs and MongoDB Atlas as our **data platform**.
 
 ## Key Features of MongoDB Atlas
 MongoDB Atlas offers a robust vector search platform with several key features, including:
@@ -303,7 +303,7 @@ class RAGAgent(UserProxyAgent):
 - Parallel function calling allows multiple function calls to be performed together, reducing round-trips with the API.
 - Tokens are used to inject functions into the system message and count against the model's context limit and billing.
 
-![](./images/function_calling.png)
+![Function Calling Diagram - Simple](./images/function_calling.png)
 
 Read more at: https://thinhdanggroup.github.io/function-calling-openai/
 
@@ -386,23 +386,23 @@ If the bot is unable to provide an answer to the question from data stored in th
 
 ## Example
 
-![](./images/ask_question.png)
+![DEMO - Ask a Question](./images/ask_question.png)
 
 Since the bot is unable to provide an answer, it initiated a Google search to find relevant information.
 
 ## Tell the bot which results to learn from: 
 
-![](./images/add_sources.png)
+![DEMO - Add a source](./images/add_sources.png)
 
 
 ## Change RAG strategy
-![](./images/mod_rag.png)
+![DEMO - Change RAG strategy](./images/mod_rag.png)
 
 ## List All Sources
-![](./images/list_sources.png)
+![DEMO - List all sources](./images/list_sources.png)
 
 ## Remove a source of information
-![](./images/remove_sources.png)
+![DEMO - Remove source](./images/remove_sources.png)
 
 
 
@@ -432,7 +432,7 @@ Actions are functions that an agent can invoke. There are two important design c
 
 If you don't give the agent the right actions and describe them in an effective way, you won’t be able to build a working agent.
 
-![](./images/llm_agent.png)
+![LangChain Tools Diagram](./images/llm_agent.png)
 
 An LLM is then called, resulting in either a response to the user OR action(s) to be taken. If it is determined that a response is required, then that is passed to the user, and that cycle is finished. If it is determined that an action is required, that action is then taken, and an observation (action result) is made. That action & corresponding observation are added back to the prompt (we call this an “agent scratchpad”), and the loop resets, ie. the LLM is called again (with the updated agent scratchpad).
 
