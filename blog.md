@@ -174,7 +174,36 @@ def recall(self, text, n_docs=2, min_rel_score=0.25, chunk_max_length=800,unique
         return str(kb_output)
 ```
 
-In this tutorial/example, we will mainly be focusing on the **CHUNK RETRIEVAL** strategy. 
+In this tutorial/example, we will mainly be focusing on the **CHUNK RETRIEVAL** strategy using MongoDB Atlas as our **data platform** and the function calling API (orchestrated by ActionWeaver). 
+
+## Key Features of MongoDB Atlas
+MongoDB Atlas offers a robust vector search platform with several key features, including:
+
+**1. $vectorSearch operator:** 
+This powerful aggregation pipeline operator allows you to search for documents based on their vector embeddings. You can specify the index to search, the query vector, and the similarity metric to use. $vectorSearch provides efficient and scalable search capabilities for vector data.
+
+**2. Flexible filtering:** 
+You can combine $vectorSearch with other aggregation pipeline operators like $match, $sort, and $limit to filter and refine your search results. This allows you to find the most relevant documents based on both their vector embeddings and other criteria.
+
+**3. Support for various similarity metrics:** 
+MongoDB Atlas supports different similarity metrics like cosine similarity and Euclidean distance, allowing you to choose the best measure for your specific data and task.
+
+**4. High performance:** 
+The vector search engine in MongoDB Atlas is optimized for large datasets and high query volumes, ensuring efficient and responsive search experiences.
+
+**5. Scalability:** 
+MongoDB Atlas scales seamlessly to meet your growing needs, allowing you to handle increasing data volumes and query workloads effectively.
+
+**Additionally, MongoDB Atlas offers several features relevant to its platform capabilities:**
+
+* **Global availability:** 
+Your data is stored in multiple data centers around the world, ensuring high availability and disaster recovery.
+* **Security:** 
+MongoDB Atlas provides robust security features, including encryption at rest and in transit, access control, and data audit logging.
+* **Monitoring and alerting:** 
+MongoDB Atlas provides comprehensive monitoring and alerting features to help you track your cluster's performance and identify potential issues.
+* **Developer tools:** 
+MongoDB Atlas offers various developer tools and APIs to simplify development and integration with your applications.
 
 # Building an Interactive-RAG Agent
 
@@ -400,35 +429,6 @@ If you don't give the agent the right actions and describe them in an effective 
 ![](./images/llm_agent.png)
 
 An LLM is then called, resulting in either a response to the user OR action(s) to be taken. If it is determined that a response is required, then that is passed to the user, and that cycle is finished. If it is determined that an action is required, that action is then taken, and an observation (action result) is made. That action & corresponding observation are added back to the prompt (we call this an “agent scratchpad”), and the loop resets, ie. the LLM is called again (with the updated agent scratchpad).
-
-## Key Features of MongoDB Vector Search
-MongoDB Atlas offers a robust vector search platform with several key features, including:
-
-**1. $vectorSearch operator:** 
-This powerful aggregation pipeline operator allows you to search for documents based on their vector embeddings. You can specify the index to search, the query vector, and the similarity metric to use. $vectorSearch provides efficient and scalable search capabilities for vector data.
-
-**2. Flexible filtering:** 
-You can combine $vectorSearch with other aggregation pipeline operators like $match, $sort, and $limit to filter and refine your search results. This allows you to find the most relevant documents based on both their vector embeddings and other criteria.
-
-**3. Support for various similarity metrics:** 
-MongoDB Atlas supports different similarity metrics like cosine similarity and Euclidean distance, allowing you to choose the best measure for your specific data and task.
-
-**4. High performance:** 
-The vector search engine in MongoDB Atlas is optimized for large datasets and high query volumes, ensuring efficient and responsive search experiences.
-
-**5. Scalability:** 
-MongoDB Atlas scales seamlessly to meet your growing needs, allowing you to handle increasing data volumes and query workloads effectively.
-
-**Additionally, MongoDB Atlas offers several features relevant to its platform capabilities:**
-
-* **Global availability:** 
-Your data is stored in multiple data centers around the world, ensuring high availability and disaster recovery.
-* **Security:** 
-MongoDB Atlas provides robust security features, including encryption at rest and in transit, access control, and data audit logging.
-* **Monitoring and alerting:** 
-MongoDB Atlas provides comprehensive monitoring and alerting features to help you track your cluster's performance and identify potential issues.
-* **Developer tools:** 
-MongoDB Atlas offers various developer tools and APIs to simplify development and integration with your applications.
 
 ## Embracing the Future of Information Access with Interactive RAG
 
