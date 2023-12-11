@@ -6,7 +6,7 @@
 - Understand the basics of using a vector database
 
 ## ![Retrieval Augmented Generation - Diagram 1](./images/RAG-chunks.png)
-(image from  Session 7: RAG Evaluation with RAGAS and How to Improve Retrieval - https://www.youtube.com/watch?v=mEv-2Xnb_Wk)
+(_image from  Session 7: RAG Evaluation with RAGAS and How to Improve Retrieval - https://www.youtube.com/watch?v=mEv-2Xnb_Wk_)
 
 Imagine you're a detective trying to solve a complex case. You wouldn't try to analyze every piece of evidence at once, right? You'd break it down into smaller, more manageable pieces - documents, witness statements, physical objects - and examine each one carefully. In the world of large language models (LLMs), this process of breaking down information is called **chunking**, and it plays a crucial role in unlocking the full potential of Retrieval Augmented Generation (RAG).
 
@@ -17,7 +17,7 @@ However, the size of each chunk isn't just about convenience for the LLM; it als
 **NOTE:** "chunk size" = character length
 
 ![Chunk Visualization](./images/chunkviz-1.png)
-(image from ChunkViz v0.1 - https://www.chunkviz.com/)
+(_image from ChunkViz v0.1 - https://www.chunkviz.com/_)
 
 **Balancing Detail and Context:**
 
