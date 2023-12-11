@@ -381,7 +381,7 @@ Here are some key benefits that influenced our decision to choose ActionWeaver:
 
 ## ActionWeaver Basics: What is an Agent anyway?
 
-An agent is basically just a computer program or system designed to perceive its environment, make decisions, and achieve specific goals.
+An agent is a computer program or system designed to perceive its environment, make decisions, and achieve specific goals.
 
 Think of an agent as a software entity that displays some degree of autonomy and performs actions in its environment on behalf of its user or owner, but in a relatively independent way. It takes initiatives to perform actions on its own by deliberating its options to achieve its goal(s). The core idea of agents is to use a language model to choose a sequence of actions to take. In contrast to chains, where a sequence of actions is hardcoded in code, agents use a language model as a reasoning engine to determine which actions to take and in which order.
 
@@ -392,7 +392,24 @@ Actions are functions that an agent can invoke. There are two important design c
     Giving the agent access to the right actions
     Describing the actions in a way that is most helpful to the agent
 
-Without thinking through both, you won’t be able to build a working agent. If you don’t give the agent access to a correct set of actions, it will never be able to accomplish the objectives you give it. If you don’t describe the actions well, the agent won’t know how to use them properly.
+## Crafting Actions for Effective Agents
+
+**Actions are the lifeblood of an agent's decision-making.** They define the options available to the agent and shape its interactions with the environment. Consequently, designing effective actions is crucial for building successful agents.
+
+**Two key considerations guide this design process:**
+
+1. **Access to relevant actions:** Ensure the agent has access to actions necessary to achieve its objectives. Omitting critical actions limits the agent's capabilities and hinders its performance.
+2. **Action description clarity:** Describe actions in a way that is informative and unambiguous for the agent. Vague or incomplete descriptions can lead to misinterpretations and suboptimal decisions.
+
+**By carefully designing actions that are both accessible and well-defined, you equip your agent with the tools and knowledge necessary to navigate its environment and achieve its objectives.**
+
+**Further considerations:**
+
+* **Granularity of actions:** Should actions be high-level or low-level? High-level actions offer greater flexibility but require more decision-making, while low-level actions offer more control but limit adaptability.
+* **Action preconditions and effects:** Clearly define the conditions under which an action can be taken and its potential consequences. This helps the agent understand the implications of its choices.
+
+
+If you don't give the agent the right actions and describe them in an effective way, you won’t be able to build a working agent.
 
 ![](./images/llm_agent.png)
 
@@ -401,6 +418,10 @@ An LLM is then called, resulting in either a response to the user OR action(s) t
 In ActionWeaver, we can influence the loop adding `stop=True|False` to an action. 
 If `stop=True`, the LLM will immediately return the function's output. This will also restrict the LLM from making multiple function calls.
 In this demo we will only be using `stop=True`
+
+```
+(COMING SOON -- FLOW DIAGRAM) 
+```
 
 ActionWeaver also supports more complex loop control using `orch_expr(SelectOne[actions])` and `orch_expr(RequireNext[actions])`, but I'll leave that for PART II.
 
