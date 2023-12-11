@@ -1,4 +1,4 @@
-## Interactive RAG with MongoDB Atlas
+## Interactive RAG with MongoDB Atlas + Function Calling API
 
 ##### BEFORE YOU CONTINUE, MAKE SURE YOU
 - Understand the basics of LLMs
@@ -68,7 +68,7 @@ Effective chunking maximizes the retrieval vector relevance score, enabling LLMs
 
 ## Taking Control with Interactive RAG:
 
-While an optimized chunk size is crucial, Interactive RAG goes a step further. It empowers users to dynamically adjust their RAG strategy in real-time, using ActionWeaver. This unlocks a new era of personalized information access and knowledge management.
+While an optimized chunk size is crucial, Interactive RAG goes a step further. It empowers users to dynamically adjust their RAG strategy in real-time, using the function calling API of Large Language Models (LLMs). This unlocks a new era of personalized information access and knowledge management.
 
 **This Interactive RAG tutorial leverages:**
 
