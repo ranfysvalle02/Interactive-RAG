@@ -255,13 +255,11 @@ The optimal approach depends on your application's specific needs and constraint
 
 **Building an Interactive-RAG Agent:**
 
-Interactive-RAG agents take retrieval optimization a step further. They can:
+In this tutorial, we will build an Interactive-RAG agent that can:
 
 * **Adjust Chunk Retrieval:** Conversationally adapt the chunk retrieval strategy based on user interactions and feedback.
 * **Dynamic Knowledge Base:** Add or remove sources from the underlying vector database, ensuring access to relevant and up-to-date information.
 * **Web Search Integration:** Perform web searches on the user's behalf, expanding the knowledge base beyond pre-loaded sources and external databases.
-
-By choosing the right approach and leveraging the power of Interactive-RAG agents, you can optimize your retrieval strategy and unlock the full potential of RAG technology.
 
 Using [ActionWeaver](https://github.com/TengHu/ActionWeaver/tree/main), a lightweight wrapper for function calling API, we can build a user proxy agent that efficiently retrieves and ingests relevant information using MongoDB Atlas. A proxy agent is a middleman sending client requests to other servers or resources and then bringing responses back. This agent presents the data to the user in an interactive and customizable manner, enhancing the overall user experience.
 
