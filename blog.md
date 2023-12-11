@@ -70,7 +70,7 @@ Effective chunking maximizes the retrieval vector relevance score, enabling LLMs
 
 ## Interactive Retrieval Augmented Generation
 
-## ![Alt text](./images/actionweaver_mdb.png)
+## ![Alt text](./images/rag-agent.png)
 
 ## Taking Control with Interactive RAG:
 
