@@ -445,9 +445,6 @@ The vector search engine in MongoDB Atlas is optimized for large datasets and hi
 **5. Scalability:** 
 MongoDB Atlas scales seamlessly to meet your growing needs, allowing you to handle increasing data volumes and query workloads effectively.
 
-**6. Integration with OpenAI and ActionWeaver:** 
-MongoDB Atlas integrates seamlessly with OpenAI's API and ActionWeaver framework, enabling you to build powerful and versatile AI applications with advanced information retrieval capabilities.
-
 **Additionally, MongoDB Atlas offers several features relevant to its platform capabilities:**
 
 * **Global availability:** 
