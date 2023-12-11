@@ -73,7 +73,7 @@ While an optimized chunk size is crucial, Interactive RAG goes a step further. I
 **This Interactive RAG tutorial leverages:**
 
 * **Dynamic Strategy Adjustment:** Unlike traditional RAG approaches, users can fine-tune chunk size, number of sources, and other parameters on-the-fly, tailoring the LLM's response to their specific needs.
-* **ActionWeaver Integration:** ActionWeaver seamlessly integrates external tools and services with LLMs through function calling. This allows users to seamlessly incorporate their own data sources and tools into their RAG workflow.
+* **ActionWeaver Integration:** ActionWeaver seamlessly integrates external tools and services with LLMs through function calling. This allows users to seamlessly incorporate their own data sources and tools into their RAG workflow. There will be a follow up blog post around the implementation details using ActionWeaver.
 
 **Benefits:**
 
@@ -369,21 +369,9 @@ Since the bot is unable to provide an answer, it initiated a Google search to fi
 ## Remove a source of information
 ![](./images/remove_sources.png)
 
-## Why Choose ActionWeaver? 
-Here are some key benefits that influenced our decision to choose ActionWeaver:
-1. Lightweight and Single-Purposed: ActionWeaver is very lightweight and designed with a singular focus on building LLM applications with function calling. This specialization ensures that it excels in its core function without unnecessary complexity.
-2. Ease of Use:  ActionWeaver streamlines the process of integrating external tools into agent's toolkit. Using a simple decorator, developers can effortlessly add any Python function, and it also provides the flexibility to include tools from other ecosystems like LangChain or Llama Index.
-3. Versatility: Despite its simplicity, ActionWeaver offers a wide range of capabilities, including support for forced function execution, parallel function calling and structured data extraction. Such versatility makes it a Swiss Army knife, equipped to handle a variety of AI-related tasks and adapt seamlessly to changing project demands.
-4. Minimal Dependency: ActionWeaver has minimal dependencies, relying only on the openai and pydantic libraries. This reduces the overhead of managing dependencies.
-5. Complex Function Orchestration: The framework empowers us to create intricate sequences of function calls, allowing us to build complex hierarchies or chains of functions. This capability enables us to execute sophisticated workflows with ease. 
 
-## ActionWeaver Basics: What is an Agent anyway?
 
-An agent is a computer program or system designed to perceive its environment, make decisions, and achieve specific goals.
-
-Think of an agent as a software entity that displays some degree of autonomy and performs actions in its environment on behalf of its user or owner, but in a relatively independent way. It takes initiatives to perform actions on its own by deliberating its options to achieve its goal(s). The core idea of agents is to use a language model to choose a sequence of actions to take. In contrast to chains, where a sequence of actions is hardcoded in code, agents use a language model as a reasoning engine to determine which actions to take and in which order.
-
-## ActionWeaver Basics: Actions
+## Function Calling API Basics: Actions 
 
 Actions are functions that an agent can invoke. There are two important design considerations around actions:
 
@@ -412,18 +400,6 @@ If you don't give the agent the right actions and describe them in an effective 
 ![](./images/llm_agent.png)
 
 An LLM is then called, resulting in either a response to the user OR action(s) to be taken. If it is determined that a response is required, then that is passed to the user, and that cycle is finished. If it is determined that an action is required, that action is then taken, and an observation (action result) is made. That action & corresponding observation are added back to the prompt (we call this an “agent scratchpad”), and the loop resets, ie. the LLM is called again (with the updated agent scratchpad).
-
-![](./images/scale_tools.png)
-
-The ActionWeaver agent framework is an AI application framework that puts function-calling at its core. It is designed to enable seamless merging of traditional computing systems with the powerful reasoning capabilities of Language Model Models. 
-ActionWeaver is built around the concept of LLM function calling, while popular frameworks like Langchain and Haystack are built around the concept of pipelines. 
-
-## Key features of ActionWeaver include:
-- Ease of Use: ActionWeaver allows developers to add any Python function as a tool with a simple decorator. The decorated method's signature and docstring are used as a description and passed to OpenAI's function API.
-- Function Calling as First-Class Citizen: Function-calling is at the core of the framework.
-- Extensibility: Integration of any Python code into the agent's toolbox with a single line of code, including tools from other ecosystems like LangChain or Llama Index.
-- Function Orchestration: Building complex orchestration of function callings, including intricate hierarchies or chains.
-- Debuggability: Structured logging improves the developer experience.
 
 ## Key Features of MongoDB Vector Search
 MongoDB Atlas offers a robust vector search platform with several key features, including:
