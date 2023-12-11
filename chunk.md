@@ -1,6 +1,6 @@
 ## Chunking: A Hidden Hero in the Rise of GenAI
 
-## ![Alt text](./images/RAG-chunks.png)
+## ![Alt text](https://cdn.stackoverflow.co/images/jo7n4k8s/production/ef172115fca9aa6b3b99eeb1c749acf9f8c183a0-6000x3150.png?w=1200&h=630&auto=format&dpr=2)
 
 The recent boom in Large Language Models (LLMs) has opened up a new world of possibilities for understanding and interacting with language. One of the most exciting applications is their ability to automatically summarize long documents, saving us valuable time and effort. However, effectively summarizing longer documents with LLMs still presents some challenges. This blog post dives into the often-overlooked but crucial role of "chunking" and its potential to unlock the full power of LLMs in document summarization, particularly within the context of the Retrieval-Augmented Generation (RAG) model, **powered by the innovative capabilities of MongoDB Atlas Vector Search.**
 
