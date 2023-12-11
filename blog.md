@@ -66,8 +66,6 @@ Effective chunking maximizes the retrieval vector relevance score, enabling LLMs
 
 ## ![Alt text](./images/actionweaver_mdb.png)
 
-Ultimately, effective chunking is about finding the right balance between detail and context, maximizing the retrieval vector relevance score and enabling the LLM to generate the most accurate and insightful responses possible. By understanding the impact of chunk size and other relevant factors, we can unleash the full potential of LLMs and unlock exciting possibilities!
-
 ## Taking Control with Interactive RAG:
 
 While an optimized chunk size is crucial, Interactive RAG goes a step further. It empowers users to dynamically adjust their RAG strategy in real-time, using ActionWeaver. This unlocks a new era of personalized information access and knowledge management.
