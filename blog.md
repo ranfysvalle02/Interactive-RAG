@@ -1,4 +1,14 @@
 # Interactive RAG with MongoDB Atlas + Function Calling API
+## Introduction: Unveiling the Power of Dynamic Knowledge Discovery
+
+Imagine yourself as a detective investigating a complex case. Traditional Retrieval Augmented Generation (RAG) acts as your static assistant, meticulously sifting through mountains of evidence based on a pre-defined strategy. While helpful, this approach lacks the flexibility needed for today's ever-changing digital landscape.
+
+Enter Interactive RAG – the next generation of information access. It empowers users to become active knowledge investigators by:
+
+* **Dynamically adjusting retrieval strategies:** Tailor the search to your specific needs by fine-tuning parameters like the number of sources, chunk size, and retrieval algorithms.
+* **Personalizing information access:** Receive information directly relevant to your interests and priorities, ensuring you never miss a crucial detail.
+* **Enhancing LLM performance:** Optimize the LLM's workload by dynamically adjusting the information flow, leading to faster and more accurate analysis.
+* **Stay ahead of the curve:**  As new information emerges, readily incorporate it into your retrieval strategy to stay up-to-date and relevant.
 
 ##### BEFORE YOU CONTINUE, MAKE SURE YOU
 
@@ -13,7 +23,7 @@
 
 Choosing between static and interactive Retrieval Augmented Generation (RAG) approaches is crucial for optimizing your application's retrieval strategy. Each approach offers unique advantages and disadvantages, tailored to specific use cases:
 
-**Static RAG:**
+**Static RAG:** A Static RAG approach is pre-trained on a fixed knowledge base, meaning the information it can access and utilize is predetermined and unchanging. This allows for faster inference times and lower computational costs, making it ideal for applications requiring real-time responses, such as chatbots and virtual assistants.
 
 **Pros:**
 
@@ -28,7 +38,7 @@ Choosing between static and interactive Retrieval Augmented Generation (RAG) app
 * **Outdated Information:** Static knowledge bases can become outdated, leading to inaccurate or irrelevant responses if not frequently updated.
 * **Less Adaptable:** Static RAG can struggle to adapt to changing user needs and preferences, limiting their ability to provide personalized or context-aware responses.
 
-**Interactive RAG:**
+**Interactive RAG:** An Interactive RAG approach is trained on a dynamic knowledge base, allowing it to access and process real-time information from external sources such as online databases and APIs. This enables it to provide up-to-date and relevant responses, making it suitable for applications requiring access to constantly changing data.
 
 **Pros:**
 
@@ -262,88 +272,8 @@ MongoDB Atlas provides comprehensive monitoring and alerting features to help yo
 * **Developer tools:** 
 MongoDB Atlas offers various developer tools and APIs to simplify development and integration with your applications.
 
-## **Building an Interactive-RAG Agent:**
-
-In this tutorial, we will build an Interactive-RAG agent that can:
-
-* **Adjust Chunk Retrieval:** Conversationally adapt the chunk retrieval strategy based on user interactions and feedback.
-* **Dynamic Knowledge Base:** Add or remove sources from the underlying vector database, ensuring access to relevant and up-to-date information.
-* **Web Search Integration:** Perform web searches on the user's behalf, expanding the knowledge base beyond pre-loaded sources and external databases.
-
-Using [ActionWeaver](https://github.com/TengHu/ActionWeaver/tree/main), a lightweight wrapper for function calling API, we can build a user proxy agent that efficiently retrieves and ingests relevant information using MongoDB Atlas. A proxy agent is a middleman sending client requests to other servers or resources and then bringing responses back. This agent presents the data to the user in an interactive and customizable manner, enhancing the overall user experience.
-
-The `UserProxyAgent` has several RAG parameters that can be customized, such as `chunk_size`(e.g. 1000), `num_sources`(e.g. 2), `unique`(e.g. True) and `min_rel_score`(e.g. 0.00).
-
-```python
-class UserProxyAgent:
-    def __init__(self, logger, st):
-        # CHUNK RETRIEVAL STRATEGY
-        self.rag_config = {
-            "num_sources": 2,
-            "source_chunk_size": 1000,
-            "min_rel_score": 0.00,
-            "unique": True,
-        }
-```
-
-```python
-class RAGAgent(UserProxyAgent):
-    def __call__(self, text):
-            text = self.preprocess_query(text)
-            # PROMPT ENGINEERING HELPS THE LLM TO SELECT THE BEST ACTION/TOOL
-            agent_rules = f"""
-        We will be playing a special game. Trust me, you do not want to lose.
-
-        ## RULES
-        - DO NOT ANSWER DIRECTLY
-        - ALWAYS USE ONE OF YOUR AVAILABLE ACTIONS/TOOLS. 
-        - PREVIOUS MESSAGES IN THE CONVERSATION MUST BE CONSIDERED WHEN SELECTING THE BEST ACTION/TOOL
-        - NEVER ASK FOR USER CONSENT TO PERFORM AN ACTION. ALWAYS PERFORM IT THE USERS BEHALF.
-        Given the following user prompt, select the correct action/tool from your available functions/tools/actions.
-
-        ## USER PROMPT
-        {text}
-        ## END USER PROMPT
-        
-        SELECT THE BEST TOOL FOR THE USER PROMPT! BEGIN!
-    """
-            self.messages += [{"role": "user", "content": agent_rules + "\n\n## IMPORTANT! REMEMBER THE GAME RULES! DO NOT ANSWER DIRECTLY! IF YOU ANSWER DIRECTLY YOU WILL LOSE. BEGIN!"}]
-            if (
-                len(self.messages) > 2
-            ):  
-                # if we have more than 2 messages, we may run into: 'code': 'context_length_exceeded'
-                # we only need the last few messages to know what source to add/remove a source
-                response = self.llm.create(
-                    messages=self.messages[-2:],
-                    actions=[
-                        self.read_url,
-                        self.answer_question,
-                        self.remove_source,
-                        self.reset_messages,
-                        self.show_messages,
-                        self.iRAG,
-                        self.get_sources_list,
-                        self.search_web
-                    ],
-                    stream=False,
-                )
-            else:
-                response = self.llm.create(
-                    messages=self.messages,
-                    actions=[
-                        self.read_url,
-                        self.answer_question,
-                        self.remove_source,
-                        self.reset_messages,
-                        self.show_messages,
-                        self.iRAG,
-                        self.get_sources_list,
-                        self.search_web
-                    ],
-                    stream=False,
-                )
-            return response
-```
+## OpenAI Function Calling:
+OpenAI's function calling is a powerful capability that enables users to seamlessly interact with OpenAI models, such as GPT-3.5, through programmable commands. This functionality allows developers and enthusiasts to harness the language model's vast knowledge and natural language understanding by incorporating it directly into their applications or scripts. Through function calling, users can make specific requests to the model, providing input parameters and receiving tailored responses. This not only facilitates more precise and targeted interactions but also opens up a world of possibilities for creating dynamic, context-aware applications that leverage the extensive linguistic capabilities of OpenAI's models. Whether for content generation, language translation, or problem-solving, OpenAI function calling offers a flexible and efficient way to integrate cutting-edge language processing into various domains.
 
 ## Key features of OpenAI function calling:
 - Function calling allows you to connect large language models to external tools.
