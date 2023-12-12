@@ -1,9 +1,10 @@
 ## Interactive RAG with MongoDB Atlas + Function Calling API
 
 ##### BEFORE YOU CONTINUE, MAKE SURE YOU
-- Understand the basics of LLMs
-- Understand the basic concept of RAG
-- Understand the basics of using a vector database
+
+- [Understand the basics of LLMs](https://www.mongodb.com/basics/large-language-modelss)
+- [Understand the basic concept of RAG](https://www.mongodb.com/basics/retrieval-augmented-generation)
+- [Understand the basics of using a vector database](https://www.mongodb.com/basics/vector-databases)
 
 ## Optimizing Your Retrieval Strategy: Static vs. Interactive RAG
 
@@ -502,3 +503,12 @@ Intrigued by the possibilities? Explore the full source code for the **Interacti
 **Together, let's unlock the transformative potential of this potent combination and forge a future where information is effortlessly accessible and knowledge is readily available to all.**
 
 ![Here is the full source code for the Interactive-RAG application using MongoDB Atlas and ActionWeaver](https://github.com/ranfysvalle02/Interactive-RAG/)
+
+## Additional MongoDB Resources
+
+- https://www.mongodb.com/developer/products/atlas/rag-atlas-vector-search-langchain-openai/
+- https://www.mongodb.com/developer/products/atlas/taking-rag-to-production-documentation-ai-chatbot/
+- https://www.mongodb.com/basics/what-is-artificial-intelligence
+- https://www.mongodb.com/basics/semantic-search
+- https://www.mongodb.com/basics/machine-learning-healthcare
+- https://www.mongodb.com/basics/generative-ai
