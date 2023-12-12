@@ -68,7 +68,7 @@ Now, Let's put our detective hat back on. If you have a mountain of evidence ava
 
 Just like a detective, an LLM can't process a mountain of information all at once. Chunking helps it break down text into smaller, more digestible pieces called **chunks**. Think of these chunks as bite-sized pieces of knowledge that the LLM can easily analyze and understand. This allows the LLM to focus on specific sections of the text, extract relevant information, and generate more accurate and insightful responses.
 
-However, the size of each chunk isn't just about convenience for the LLM; it also significantly impacts the **retrieval vector relevance score**, a key metric in evaluating the effectiveness of chunking strategies. The process involves converting text to vectors, measuring distance between them, utilizing ANN/kNN algorithms, and calculating a score for the generated vectors. 
+However, the size of each chunk isn't just about convenience for the LLM; it also significantly impacts the **retrieval vector relevance score**, a key metric in evaluating the effectiveness of chunking strategies. The process involves converting text to vectors, measuring distance between them, utilizing ANN/KNN algorithms, and calculating a score for the generated vectors. 
 
 Here is an example: Imagine asking "What is a mango?" and the LLM dives into its knowledge base, encountering these chunks:
 
