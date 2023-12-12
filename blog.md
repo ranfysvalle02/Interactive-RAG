@@ -161,7 +161,7 @@ While various databases can store vector embeddings, each with unique strengths,
 
 By leveraging the combined power of Function Calling API and MongoDB Atlas, you can streamline your content ingestion process and unlock the full potential of vector embeddings for your GenAI applications.
 
-![RAG architecture diagram with MongoDB Atlas](https://www.mongodb.com/developer/_next/image/?url=https%3A%2F%2Fimages.contentstack.io%2Fv3%2Fassets%2Fblt39790b633ee0d5a7%2Fbltb482d06c8f1f0674%2F65398a092c3581197ab3b07f%2Fimage3.png&w=1920&q=75)
+![RAG architecture diagram with MongoDB Atlas](./images/mdb_diagram.png)
 
 ### Detailed Breakdown:  
    
@@ -185,7 +185,7 @@ By leveraging the combined power of Function Calling API and MongoDB Atlas, you 
         )   
     ```
 
-2. **Indexing**: When employing vector search, it's necessary to [create a search index](https://www.mongodb.com/docs/atlas/atlas-search/field-types/knn-vector/). This process entails setting up the vector path, aligning the dimensions with your chosen model, and selecting a vector function for searching the top K-nearest neighbors.  
+2. **Vector Index**: When employing vector search, it's necessary to [create a search index](https://www.mongodb.com/docs/atlas/atlas-search/field-types/knn-vector/). This process entails setting up the vector path, aligning the dimensions with your chosen model, and selecting a vector function for searching the top K-nearest neighbors.  
     ```python
     {
     "mappings": {
