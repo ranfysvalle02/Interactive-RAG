@@ -128,6 +128,12 @@ Effective chunking maximizes the retrieval vector relevance score, enabling LLMs
 
 ## ![RAG Agent Architecture for this Tutorial](./images/rag-agent.png)
 
+In this tutorial, we will showcase an Interactive RAG agent that supports the following actions: answer question, search the web, read URLs, remove sources, list all sources, and reset messages.
+
+## What is an Agent anyway?
+
+An agent is a computer program or system designed to perceive its environment, make decisions, and achieve specific goals.
+
 ## Taking Control with Interactive RAG:
 
 While an optimized chunk size is crucial, Interactive RAG goes a step further. It empowers users to dynamically adjust their RAG strategy in real-time, using the function calling API of Large Language Models (LLMs). This unlocks a new era of personalized information access and knowledge management.
@@ -146,15 +152,15 @@ While an optimized chunk size is crucial, Interactive RAG goes a step further. I
 
 ## Ingesting Content into Your Vector Database
 
-**Streamlining Content Ingestion with Agents**
+**Streamlining Content Ingestion with Function Calling**
 
-While vector databases offer significant advantages for GenAI applications, the process of ingesting content can feel cumbersome. Fortunately, we can harness the power of agents to seamlessly add new content to the database, simplifying the workflow and ensuring continuous updates.
+While vector databases offer significant advantages for GenAI applications, the process of ingesting content can feel cumbersome. Fortunately, we can harness the power of Function Calling API to seamlessly add new content to the database, simplifying the workflow and ensuring continuous updates.
 
 **Choosing the Right Home for Your Embeddings**
 
 While various databases can store vector embeddings, each with unique strengths, [MongoDB Atlas](https://cloud.mongodb.com) stands out for GenAI applications. Imagine MongoDB as a delicious cake you can both bake and eat. Not only does it offer the familiar features of MongoDB, but it also lets you store and perform mathematical operations on your vector embeddings directly within the platform. This eliminates the need for separate tools and streamlines the entire process.
 
-By leveraging the combined power of agents and MongoDB Atlas, you can streamline your content ingestion process and unlock the full potential of vector embeddings for your GenAI applications.
+By leveraging the combined power of Function Calling API and MongoDB Atlas, you can streamline your content ingestion process and unlock the full potential of vector embeddings for your GenAI applications.
 
 ![RAG architecture diagram with MongoDB Atlas](https://www.mongodb.com/developer/_next/image/?url=https%3A%2F%2Fimages.contentstack.io%2Fv3%2Fassets%2Fblt39790b633ee0d5a7%2Fbltb482d06c8f1f0674%2F65398a092c3581197ab3b07f%2Fimage3.png&w=1920&q=75)
 
