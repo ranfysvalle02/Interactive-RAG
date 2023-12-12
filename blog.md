@@ -455,7 +455,7 @@ Next, let's modify the RAG strategy! Let's make it only use one source, and have
 
 ![DEMO - Change RAG strategy part 1](./images/mod_rag.png)
 
-Notice that though it was able to retrieve a chunk, with a fairly high relevance score, it was not able to generate a response because the chunk size was too small. Since it could not generate a response with the small chunk, it performed a web search on the user's behalf. 
+Notice that though it was able to retrieve a chunk, with a fairly high relevance score, it was not able to generate a response because the chunk size was too small and the chunk content was not relevant enough to formulate a response. Since it could not generate a response with the small chunk, it performed a web search on the user's behalf. 
 
 Let's see what happens if we increase the chunk size to be 3000 characters instead of 500. 
 
