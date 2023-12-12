@@ -1,4 +1,4 @@
-## Interactive RAG with MongoDB Atlas + Function Calling API
+# Interactive RAG with MongoDB Atlas + Function Calling API
 
 ##### BEFORE YOU CONTINUE, MAKE SURE YOU
 
