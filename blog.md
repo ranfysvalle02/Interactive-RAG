@@ -439,7 +439,7 @@ If the bot is unable to provide an answer to the question from data stored in th
 
 ## DEMO
 
-Let's start by asking our agent a question. In this case, "What is a mango?". The first thing that will happen is, it will try to "recall" any relevant information using vector embedding similarity. It will then formulate a response with the content it "recalled", or will perform a web search. Since our knowledgebase is currently empty, we need to add some sources before it can formulate a response.
+Let's start by asking our agent a question. In this case, **"What is a mango?"**. The first thing that will happen is, it will try to "recall" any relevant information using vector embedding similarity. It will then formulate a response with the content it "recalled", or will perform a web search. Since our knowledgebase is currently empty, we need to add some sources before it can formulate a response.
 
 ![DEMO - Ask a Question](./images/ask_question.png)
 
