@@ -443,23 +443,49 @@ Let's start by asking our agent a question. In this case, **"What is a mango?"**
 
 ![DEMO - Ask a Question](./images/ask_question.png)
 
-Since the bot is unable to provide an answer, it initiated a Google search to find relevant information.
+Since the bot is unable to provide an answer using the content in the vector database, it initiated a Google search to find relevant information. We can now tell it which sources it should "learn". In this case, we'll tell it to learn the first two sources from the search results.
 
 ## Tell the bot which results to learn from: 
 
 ![DEMO - Add a source](./images/add_sources.png)
 
-
 ## Change RAG strategy
-![DEMO - Change RAG strategy](./images/mod_rag.png)
+
+Next, let's modify the RAG strategy! Let's make it only use one source, and have it use a small chunk size of 500 characters.
+
+![DEMO - Change RAG strategy part 1](./images/mod_rag.png)
+
+Notice that though it was able to retrieve a chunk, with a fairly high relevance score, it was not able to generate a response because the chunk size was too small. Since it could not generate a response with the small chunk, it performed a web search on the user's behalf. 
+
+Let's see what happens if we increase the chunk size to be 3000 characters instead of 500. 
+
+![DEMO - Change RAG strategy part 2](./images/mod_rag-2.png)
+
+Now, with a larger chunk size, it was able to accurately formulate the response using the knowledge from the vector database! 
 
 ## List All Sources
+
+Let's see what's available in the knowledge base of the Agent by asking it: **What sources do you have in your knowledge base?**
+
 ![DEMO - List all sources](./images/list_sources.png)
 
 ## Remove a source of information
+
+If you want to remove a specific resource, you could do something like:
+```
+USER: remove source 'https://www.oracle.com' from the knowledge base
+```
+
+To remove all the sources in the collection - We could do something like:
+
+```
+USER: what sources do you have in your knowledge base?
+AGENT: {response}
+USER: remove all those sources please
+```
 ![DEMO - Remove source](./images/remove_sources.png)
 
-
+This blog post has provided a glimpse into the inner workings of our AI agent, showcasing its ability to learn and respond to user queries in an interactive manner. We've witnessed how it seamlessly combines its internal knowledge base with real-time web search to deliver comprehensive and accurate information. The potential of this technology is vast, extending far beyond simple question-answering. None of this would be possible without the magic of the **Function Calling API**.
 
 ## Function Calling API Basics: Actions 
 
