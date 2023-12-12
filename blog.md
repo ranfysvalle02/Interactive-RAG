@@ -292,6 +292,7 @@ OpenAI's function calling is a powerful capability that enables users to seamles
 - Tokens are used to inject functions into the system message and count against the model's context limit and billing.
 
 ![Function Calling Diagram - Simple](./images/function_calling.png)
+(_Credit to blog post: [Make Langchain Agent Actually Work With Local LLMs (Vicuna, WizardLM)](https://betterprogramming.pub/make-langchain-agent-actually-works-with-local-llms-vicuna-wizardlm-etc-da42b6b1a97)_)
 
 Read more at: https://thinhdanggroup.github.io/function-calling-openai/
 
