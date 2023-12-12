@@ -24,7 +24,7 @@ Choosing between static and interactive Retrieval Augmented Generation (RAG) app
 
 **Cons:**
 
-* **Limited Knowledge:** Static RAG is confined to their pre-loaded knowledge, limiting their versatility compared to dynamic RAG accessing external data.
+* **Limited Knowledge:** Static RAG is confined to their pre-loaded knowledge, limiting their versatility compared to Interactive RAG accessing external data.
 * **Outdated Information:** Static knowledge bases can become outdated, leading to inaccurate or irrelevant responses if not frequently updated.
 * **Less Adaptable:** Static RAG can struggle to adapt to changing user needs and preferences, limiting their ability to provide personalized or context-aware responses.
 
@@ -34,12 +34,12 @@ Choosing between static and interactive Retrieval Augmented Generation (RAG) app
 
 * **Up-to-Date Information:** Interactive RAG can access and process real-time external information, ensuring current and relevant responses, particularly valuable for applications requiring access to frequently changing data.
 * **Greater Flexibility:** Interactive RAG can adapt to user needs and preferences by incorporating feedback and interactions into their responses, enabling personalized and context-aware experiences.
-* **Vast Knowledge Base:** Access to external information provides an almost limitless knowledge pool, allowing dynamic RAG to address a wider range of queries and deliver comprehensive and informative responses.
+* **Vast Knowledge Base:** Access to external information provides an almost limitless knowledge pool, allowing Interactive RAG to address a wider range of queries and deliver comprehensive and informative responses.
 
 **Cons:**
 
 * **Slower Response:** Processing external information increases inference time, potentially hindering real-time applications.
-* **Higher Cost:** Dynamic RAG requires more computational resources, making them potentially unsuitable for resource-constrained environments.
+* **Higher Cost:** Interactive RAG requires more computational resources, making them potentially unsuitable for resource-constrained environments.
 * **Bias Risk:** External information sources may contain biases or inaccuracies, leading to biased or misleading responses if not carefully mitigated.
 * **Security Concerns:** Accessing external sources introduces potential data security risks, requiring robust security measures to protect sensitive information.
 
@@ -47,9 +47,9 @@ Choosing between static and interactive Retrieval Augmented Generation (RAG) app
 
 While this tutorial focuses specifically on Interactive RAG, the optimal approach depends on your application's specific needs and constraints. Consider:
 
-* **Data Size & Update Frequency:** Static models are suitable for static or infrequently changing data, while dynamic RAG is necessary for frequently changing data.
-* **Real-Time Requirements:** Choose static RAG for applications requiring fast response times. For less critical applications, dynamic RAG may be preferred.
-* **Computational Resources:** Evaluate your available resources when choosing between static and dynamic approaches.
+* **Data Size & Update Frequency:** Static models are suitable for static or infrequently changing data, while interactive RAG is necessary for frequently changing data.
+* **Real-Time Requirements:** Choose static RAG for applications requiring fast response times. For less critical applications, interactive RAG may be preferred.
+* **Computational Resources:** Evaluate your available resources when choosing between static and interactive approaches.
 * **Data Privacy & Security:** Ensure your chosen approach adheres to all relevant data privacy and security regulations.
 
 
