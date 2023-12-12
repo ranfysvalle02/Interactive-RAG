@@ -360,6 +360,35 @@ class RAGAgent(UserProxyAgent):
 
 Read more at: https://thinhdanggroup.github.io/function-calling-openai/
 
+## Function Calling API Basics: Actions 
+
+Actions are functions that an agent can invoke. There are two important design considerations around actions:
+
+    Giving the agent access to the right actions
+    Describing the actions in a way that is most helpful to the agent
+
+## Crafting Actions for Effective Agents
+
+**Actions are the lifeblood of an agent's decision-making.** They define the options available to the agent and shape its interactions with the environment. Consequently, designing effective actions is crucial for building successful agents.
+
+**Two key considerations guide this design process:**
+
+1. **Access to relevant actions:** Ensure the agent has access to actions necessary to achieve its objectives. Omitting critical actions limits the agent's capabilities and hinders its performance.
+2. **Action description clarity:** Describe actions in a way that is informative and unambiguous for the agent. Vague or incomplete descriptions can lead to misinterpretations and suboptimal decisions.
+
+**By carefully designing actions that are both accessible and well-defined, you equip your agent with the tools and knowledge necessary to navigate its environment and achieve its objectives.**
+
+**Further considerations:**
+
+* **Granularity of actions:** Should actions be high-level or low-level? High-level actions offer greater flexibility but require more decision-making, while low-level actions offer more control but limit adaptability.
+* **Action preconditions and effects:** Clearly define the conditions under which an action can be taken and its potential consequences. This helps the agent understand the implications of its choices.
+
+
+If you don't give the agent the right actions and describe them in an effective way, you won’t be able to build a working agent.
+
+![LangChain Tools Diagram](./images/llm_agent.png)
+
+An LLM is then called, resulting in either a response to the user OR action(s) to be taken. If it is determined that a response is required, then that is passed to the user, and that cycle is finished. If it is determined that an action is required, that action is then taken, and an observation (action result) is made. That action & corresponding observation are added back to the prompt (we call this an “agent scratchpad”), and the loop resets, ie. the LLM is called again (with the updated agent scratchpad).
 
 ## Getting Started
 
@@ -486,36 +515,6 @@ USER: remove all those sources please
 ![DEMO - Remove source](./images/remove_sources.png)
 
 This demo has provided a glimpse into the inner workings of our AI agent, showcasing its ability to learn and respond to user queries in an interactive manner. We've witnessed how it seamlessly combines its internal knowledge base with real-time web search to deliver comprehensive and accurate information. The potential of this technology is vast, extending far beyond simple question-answering. None of this would be possible without the magic of the **Function Calling API**.
-
-## Function Calling API Basics: Actions 
-
-Actions are functions that an agent can invoke. There are two important design considerations around actions:
-
-    Giving the agent access to the right actions
-    Describing the actions in a way that is most helpful to the agent
-
-## Crafting Actions for Effective Agents
-
-**Actions are the lifeblood of an agent's decision-making.** They define the options available to the agent and shape its interactions with the environment. Consequently, designing effective actions is crucial for building successful agents.
-
-**Two key considerations guide this design process:**
-
-1. **Access to relevant actions:** Ensure the agent has access to actions necessary to achieve its objectives. Omitting critical actions limits the agent's capabilities and hinders its performance.
-2. **Action description clarity:** Describe actions in a way that is informative and unambiguous for the agent. Vague or incomplete descriptions can lead to misinterpretations and suboptimal decisions.
-
-**By carefully designing actions that are both accessible and well-defined, you equip your agent with the tools and knowledge necessary to navigate its environment and achieve its objectives.**
-
-**Further considerations:**
-
-* **Granularity of actions:** Should actions be high-level or low-level? High-level actions offer greater flexibility but require more decision-making, while low-level actions offer more control but limit adaptability.
-* **Action preconditions and effects:** Clearly define the conditions under which an action can be taken and its potential consequences. This helps the agent understand the implications of its choices.
-
-
-If you don't give the agent the right actions and describe them in an effective way, you won’t be able to build a working agent.
-
-![LangChain Tools Diagram](./images/llm_agent.png)
-
-An LLM is then called, resulting in either a response to the user OR action(s) to be taken. If it is determined that a response is required, then that is passed to the user, and that cycle is finished. If it is determined that an action is required, that action is then taken, and an observation (action result) is made. That action & corresponding observation are added back to the prompt (we call this an “agent scratchpad”), and the loop resets, ie. the LLM is called again (with the updated agent scratchpad).
 
 ## Embracing the Future of Information Access with Interactive RAG
 
