@@ -381,10 +381,6 @@ Both Chain of Thought (CoT) and ReAct prompting techniques come into play in the
 
 In summary, both CoT and ReAct play a crucial role in these examples. CoT enables the model to reason step-by-step and choose appropriate actions, while ReAct extends this functionality by allowing the model to interact with its environment and update its plans accordingly. This combination of reasoning and action makes large language models more flexible and versatile, enabling them to handle a wider range of tasks and situations.
 
-
-The core building block of our RAG-Agent is 'UserProxyAgent'. In UserProxyAgent, we use ReAct Prompt Technique to enhance the models abilities to select the right tool. GPT3.5 is not as good as GPT4 when it comes to picking the right 'action'. This type of prompt technique reduces the odds of your agent taking the wrong action.
-
-
 ## DEMO
 
 ![](./images/ask_question.png)
