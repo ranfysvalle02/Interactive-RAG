@@ -149,8 +149,8 @@ In this tutorial, we will showcase an Interactive RAG agent. An agent is a compu
 - answer questions
 - search the web 
 - read web content (URLs)
-- remove sources
 - list all sources 
+- remove sources
 - reset messages 
 - modify rag strategy (num_sources, chunk_size, etc.)
 
