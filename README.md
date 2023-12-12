@@ -361,6 +361,34 @@ This example uses ReAct combined with chain-of-thought (CoT).
 [END EXAMPLES]
 ```
 
+Both Chain of Thought (CoT) and ReAct prompting techniques come into play in these examples. Here's how:
+
+**Chain of Thought (CoT) Prompting:**
+
+* **Reasoning**: In each example, the model uses internal reasoning before responding. It doesn't directly answer the user input but instead thinks through the steps involved:
+    * Identifying available actions ("answer_question", "reset_messages", "remove_source", "read_url")
+    * Choosing the appropriate action based on the user input
+    * Executing the chosen action
+* **Observation**: The model observes the available actions before taking any action. This allows it to be more deliberate and avoid making mistakes.
+* **Action**: The model then executes the chosen action, resulting in the desired outcome.
+
+**ReAct Prompting:**
+
+* **Synergy between reasoning and acting**: ReAct builds upon CoT by adding a further level of interaction with the environment. This allows the model to:
+    * **Gather additional information**: In some cases, the model may need more information from the environment before taking action. For example, in the "read_url" example, the model needs to read the content of the specified URLs before it can answer any questions about them.
+    * **Update action plans**: Based on the gathered information, the model can revise its initial plan and adjust its actions accordingly.
+    * **Make decisions in real-time**: ReAct allows the model to interact with its environment and react to changes in real-time. This makes it more adaptable and versatile in complex situations.
+
+**Examples breakdown:**
+
+* **"What is MongoDB?"**: The model uses its knowledge to answer the question directly, demonstrating CoT reasoning.
+* **"Reset chat history"**: The model uses the "reset_messages" action to clear the chat history, showcasing CoT's action execution.
+* **"remove source"**: The model removes the specified sources from its internal knowledge base, exhibiting ReAct's ability to update its internal state based on user input.
+* **"read_url"**: The model reads the content of the specified URLs, demonstrating ReAct's ability to gather information from the environment.
+
+In summary, both CoT and ReAct play a crucial role in these examples. CoT enables the model to reason step-by-step and choose appropriate actions, while ReAct extends this functionality by allowing the model to interact with its environment and update its plans accordingly. This combination of reasoning and action makes large language models more flexible and versatile, enabling them to handle a wider range of tasks and situations.
+
+
 The core building block of our RAG-Agent is 'UserProxyAgent'. In UserProxyAgent, we use ReAct Prompt Technique to enhance the models abilities to select the right tool. GPT3.5 is not as good as GPT4 when it comes to picking the right 'action'. This type of prompt technique reduces the odds of your agent taking the wrong action.
 
 
