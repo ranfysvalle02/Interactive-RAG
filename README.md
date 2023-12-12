@@ -379,13 +379,6 @@ Both Chain of Thought (CoT) and ReAct prompting techniques come into play in the
     * **Update action plans**: Based on the gathered information, the model can revise its initial plan and adjust its actions accordingly.
     * **Make decisions in real-time**: ReAct allows the model to interact with its environment and react to changes in real-time. This makes it more adaptable and versatile in complex situations.
 
-**Examples breakdown:**
-
-* **"What is MongoDB?"**: The model uses its knowledge to answer the question directly, demonstrating CoT reasoning.
-* **"Reset chat history"**: The model uses the "reset_messages" action to clear the chat history, showcasing CoT's action execution.
-* **"remove source"**: The model removes the specified sources from its internal knowledge base, exhibiting ReAct's ability to update its internal state based on user input.
-* **"read_url"**: The model reads the content of the specified URLs, demonstrating ReAct's ability to gather information from the environment.
-
 In summary, both CoT and ReAct play a crucial role in these examples. CoT enables the model to reason step-by-step and choose appropriate actions, while ReAct extends this functionality by allowing the model to interact with its environment and update its plans accordingly. This combination of reasoning and action makes large language models more flexible and versatile, enabling them to handle a wider range of tasks and situations.
 
 
