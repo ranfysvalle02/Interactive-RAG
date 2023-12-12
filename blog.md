@@ -68,7 +68,25 @@ Now, Let's put our detective hat back on. If you have a mountain of evidence ava
 
 Just like a detective, an LLM can't process a mountain of information all at once. Chunking helps it break down text into smaller, more digestible pieces called **chunks**. Think of these chunks as bite-sized pieces of knowledge that the LLM can easily analyze and understand. This allows the LLM to focus on specific sections of the text, extract relevant information, and generate more accurate and insightful responses.
 
-However, the size of each chunk isn't just about convenience for the LLM; it also significantly impacts the **retrieval vector relevance score**, a key metric in evaluating the effectiveness of chunking strategies. This score measures how well the generated vector embeddings for each chunk represent the actual information contained within.
+However, the size of each chunk isn't just about convenience for the LLM; it also significantly impacts the **retrieval vector relevance score**, a key metric in evaluating the effectiveness of chunking strategies. The process involves converting text to vectors, measuring distance between them, utilizing ANN algorithms, and calculating a score for the generated vectors. 
+
+Here is an example: Imagine asking "What is a mango?" and the LLM dives into its knowledge base, encountering these chunks:
+
+**High Scores:**
+
+* **Chunk:** "Mango is a tropical stone fruit with a sweet, juicy flesh and a single pit." (Score: 0.98)
+* **Chunk:** "In India, mangoes are revered as the 'King of Fruits' and hold cultural significance." (Score: 0.92)
+* **Chunk:** "The mango season brings joy and delicious treats like mango lassi and mango ice cream." (Score: 0.85)
+
+These chunks directly address the question, providing relevant information about the fruit's characteristics, cultural importance, and culinary uses. High scores reflect their direct contribution to answering your query.
+
+**Low Scores:**
+
+* **Chunk:** "Volcanoes spew molten lava and ash, causing destruction and reshaping landscapes." (Score: 0.21)
+* **Chunk:** "The stock market fluctuates wildly, driven by economic factors and investor sentiment." (Score: 0.42)
+* **Chunk:** "Mitochondria, the 'powerhouses of the cell,' generate energy for cellular processes." (Score: 0.55)
+
+These chunks, despite containing interesting information, are completely unrelated to mangoes. They address entirely different topics, earning low scores due to their lack of relevance to the query.
 
 Check out [ChunkViz v0.1](https://www.chunkviz.com/) to get a feel for how chunk size (character length) breaks down text.
 
@@ -127,11 +145,14 @@ Effective chunking maximizes the retrieval vector relevance score, enabling LLMs
 
 ## ![RAG Agent Architecture for this Tutorial](./images/rag-agent.png)
 
-In this tutorial, we will showcase an Interactive RAG agent that supports the following actions: answer question, search the web, read URLs, remove sources, list all sources, and reset messages.
-
-## What is an Agent anyway?
-
-An agent is a computer program or system designed to perceive its environment, make decisions, and achieve specific goals.
+In this tutorial, we will showcase an Interactive RAG agent. An agent is a computer program or system designed to perceive its environment, make decisions, and achieve specific goals. The interactive RAG agent we will showcase supports the following actions: 
+- answer questions
+- search the web 
+- read web content (URLs)
+- remove sources
+- list all sources 
+- reset messages 
+- modify rag strategy (num_sources, chunk_size, etc.)
 
 ## Taking Control with Interactive RAG:
 
