@@ -140,7 +140,7 @@ While an optimized chunk size is crucial, Interactive RAG goes a step further. I
 **This Interactive RAG tutorial leverages:**
 
 * **Dynamic Strategy Adjustment:** Unlike traditional RAG approaches, users can fine-tune chunk size, number of sources, and other parameters on-the-fly, tailoring the LLM's response to their specific needs.
-* **ActionWeaver Integration:** ActionWeaver seamlessly integrates external tools and services with LLMs through function calling. This allows users to seamlessly incorporate their own data sources and tools into their RAG workflow. There will be a follow up blog post around the implementation details using ActionWeaver.
+* **Function Calling API Integration:** Function Calling API seamlessly integrates external tools and services with LLMs. This allows users to seamlessly incorporate their own data sources and tools into their RAG workflow. 
 
 **Benefits:**
 
@@ -454,18 +454,15 @@ This demo has provided a glimpse into the inner workings of our AI agent, showca
 
 ## Embracing the Future of Information Access with Interactive RAG
 
-This blog post has explored the exciting potential of **Interactive Retrieval Augmented Generation (RAG)** with the powerful combination of MongoDB Atlas and ActionWeaver. We've delved into the crucial role of **chunking, embedding, and retrieval vector relevance score** in optimizing RAG performance, unlocking its true potential for information retrieval and knowledge management.
+This blog post has explored the exciting potential of **Interactive Retrieval Augmented Generation (RAG)** with the powerful combination of MongoDB Atlas and Function Calling API. We've delved into the crucial role of **chunking, embedding, and retrieval vector relevance score** in optimizing RAG performance, unlocking its true potential for information retrieval and knowledge management.
 
-Furthermore, we introduced **ActionWeaver**, a lightweight framework that simplifies the integration of external tools with language models through **function calling**. This remarkable synergy empowers us to build robust and versatile AI applications, expanding the boundaries of what's possible.
+Interactive RAG, powered by the combined forces of MongoDB Atlas and Function Calling API, represents a significant leap forward in the realm of information retrieval and knowledge management. By enabling dynamic adjustment of the RAG strategy and seamless integration with external tools, it empowers users to harness the full potential of LLMs for a truly interactive and personalized experience.
 
-
-Interactive RAG, powered by the combined forces of MongoDB Atlas and ActionWeaver, represents a significant leap forward in the realm of information retrieval and knowledge management. By enabling dynamic adjustment of the RAG strategy and seamless integration with external tools, it empowers users to harness the full potential of LLMs for a truly interactive and personalized experience.
-
-Intrigued by the possibilities? Explore the full source code for the **Interactive-RAG application** and unleash the power of RAG with MongoDB Atlas and ActionWeaver in your own projects!
+Intrigued by the possibilities? Explore the full source code for the **Interactive-RAG application** and unleash the power of RAG with MongoDB Atlas and Function Calling API in your own projects!
 
 **Together, let's unlock the transformative potential of this potent combination and forge a future where information is effortlessly accessible and knowledge is readily available to all.**
 
-[Here is the full source code for the Interactive-RAG application using MongoDB Atlas and ActionWeaver](https://github.com/ranfysvalle02/Interactive-RAG/)
+[Here is the full source code for the Interactive-RAG application using MongoDB Atlas and Function Calling API](https://github.com/ranfysvalle02/Interactive-RAG/)
 
 ## Additional MongoDB Resources
 
