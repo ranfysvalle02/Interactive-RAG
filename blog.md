@@ -292,7 +292,6 @@ OpenAI's function calling is a powerful capability that enables users to seamles
 - Tokens are used to inject functions into the system message and count against the model's context limit and billing.
 
 ![Function Calling Diagram - Simple](./images/function_calling.png)
-(_Credit to blog post: [Make Langchain Agent Actually Work With Local LLMs (Vicuna, WizardLM)](https://betterprogramming.pub/make-langchain-agent-actually-works-with-local-llms-vicuna-wizardlm-etc-da42b6b1a97)_)
 
 Read more at: https://thinhdanggroup.github.io/function-calling-openai/
 
@@ -323,6 +322,7 @@ Actions are functions that an agent can invoke. There are two important design c
 If you don't give the agent the right actions and describe them in an effective way, you won’t be able to build a working agent.
 
 ![LangChain Tools Diagram](./images/llm_agent.png)
+(_Credit to blog post: [Make Langchain Agent Actually Work With Local LLMs (Vicuna, WizardLM)](https://betterprogramming.pub/make-langchain-agent-actually-works-with-local-llms-vicuna-wizardlm-etc-da42b6b1a97)_)
 
 An LLM is then called, resulting in either a response to the user OR action(s) to be taken. If it is determined that a response is required, then that is passed to the user, and that cycle is finished. If it is determined that an action is required, that action is then taken, and an observation (action result) is made. That action & corresponding observation are added back to the prompt (we call this an “agent scratchpad”), and the loop resets, ie. the LLM is called again (with the updated agent scratchpad).
 
