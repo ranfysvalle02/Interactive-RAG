@@ -51,6 +51,8 @@ While this tutorial focuses specifically on Interactive RAG, the optimal approac
 ## ![Retrieval Augmented Generation - Diagram 1](./images/RAG-chunks.png)
 (_image from  Session 7: RAG Evaluation with RAGAS and How to Improve Retrieval - https://www.youtube.com/watch?v=mEv-2Xnb_Wk_)
 
+## Chunking: A Hidden Hero in the Rise of GenAI
+
 Imagine you're a detective trying to solve a complex case. You wouldn't try to analyze every piece of evidence at once, right? You'd break it down into smaller, more manageable pieces - documents, witness statements, physical objects - and examine each one carefully. In the world of large language models (LLMs), this process of breaking down information is called **chunking**, and it plays a crucial role in unlocking the full potential of Retrieval Augmented Generation (RAG).
 
 Just like a detective, an LLM can't process a mountain of information all at once. Chunking helps it break down text into smaller, more digestible pieces called **chunks**. Think of these chunks as bite-sized pieces of knowledge that the LLM can easily analyze and understand. This allows the LLM to focus on specific sections of the text, extract relevant information, and generate more accurate and insightful responses.
