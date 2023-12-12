@@ -5,6 +5,49 @@
 - Understand the basic concept of RAG
 - Understand the basics of using a vector database
 
+## Optimizing Your Retrieval Strategy: Static vs. Interactive RAG
+
+Choosing between static and interactive Retrieval Augmented Generation (RAG) approaches is crucial for optimizing your application's retrieval strategy. Each approach offers unique advantages and disadvantages, tailored to specific use cases:
+
+**Static RAG:**
+
+**Pros:**
+
+* **Faster Response:** Pre-loaded knowledge bases enable rapid inference, ideal for real-time applications like chatbots and virtual assistants.
+* **Lower Cost:** Static models require fewer resources for training and maintenance, making them suitable for resource-constrained environments.
+* **Controlled Content:** Developers have complete control over the model's knowledge base, ensuring targeted and curated responses in sensitive applications.
+* **Consistent Results:** Static models provide stable outputs even when underlying data changes, ensuring reliability in data-intensive scenarios.
+
+**Cons:**
+
+* **Limited Knowledge:** Static models are confined to their pre-loaded knowledge, limiting their versatility compared to dynamic models accessing external data.
+* **Outdated Information:** Static knowledge bases can become outdated, leading to inaccurate or irrelevant responses if not frequently updated.
+* **Less Adaptable:** Static models struggle to adapt to changing user needs and preferences, limiting their ability to provide personalized or context-aware responses.
+
+**Interactive RAG:**
+
+**Pros:**
+
+* **Up-to-Date Information:** Dynamic models access and process real-time external information, ensuring current and relevant responses, particularly valuable for applications requiring access to frequently changing data.
+* **Greater Flexibility:** Dynamic models adapt to user needs and preferences by incorporating feedback and interactions into their responses, enabling personalized and context-aware experiences.
+* **Vast Knowledge Base:** Access to external information provides an almost limitless knowledge pool, allowing dynamic models to address a wider range of queries and deliver comprehensive and informative responses.
+
+**Cons:**
+
+* **Slower Response:** Processing external information increases inference time, potentially hindering real-time applications.
+* **Higher Cost:** Training and maintaining dynamic models requires more computational resources, making them potentially unsuitable for resource-constrained environments.
+* **Bias Risk:** External information sources may contain biases or inaccuracies, leading to biased or misleading responses if not carefully mitigated.
+* **Security Concerns:** Accessing external sources introduces potential data security risks, requiring robust security measures to protect sensitive information.
+
+**Choosing the Right Approach:**
+
+While this tutorial focuses specifically on Interactive RAG, the optimal approach depends on your application's specific needs and constraints. Consider:
+
+* **Data Size & Update Frequency:** Static models are suitable for static or infrequently changing data, while dynamic models are necessary for dynamically changing data.
+* **Real-Time Requirements:** Choose static models for applications requiring fast response times. For less critical applications, dynamic models may be preferred.
+* **Computational Resources:** Evaluate your available resources when choosing between static and dynamic approaches.
+* **Data Privacy & Security:** Ensure your chosen approach adheres to all relevant data privacy and security regulations.
+
 ## ![Retrieval Augmented Generation - Diagram 1](./images/RAG-chunks.png)
 (_image from  Session 7: RAG Evaluation with RAGAS and How to Improve Retrieval - https://www.youtube.com/watch?v=mEv-2Xnb_Wk_)
 
@@ -210,48 +253,6 @@ MongoDB Atlas provides robust security features, including encryption at rest an
 MongoDB Atlas provides comprehensive monitoring and alerting features to help you track your cluster's performance and identify potential issues.
 * **Developer tools:** 
 MongoDB Atlas offers various developer tools and APIs to simplify development and integration with your applications.
-## Optimizing Your Retrieval Strategy: Static vs. Interactive RAG
-
-Choosing between static and interactive Retrieval Augmented Generation (RAG) approaches is crucial for optimizing your application's retrieval strategy. Each approach offers unique advantages and disadvantages, tailored to specific use cases:
-
-**Static RAG:**
-
-**Pros:**
-
-* **Faster Response:** Pre-loaded knowledge bases enable rapid inference, ideal for real-time applications like chatbots and virtual assistants.
-* **Lower Cost:** Static models require fewer resources for training and maintenance, making them suitable for resource-constrained environments.
-* **Controlled Content:** Developers have complete control over the model's knowledge base, ensuring targeted and curated responses in sensitive applications.
-* **Consistent Results:** Static models provide stable outputs even when underlying data changes, ensuring reliability in data-intensive scenarios.
-
-**Cons:**
-
-* **Limited Knowledge:** Static models are confined to their pre-loaded knowledge, limiting their versatility compared to dynamic models accessing external data.
-* **Outdated Information:** Static knowledge bases can become outdated, leading to inaccurate or irrelevant responses if not frequently updated.
-* **Less Adaptable:** Static models struggle to adapt to changing user needs and preferences, limiting their ability to provide personalized or context-aware responses.
-
-**Interactive RAG:**
-
-**Pros:**
-
-* **Up-to-Date Information:** Dynamic models access and process real-time external information, ensuring current and relevant responses, particularly valuable for applications requiring access to frequently changing data.
-* **Greater Flexibility:** Dynamic models adapt to user needs and preferences by incorporating feedback and interactions into their responses, enabling personalized and context-aware experiences.
-* **Vast Knowledge Base:** Access to external information provides an almost limitless knowledge pool, allowing dynamic models to address a wider range of queries and deliver comprehensive and informative responses.
-
-**Cons:**
-
-* **Slower Response:** Processing external information increases inference time, potentially hindering real-time applications.
-* **Higher Cost:** Training and maintaining dynamic models requires more computational resources, making them potentially unsuitable for resource-constrained environments.
-* **Bias Risk:** External information sources may contain biases or inaccuracies, leading to biased or misleading responses if not carefully mitigated.
-* **Security Concerns:** Accessing external sources introduces potential data security risks, requiring robust security measures to protect sensitive information.
-
-**Choosing the Right Approach:**
-
-While this tutorial focuses specifically on Interactive RAG, the optimal approach depends on your application's specific needs and constraints. Consider:
-
-* **Data Size & Update Frequency:** Static models are suitable for static or infrequently changing data, while dynamic models are necessary for dynamically changing data.
-* **Real-Time Requirements:** Choose static models for applications requiring fast response times. For less critical applications, dynamic models may be preferred.
-* **Computational Resources:** Evaluate your available resources when choosing between static and dynamic approaches.
-* **Data Privacy & Security:** Ensure your chosen approach adheres to all relevant data privacy and security regulations.
 
 **Building an Interactive-RAG Agent:**
 
