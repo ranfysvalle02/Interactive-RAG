@@ -1,5 +1,5 @@
 # Interactive RAG with MongoDB Atlas + Function Calling API
-## Introduction: Unveiling the Power of Dynamic Knowledge Discovery
+## Introduction: Unveiling the Power of Interactive Knowledge Discovery
 
 Imagine yourself as a detective investigating a complex case. Traditional Retrieval Augmented Generation (RAG) acts as your static assistant, meticulously sifting through mountains of evidence based on a pre-defined strategy. While helpful, this approach lacks the flexibility needed for today's ever-changing digital landscape.
 
