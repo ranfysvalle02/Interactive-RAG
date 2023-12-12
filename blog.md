@@ -6,6 +6,9 @@
 - [Understand the basic concept of RAG](https://www.mongodb.com/basics/retrieval-augmented-generation)
 - [Understand the basics of using a vector database](https://www.mongodb.com/basics/vector-databases)
 
+## ![Retrieval Augmented Generation - Diagram 1](./images/RAG-chunks.png)
+(_image from  Session 7: RAG Evaluation with RAGAS and How to Improve Retrieval - https://www.youtube.com/watch?v=mEv-2Xnb_Wk_)
+
 ## Optimizing Your Retrieval Strategy: Static vs. Interactive RAG
 
 Choosing between static and interactive Retrieval Augmented Generation (RAG) approaches is crucial for optimizing your application's retrieval strategy. Each approach offers unique advantages and disadvantages, tailored to specific use cases:
@@ -49,8 +52,6 @@ While this tutorial focuses specifically on Interactive RAG, the optimal approac
 * **Computational Resources:** Evaluate your available resources when choosing between static and dynamic approaches.
 * **Data Privacy & Security:** Ensure your chosen approach adheres to all relevant data privacy and security regulations.
 
-## ![Retrieval Augmented Generation - Diagram 1](./images/RAG-chunks.png)
-(_image from  Session 7: RAG Evaluation with RAGAS and How to Improve Retrieval - https://www.youtube.com/watch?v=mEv-2Xnb_Wk_)
 
 ## Chunking: A Hidden Hero in the Rise of GenAI
 
