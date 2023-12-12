@@ -246,7 +246,7 @@ Choosing between static and interactive Retrieval Augmented Generation (RAG) app
 
 **Choosing the Right Approach:**
 
-The optimal approach depends on your application's specific needs and constraints. Consider:
+While this tutorial focuses specifically on Interactive RAG, the optimal approach depends on your application's specific needs and constraints. Consider:
 
 * **Data Size & Update Frequency:** Static models are suitable for static or infrequently changing data, while dynamic models are necessary for dynamically changing data.
 * **Real-Time Requirements:** Choose static models for applications requiring fast response times. For less critical applications, dynamic models may be preferred.
