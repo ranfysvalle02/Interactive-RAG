@@ -70,7 +70,7 @@ Just like a detective, an LLM can't process a mountain of information all at onc
 
 However, the size of each chunk isn't just about convenience for the LLM; it also significantly impacts the **retrieval vector relevance score**, a key metric in evaluating the effectiveness of chunking strategies. This score measures how well the generated vector embeddings for each chunk represent the actual information contained within.
 
-Check out [ChunkViz v0.1](https://www.chunkviz.com/) to get a feel for how chuck size (character length) breaks down text.
+Check out [ChunkViz v0.1](https://www.chunkviz.com/) to get a feel for how chunk size (character length) breaks down text.
 
 ![Chunk Visualization](./images/chunkviz-1.png)
 
