@@ -6,9 +6,8 @@ Imagine yourself as a detective investigating a complex case. Traditional Retrie
 Enter Interactive RAG – the next generation of information access. It empowers users to become active knowledge investigators by:
 
 * **Dynamically adjusting retrieval strategies:** Tailor the search to your specific needs by fine-tuning parameters like the number of sources, chunk size, and retrieval algorithms.
-* **Personalizing information access:** Receive information directly relevant to your interests and priorities, ensuring you never miss a crucial detail.
-* **Enhancing LLM performance:** Optimize the LLM's workload by dynamically adjusting the information flow, leading to faster and more accurate analysis.
 * **Stay ahead of the curve:**  As new information emerges, readily incorporate it into your retrieval strategy to stay up-to-date and relevant.
+* **Enhancing LLM performance:** Optimize the LLM's workload by dynamically adjusting the information flow, leading to faster and more accurate analysis.
 
 ##### BEFORE YOU CONTINUE, MAKE SURE YOU
 
