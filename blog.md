@@ -206,20 +206,21 @@ By leveraging the combined power of Function Calling API and MongoDB Atlas, you 
     	)   
 	```
 
-2. **Vector Index**: When employing vector search, it's necessary to [create a search index](https://www.mongodb.com/docs/atlas/atlas-search/field-types/knn-vector/). This process entails setting up the vector path, aligning the dimensions with your chosen model, and selecting a vector function for searching the top K-nearest neighbors.  
+2. **Vector Index**: When employing vector search, it's necessary to [create a search index](https://www.mongodb.com/docs/atlas/atlas-vector-search/create-index/). This process entails setting up the vector path, aligning the dimensions with your chosen model, and selecting a vector function for searching the top K-nearest neighbors.  
 	```python
-	{
-        "mappings": {
-            "dynamic": true,
-            "fields": {
-                "embedding": {
-                    "dimensions": 384, #dimensions depends on the embedding model
-                    "similarity": "cosine",
-                    "type": "knnVector"
-                }
-            }
+        {
+            "name": "<index-name>",
+            "type": "vectorSearch",
+            "fields":[
+                {
+                "type": "vector",
+                "path": <field-to-index>,
+                "numDimensions": <number-of-dimensions>,
+                "similarity": "euclidean | cosine | dotProduct"
+                },
+                ...
+            ]
         }
-	}
 	```
 3. **Chunk Retrieval**: Once the vector embeddings are indexed, an aggregation pipeline can be created on your embedded vector data to execute queries and retrieve results. This is accomplished using the [$vectorSearch](https://www.mongodb.com/docs/atlas/atlas-vector-search/vector-search-stage) operator, a new aggregation stage in Atlas.
 
@@ -388,16 +389,14 @@ OPENAI_API_KEY = ""
 Create a Search index with the following definition
 ```JSON
 {
-  "name": "<index-name>",
   "type": "vectorSearch",
-  "fields":[
-	{
-  	"type": "vector",
-  	"path": <field-to-index>,
-  	"numDimensions": <number-of-dimensions>,
-  	"similarity": "euclidean | cosine | dotProduct"
-	},
-	...
+  "fields": [
+    {
+      "numDimensions": 384,
+      "path": "embedding",
+      "similarity": "cosine",
+      "type": "vector"
+    }
   ]
 }
 ```
