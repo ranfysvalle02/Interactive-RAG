@@ -68,7 +68,7 @@ Now, Let's put our detective hat back on. If you have a mountain of evidence ava
 
 Just like a detective, an LLM can't process a mountain of information all at once. Chunking helps it break down text into smaller, more digestible pieces called **chunks**. Think of these chunks as bite-sized pieces of knowledge that the LLM can easily analyze and understand. This allows the LLM to focus on specific sections of the text, extract relevant information, and generate more accurate and insightful responses.
 
-However, the size of each chunk isn't just about convenience for the LLM; it also significantly impacts the **retrieval vector relevance score**, a key metric in evaluating the effectiveness of chunking strategies. The process involves converting text to vectors, measuring distance between them, utilizing ANN/KNN algorithms, and calculating a score for the generated vectors. 
+However, the size of each chunk isn't just about convenience for the LLM; it also significantly impacts the **retrieval vector relevance score**, a key metric in evaluating the effectiveness of chunking strategies. The process involves converting text to vectors, measuring distance between them, utilizing ANN/KNN algorithms, and calculating a score for the generated vectors.
 
 Here is an example: Imagine asking "What is a mango?" and the LLM dives into its knowledge base, encountering these chunks:
 
@@ -99,23 +99,23 @@ The size of each chunk influences the retrieval vector relevance score in distin
 **Smaller Chunk Size:**
 
 * **Pros:**
-    * Precise focus on specific details and nuances.
-    * Potentially higher relevance scores due to accurate information extraction.
-    * Increased sensitivity to subtle changes in meaning.
+	* Precise focus on specific details and nuances.
+	* Potentially higher relevance scores due to accurate information extraction.
+	* Increased sensitivity to subtle changes in meaning.
 * **Cons:**
-    * May sacrifice broader context and understanding of the overall message.
-    * Requires more computational resources to process numerous chunks.
-    * Increased risk of missing relevant information due to limited context.
+	* May sacrifice broader context and understanding of the overall message.
+	* Requires more computational resources to process numerous chunks.
+	* Increased risk of missing relevant information due to limited context.
 
 **Larger Chunk Size:**
 
 * **Pros:**
-    * Provides a richer context for comprehending the overall message.
-    * More efficient processing with fewer chunks to handle.
-    * Potentially higher relevance scores for related chunks due to broader context.
+	* Provides a richer context for comprehending the overall message.
+	* More efficient processing with fewer chunks to handle.
+	* Potentially higher relevance scores for related chunks due to broader context.
 * **Cons:**
-    * May overlook specific details and subtle shifts in meaning.
-    * Increased risk of including irrelevant information within a chunk, potentially lowering the relevance score.
+	* May overlook specific details and subtle shifts in meaning.
+	* Increased risk of including irrelevant information within a chunk, potentially lowering the relevance score.
 
 **Examples in Action:**
 
@@ -145,23 +145,23 @@ Effective chunking maximizes the retrieval vector relevance score, enabling LLMs
 
 ## ![RAG Agent Architecture for this Tutorial](./images/rag-agent.png)
 
-In this tutorial, we will showcase an Interactive RAG agent. An agent is a computer program or system designed to perceive its environment, make decisions, and achieve specific goals. The interactive RAG agent we will showcase supports the following actions: 
+In this tutorial, we will showcase an Interactive RAG agent. An agent is a computer program or system designed to perceive its environment, make decisions, and achieve specific goals. The interactive RAG agent we will showcase supports the following actions:
 - answer questions
-- search the web 
+- search the web
 - read web content (URLs)
-- list all sources 
+- list all sources
 - remove sources
-- reset messages 
+- reset messages
 - modify rag strategy (num_sources, chunk_size, etc.)
 
 ## Taking Control with Interactive RAG:
 
-While an optimized chunk size is crucial, Interactive RAG goes a step further. It empowers users to dynamically adjust their RAG strategy in real-time, using the function calling API of Large Language Models (LLMs). This unlocks a new era of personalized information access and knowledge management. 
+While an optimized chunk size is crucial, Interactive RAG goes a step further. It empowers users to dynamically adjust their RAG strategy in real-time, using the function calling API of Large Language Models (LLMs). This unlocks a new era of personalized information access and knowledge management.
 
 **This Interactive RAG tutorial leverages:**
 
 * **Dynamic Strategy Adjustment:** Unlike traditional RAG approaches, users can fine-tune chunk size, number of sources, and other parameters on-the-fly, tailoring the LLM's response to their specific needs.
-* **Function Calling API Integration:** Function Calling API seamlessly integrates external tools and services with LLMs. This allows users to seamlessly incorporate their own data sources and tools into their RAG workflow. 
+* **Function Calling API Integration:** Function Calling API seamlessly integrates external tools and services with LLMs. This allows users to seamlessly incorporate their own data sources and tools into their RAG workflow.
 
 **Benefits:**
 
@@ -188,114 +188,114 @@ By leveraging the combined power of Function Calling API and MongoDB Atlas, you 
    
 1. **Vector Embeddings**: MongoDB Atlas provides the functionality to store vector embeddings at the core of your document. These embeddings are generated by converting text, video, or audio into vectors utilizing models such as [GPT4All](https://gpt4all.io/index.html), [OpenAI](https://openai.com/) or [Hugging Face](https://huggingface.co/).
 
-    ```python
-        # Chunk Ingest Strategy
-        self.text_splitter = RecursiveCharacterTextSplitter(
-            # Set a really small chunk size, just to show.
-            chunk_size=4000, # THIS CHUNK SIZE IS FIXED - INGEST CHUNK SIZE DOES NOT CHANGE
-            chunk_overlap=200, # CHUNK OVERLAP IS FIXED
-            length_function=len,
-            add_start_index=True,
-        )
-        # load data from webpages using Playwright. One document will be created for each webpage
-        # split the documents using a text splitter to create "chunks"
-        loader = PlaywrightURLLoader(urls=urls, remove_selectors=["header", "footer"])  
-        documents = loader.load_and_split(self.text_splitter)
-        self.index.add_documents(
-                documents
-        )   
-    ```
+	```python
+    	# Chunk Ingest Strategy
+    	self.text_splitter = RecursiveCharacterTextSplitter(
+        	# Set a really small chunk size, just to show.
+        	chunk_size=4000, # THIS CHUNK SIZE IS FIXED - INGEST CHUNK SIZE DOES NOT CHANGE
+        	chunk_overlap=200, # CHUNK OVERLAP IS FIXED
+        	length_function=len,
+        	add_start_index=True,
+    	)
+    	# load data from webpages using Playwright. One document will be created for each webpage
+    	# split the documents using a text splitter to create "chunks"
+    	loader = PlaywrightURLLoader(urls=urls, remove_selectors=["header", "footer"])  
+    	documents = loader.load_and_split(self.text_splitter)
+    	self.index.add_documents(
+            	documents
+    	)   
+	```
 
 2. **Vector Index**: When employing vector search, it's necessary to [create a search index](https://www.mongodb.com/docs/atlas/atlas-search/field-types/knn-vector/). This process entails setting up the vector path, aligning the dimensions with your chosen model, and selecting a vector function for searching the top K-nearest neighbors.  
-    ```python
-    {
-    "mappings": {
-        "dynamic": true,
-        "fields": {
-        "embedding": {
-            "dimensions": 384, #dimensions depends on the model
-            "similarity": "cosine",
-            "type": "knnVector"
-        }
-        }
-    }
-    }
-    ```
+	```python
+	{
+	"mappings": {
+    	"dynamic": true,
+    	"fields": {
+    	"embedding": {
+        	"dimensions": 384, #dimensions depends on the model
+        	"similarity": "cosine",
+        	"type": "knnVector"
+    	}
+    	}
+	}
+	}
+	```
 3. **Chunk Retrieval**: Once the vector embeddings are indexed, an aggregation pipeline can be created on your embedded vector data to execute queries and retrieve results. This is accomplished using the [$vectorSearch](https://www.mongodb.com/docs/atlas/atlas-vector-search/vector-search-stage) operator, a new aggregation stage in Atlas.
 
-    ```python
-    def recall(self, text, n_docs=2, min_rel_score=0.25, chunk_max_length=800,unique=True):
-            #$vectorSearch
-            print("recall=>"+str(text))
-            response = self.collection.aggregate([
-            {
-                "$vectorSearch": {
-                    "index": "default",
-                    "queryVector": self.gpt4all_embd.embed_query(text), #GPT4AllEmbeddings()
-                    "path": "embedding",
-                    #"filter": {},
-                    "limit": 15, #Number (of type int only) of documents to return in the results. Value can't exceed the value of numCandidates.
-                    "numCandidates": 50 #Number of nearest neighbors to use during the search. You can't specify a number less than the number of documents to return (limit).
-                }
-            },
-            {
-                "$addFields": 
-                {
-                    "score": {
-                    "$meta": "vectorSearchScore"
-                }
-            }
-            },
-            {
-                "$match": {
-                    "score": {
-                    "$gte": min_rel_score
-                }
-            }
-            },{"$project":{"score":1,"_id":0, "source":1, "text":1}}])
-            tmp_docs = []
-            str_response = []
-            for d in response:
-                if len(tmp_docs) == n_docs:
-                    break
-                if unique and d["source"] in tmp_docs:
-                    continue
-                tmp_docs.append(d["source"])
-                str_response.append({"URL":d["source"],"content":d["text"][:chunk_max_length],"score":d["score"]})
-            kb_output = f"Knowledgebase Results[{len(tmp_docs)}]:\n```{str(str_response)}```\n## \n```SOURCES: "+str(tmp_docs)+"```\n\n"
-            self.st.write(kb_output)
-            return str(kb_output)
-    ```
+	```python
+	def recall(self, text, n_docs=2, min_rel_score=0.25, chunk_max_length=800,unique=True):
+        	#$vectorSearch
+        	print("recall=>"+str(text))
+        	response = self.collection.aggregate([
+        	{
+            	"$vectorSearch": {
+                	"index": "default",
+                	"queryVector": self.gpt4all_embd.embed_query(text), #GPT4AllEmbeddings()
+                	"path": "embedding",
+                	#"filter": {},
+                	"limit": 15, #Number (of type int only) of documents to return in the results. Value can't exceed the value of numCandidates.
+                	"numCandidates": 50 #Number of nearest neighbors to use during the search. You can't specify a number less than the number of documents to return (limit).
+            	}
+        	},
+        	{
+            	"$addFields":
+            	{
+                	"score": {
+                	"$meta": "vectorSearchScore"
+            	}
+        	}
+        	},
+        	{
+            	"$match": {
+                	"score": {
+                	"$gte": min_rel_score
+            	}
+        	}
+        	},{"$project":{"score":1,"_id":0, "source":1, "text":1}}])
+        	tmp_docs = []
+        	str_response = []
+        	for d in response:
+            	if len(tmp_docs) == n_docs:
+                	break
+            	if unique and d["source"] in tmp_docs:
+                	continue
+            	tmp_docs.append(d["source"])
+            	str_response.append({"URL":d["source"],"content":d["text"][:chunk_max_length],"score":d["score"]})
+        	kb_output = f"Knowledgebase Results[{len(tmp_docs)}]:\n```{str(str_response)}```\n## \n```SOURCES: "+str(tmp_docs)+"```\n\n"
+        	self.st.write(kb_output)
+        	return str(kb_output)
+	```
 
 In this tutorial, we will mainly be focusing on the **CHUNK RETRIEVAL** strategy using the function calling API of LLMs and MongoDB Atlas as our **[data platform](https://www.mongodb.com/atlas)**.
 
 ## Key Features of MongoDB Atlas
 MongoDB Atlas offers a robust vector search platform with several key features, including:
 
-1. **$vectorSearch operator:** 
+1. **$vectorSearch operator:**
 This powerful aggregation pipeline operator allows you to search for documents based on their vector embeddings. You can specify the index to search, the query vector, and the similarity metric to use. [$vectorSearch](https://www.mongodb.com/docs/atlas/atlas-vector-search/vector-search-stage) provides efficient and scalable search capabilities for vector data.
 
-2. **Flexible filtering:** 
+2. **Flexible filtering:**
 You can combine $vectorSearch with other aggregation pipeline operators like [$match](https://www.mongodb.com/docs/v7.0/reference/operator/aggregation/match/), [$sort](https://www.mongodb.com/docs/v7.0/reference/operator/aggregation/sort/), and [$limit](https://www.mongodb.com/docs/v7.0/reference/operator/aggregation/limit/) to filter and refine your search results. This allows you to find the most relevant documents based on both their vector embeddings and other criteria.
 
-3. **Support for various similarity metrics:** 
+3. **Support for various similarity metrics:**
 MongoDB Atlas supports different similarity metrics like [cosine similarity](https://en.wikipedia.org/wiki/Cosine_similarity) and [euclidean distance](https://en.wikipedia.org/wiki/Euclidean_distance), allowing you to choose the best measure for your specific data and task.
 
-4. **High performance:** 
+4. **High performance:**
 The vector search engine in MongoDB Atlas is optimized for large datasets and high query volumes, ensuring efficient and responsive search experiences.
 
-5. **Scalability:** 
+5. **Scalability:**
 MongoDB Atlas scales seamlessly to meet your growing needs, allowing you to handle increasing data volumes and query workloads effectively.
 
 **Additionally, MongoDB Atlas offers several features relevant to its platform capabilities:**
 
-* **Global availability:** 
+* **Global availability:**
 Your data is stored in multiple data centers around the world, ensuring high availability and disaster recovery.
-* **Security:** 
+* **Security:**
 MongoDB Atlas provides robust security features, including encryption at rest and in transit, access control, and data audit logging.
-* **Monitoring and alerting:** 
+* **Monitoring and alerting:**
 MongoDB Atlas provides comprehensive monitoring and alerting features to help you track your cluster's performance and identify potential issues.
-* **Developer tools:** 
+* **Developer tools:**
 MongoDB Atlas offers various developer tools and APIs to simplify development and integration with your applications.
 
 ## OpenAI Function Calling:
@@ -316,12 +316,12 @@ OpenAI's function calling is a powerful capability that enables users to seamles
 
 Read more at: https://thinhdanggroup.github.io/function-calling-openai/
 
-## Function Calling API Basics: Actions 
+## Function Calling API Basics: Actions
 
 Actions are functions that an agent can invoke. There are two important design considerations around actions:
 
-    Giving the agent access to the right actions
-    Describing the actions in a way that is most helpful to the agent
+	Giving the agent access to the right actions
+	Describing the actions in a way that is most helpful to the agent
 
 ## Crafting Actions for Effective Agents
 
@@ -355,7 +355,7 @@ git clone git@github.com:ranfysvalle02/Interactive-RAG.git
 ```
 
 Create a new Python environment
-```bash 
+```bash
 python3 -m venv env
 ```
 
@@ -369,8 +369,8 @@ Install the requirements
 pip3 install -r requirements.txt
 ```
 Set the parameters in [params.py](rag/params.py):
-```bash 
-# MongoDB 
+```bash
+# MongoDB
 MONGODB_URI = ""
 DATABASE_NAME = "genai"
 COLLECTION_NAME = "rag"
@@ -388,16 +388,17 @@ OPENAI_API_KEY = ""
 Create a Search index with the following definition
 ```JSON
 {
-  "mappings": {
-    "dynamic": true,
-    "fields": {
-      "embedding": {
-        "dimensions": 384,
-        "similarity": "cosine",
-        "type": "knnVector"
-      }
-    }
-  }
+  "name": "<index-name>",
+  "type": "vectorSearch",
+  "fields":[
+	{
+  	"type": "vector",
+  	"path": <field-to-index>,
+  	"numDimensions": <number-of-dimensions>,
+  	"similarity": "euclidean | cosine | dotProduct"
+	},
+	...
+  ]
 }
 ```
 
@@ -414,13 +415,13 @@ env/bin/streamlit run rag/app.py
 Log information generated by the application will be appended to app.log.
 
 ## Usage
-This bot supports the following actions: answer questions, search the web, read URLs, remove sources, list all sources, view messages and reset messages. 
+This bot supports the following actions: answer questions, search the web, read URLs, remove sources, list all sources, view messages and reset messages.
 
-It also supports an action called iRAG that lets you dynamically control your agent's RAG strategy. 
+It also supports an action called iRAG that lets you dynamically control your agent's RAG strategy.
 
 Ex: "set RAG config to 3 sources and chunk size 1250" => New RAG config:{'num_sources': 3, 'source_chunk_size': 1250, 'min_rel_score': 0, 'unique': True}.
 
-If the bot is unable to provide an answer to the question from data stored in the Atlas Vector store, and your RAG strategy (number of sources, chunk size, min_rel_score, etc) it will initiate a web search to find relevant information. You can then instruct the bot to read and learn from those results. 
+If the bot is unable to provide an answer to the question from data stored in the Atlas Vector store, and your RAG strategy (number of sources, chunk size, min_rel_score, etc) it will initiate a web search to find relevant information. You can then instruct the bot to read and learn from those results.
 
 
 ## DEMO
@@ -431,7 +432,7 @@ Let's start by asking our agent a question. In this case, **"What is a mango?"**
 
 Since the bot is unable to provide an answer using the content in the vector database, it initiated a Google search to find relevant information. We can now tell it which sources it should "learn". In this case, we'll tell it to learn the first two sources from the search results.
 
-## Tell the bot which results to learn from: 
+## Tell the bot which results to learn from:
 
 ![DEMO - Add a source](./images/add_sources.png)
 
@@ -441,13 +442,13 @@ Next, let's modify the RAG strategy! Let's make it only use one source, and have
 
 ![DEMO - Change RAG strategy part 1](./images/mod_rag.png)
 
-Notice that though it was able to retrieve a chunk, with a fairly high relevance score, it was not able to generate a response because the chunk size was too small and the chunk content was not relevant enough to formulate a response. Since it could not generate a response with the small chunk, it performed a web search on the user's behalf. 
+Notice that though it was able to retrieve a chunk, with a fairly high relevance score, it was not able to generate a response because the chunk size was too small and the chunk content was not relevant enough to formulate a response. Since it could not generate a response with the small chunk, it performed a web search on the user's behalf.
 
-Let's see what happens if we increase the chunk size to be 3000 characters instead of 500. 
+Let's see what happens if we increase the chunk size to be 3000 characters instead of 500.
 
 ![DEMO - Change RAG strategy part 2](./images/mod_rag-2.png)
 
-Now, with a larger chunk size, it was able to accurately formulate the response using the knowledge from the vector database! 
+Now, with a larger chunk size, it was able to accurately formulate the response using the knowledge from the vector database!
 
 ## List All Sources
 
@@ -490,3 +491,5 @@ Intrigued by the possibilities? Explore the full source code for the **Interacti
 Real-World Use Cases and What You Need to Get Started](https://www.mongodb.com/basics/machine-learning-healthcare)
 - [What is Generative AI
 ](https://www.mongodb.com/basics/generative-ai)
+
+
