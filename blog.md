@@ -212,11 +212,11 @@ By leveraging the combined power of Function Calling API and MongoDB Atlas, you 
         "mappings": {
             "dynamic": true,
             "fields": {
-            "embedding": {
-                "dimensions": 384, #dimensions depends on the model
-                "similarity": "cosine",
-                "type": "knnVector"
-            }
+                "embedding": {
+                    "dimensions": 384, #dimensions depends on the model
+                    "similarity": "cosine",
+                    "type": "knnVector"
+                }
             }
         }
 	}
