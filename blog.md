@@ -191,11 +191,11 @@ By leveraging the combined power of Function Calling API and MongoDB Atlas, you 
 	```python
     	# Chunk Ingest Strategy
     	self.text_splitter = RecursiveCharacterTextSplitter(
-        	# Set a really small chunk size, just to show.
-        	chunk_size=4000, # THIS CHUNK SIZE IS FIXED - INGEST CHUNK SIZE DOES NOT CHANGE
-        	chunk_overlap=200, # CHUNK OVERLAP IS FIXED
-        	length_function=len,
-        	add_start_index=True,
+                # Set a really small chunk size, just to show.
+                chunk_size=4000, # THIS CHUNK SIZE IS FIXED - INGEST CHUNK SIZE DOES NOT CHANGE
+                chunk_overlap=200, # CHUNK OVERLAP IS FIXED
+                length_function=len,
+                add_start_index=True,
     	)
     	# load data from webpages using Playwright. One document will be created for each webpage
     	# split the documents using a text splitter to create "chunks"
