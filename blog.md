@@ -464,9 +464,6 @@ USER: remove source 'https://www.oracle.com' from the knowledge base
 
 To remove all the sources in the collection - We could do something like:
 
-```
-USER: forget everything you know
-```
 ![DEMO - Remove ALL sources](./images/forget.png)
 
 This demo has provided a glimpse into the inner workings of our AI agent, showcasing its ability to learn and respond to user queries in an interactive manner. We've witnessed how it seamlessly combines its internal knowledge base with real-time web search to deliver comprehensive and accurate information. The potential of this technology is vast, extending far beyond simple question-answering. None of this would be possible without the magic of the **Function Calling API**.
