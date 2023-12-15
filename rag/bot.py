@@ -280,7 +280,8 @@ class RAGAgent(UserProxyAgent):
         """
         Invoke this ONLY when the user asks you to reset chat history.
         [EXAMPLE]
-        - User Input: forget about everything we have talked about
+        - User Input: clear our chat history
+        - User Input: forget about the conversation history
         
         Returns
         -------
@@ -351,6 +352,25 @@ class RAGAgent(UserProxyAgent):
         with self.st.spinner(f"```Removing sources {', '.join(urls)}...```"):
             self.collection.delete_many({"source": {"$in": urls}})
             return f"```Sources ({', '.join(urls)}) successfully removed.```\n"
+    @action("remove_all_sources", stop=True)
+    def remove_all_sources(self) -> str:
+        """
+        Invoke this if you the user asks you to empty your knowledge base or delete all the information in it.
+        [EXAMPLE]
+        - User Input: remove all the sources you have available
+        - User Input: clear your mind
+        - User Input: forget everything you know
+        - User Input: empty your mind
+        
+        Args:
+            None
+        Returns:
+            str: Text with confirmation
+        """
+        utils.print_log("Action: remove_sources")
+        with self.st.spinner(f"```Removing all sources ...```"):
+            del_result = self.collection.delete_many({})
+            return f"```Sources successfully removed.{del_result.deleted_count}```\n"
 
     @action(name="get_sources_list", stop=True)
     def get_sources_list(self):
@@ -501,6 +521,7 @@ class RAGAgent(UserProxyAgent):
                     self.read_url,
                     self.answer_question,
                     self.remove_source,
+                    self.remove_all_sources,
                     self.reset_messages,
                     self.show_messages,
                     self.iRAG,
@@ -516,6 +537,7 @@ class RAGAgent(UserProxyAgent):
                     self.read_url,
                     self.answer_question,
                     self.remove_source,
+                    self.remove_all_sources,
                     self.reset_messages,
                     self.show_messages,
                     self.iRAG,

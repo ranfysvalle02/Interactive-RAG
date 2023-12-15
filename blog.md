@@ -139,7 +139,7 @@ Finding the ideal chunk size is a delicate balance between focusing on specific 
 
 **Unlocking the Future:**
 
-Effective chunking maximizes the retrieval vector relevance score, enabling LLMs to generate the most accurate and insightful responses possible. By understanding the impact of chunk size and other relevant factors, we can unleash the full potential of LLMs and unlock exciting opportunities for the future.
+Effective chunking maximizes the retrieval vector relevance score, enabling LLMs to generate the most accurate and insightful responses possible. By understanding the impact of chunk size and other relevant factors, we can unleash the full potential of LLMs and unlock exciting opportunities for the future. In this tutorial, the chunk size we will be controlling interactively is the retrieval chunk.
 
 ## Interactive Retrieval Augmented Generation
 
@@ -156,7 +156,7 @@ In this tutorial, we will showcase an Interactive RAG agent. An agent is a compu
 
 ## Taking Control with Interactive RAG:
 
-While an optimized chunk size is crucial, Interactive RAG goes a step further. It empowers users to dynamically adjust their RAG strategy in real-time, using the function calling API of Large Language Models (LLMs). This unlocks a new era of personalized information access and knowledge management.
+While an optimized chunk size is crucial, Interactive RAG goes a step further. It empowers users to dynamically adjust their RAG strategy in real-time, using the function calling API of Large Language Models (LLMs). This unlocks a new era of personalized information access and knowledge management. 
 
 **This Interactive RAG tutorial leverages:**
 
@@ -192,8 +192,8 @@ By leveraging the combined power of Function Calling API and MongoDB Atlas, you 
         # Chunk Ingest Strategy
         self.text_splitter = RecursiveCharacterTextSplitter(
             # Set a really small chunk size, just to show.
-            chunk_size=4000,
-            chunk_overlap=200,
+            chunk_size=4000, # THIS CHUNK SIZE IS FIXED - INGEST CHUNK SIZE DOES NOT CHANGE
+            chunk_overlap=200, # CHUNK OVERLAP IS FIXED
             length_function=len,
             add_start_index=True,
         )
@@ -465,11 +465,9 @@ USER: remove source 'https://www.oracle.com' from the knowledge base
 To remove all the sources in the collection - We could do something like:
 
 ```
-USER: what sources do you have in your knowledge base?
-AGENT: {response}
-USER: remove all those sources please
+USER: forget everything you know
 ```
-![DEMO - Remove source](./images/remove_sources.png)
+![DEMO - Remove ALL sources](./images/forget.png)
 
 This demo has provided a glimpse into the inner workings of our AI agent, showcasing its ability to learn and respond to user queries in an interactive manner. We've witnessed how it seamlessly combines its internal knowledge base with real-time web search to deliver comprehensive and accurate information. The potential of this technology is vast, extending far beyond simple question-answering. None of this would be possible without the magic of the **Function Calling API**.
 
