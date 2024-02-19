@@ -6,6 +6,49 @@ In the future, agents will play a vital role in processing text, automating task
 
 In this example, we will specifically focus on leveraging agents in dynamic Retrieval Augmented Generation (RAG). Using ActionWeaver and MongoDB Atlas, you will have the ability to modify your RAG strategy in real-time through conversational interactions. Whether it's selecting more chunks, increasing chunk size, or tweaking other parameters, you can fine-tune your RAG approach to achieve the desired response quality and accuracy. You can even add/remove sources to your vector database using natural language! 
 
+## Updates
+
+### 2024-02-18
+
+#### Added
+- Summarize Chunk + Chunk Metadata Extraction (Optional)
+
+```
+        # LLM Config
+        self.rag_config = {
+            "num_sources": 2,
+            "source_chunk_size": 1000,
+            "min_rel_score": 0.00,
+            "unique": True,
+            "summarize_chunks": True, # adds latency at ingest, everything comes at a cost
+        }
+```
+## Chunking text: Summarize or store the raw data? 
+
+Chunking text is great, but how do you store it?  
+Summarizing saves space & speeds things up, but can lose details.  
+Storing raw data is accurate, but bulky, slower, and "noisy".
+
+**Pros of summarizing:**
+
+*  Efficiency: smaller size text, faster processing
+*  Focus: highlights key points for quick info retrieval
+*  Generalizability: captures core meaning, reduces redundancy
+
+**Cons of summarizing:**
+
+*  Information loss: some details get left behind
+*  Subjectivity: summaries can be biased depending on the method
+*  Context dependence: may not be meaningful without surrounding text
+*  Computation cost: generating good summaries can be expensive (and adds latency to ingest!)
+
+**What's right for you?**  It depends on your needs! Consider:
+
+* Importance of details
+* Speed & efficiency requirements
+* Need for context
+* Available resources
+
 
 ## ![Alt text](./images/rag-agent.png)
 

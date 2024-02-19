@@ -36,6 +36,7 @@ class UserProxyAgent:
             "source_chunk_size": 1000,
             "min_rel_score": 0.00,
             "unique": True,
+            "summarize_chunks": False, # disabled by default
         }
         self.action_examples_str = """
 [EXAMPLES]
@@ -216,7 +217,29 @@ class RAGAgent(UserProxyAgent):
             print(self.rag_config)
             self.st.write(self.rag_config)
             return f"New RAG config:{str(self.rag_config)}."
-
+    def summarize(self,text):
+        utils.print_log("Action: read_url>summarize_chunks>summarize")
+        response = self.llm.create(
+            messages=[
+                {"role": "system", "content": "You will receive scaped contents of a web page."},
+                {"role": "system", "content": "Think critically and step by step. Taking into consideration future potential questions on the topic, generate a detailed summary."},
+                {"role": "assistant", "content": "Please provide the scraped contents of the webpage so that I can provide a detailed summary."},
+                {"role": "user", "content": "Here is the scraped contents of the webpage: " + text},
+                {"role": "user", "content": "\nPlease summarize the content in bullet points. Do not include irrelevant information in your response."},
+                {"role": "user", "content": "\n\n IMPORTANT! Only return the summary!"},
+                {"role": "user", "content": "\n\n REQUIRED RESPONSE FORMAT: [summary] [keywords/metadata (comma-separated, double quotes)] [summary intro in paragraph format] [summary in bullet format][end summary]"},
+            ],
+            actions=[],
+            stream=False,
+        )
+        return response
+    def summarize_chunks(self, docs):
+        utils.print_log("Action: read_url>summarize_chunks")
+        for doc in docs:
+            summary = self.summarize(doc.page_content) 
+            print(summary)
+            doc.page_content = summary   
+        return docs
     @action("read_url", stop=True)
     def read_url(self, urls: List[str]):
         """
@@ -247,6 +270,8 @@ class RAGAgent(UserProxyAgent):
                 urls=urls, remove_selectors=["header", "footer"]
             )
             documents = loader.load_and_split(self.text_splitter)
+            if self.rag_config["summarize_chunks"]:
+                documents = self.summarize_chunks(documents)
             self.index.add_documents(documents)
             return f"```Contents in URLs {urls} have been successfully ingested (vector embeddings + content).```"
 
