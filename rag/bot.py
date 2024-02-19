@@ -36,7 +36,7 @@ class UserProxyAgent:
             "source_chunk_size": 1000,
             "min_rel_score": 0.00,
             "unique": True,
-            "summarize_chunks": True, # disabled by default
+            "summarize_chunks": False, # disabled by default
         }
         self.action_examples_str = """
 [EXAMPLES]
