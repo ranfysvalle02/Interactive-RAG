@@ -36,7 +36,7 @@ class UserProxyAgent:
             "source_chunk_size": 1000,
             "min_rel_score": 0.00,
             "unique": True,
-            "summarize_chunks": False, # disabled by default
+            "summarize_chunks": True, # disabled by default
         }
         self.action_examples_str = """
 [EXAMPLES]
@@ -227,7 +227,7 @@ class RAGAgent(UserProxyAgent):
                 {"role": "user", "content": "Here is the scraped contents of the webpage: " + text},
                 {"role": "user", "content": "\nPlease summarize the content in bullet points. Do not include irrelevant information in your response."},
                 {"role": "user", "content": "\n\n IMPORTANT! Only return the summary!"},
-                {"role": "user", "content": "\n\n REQUIRED RESPONSE FORMAT: [summary] [keywords/metadata (comma-separated, double quotes)] [summary intro in paragraph format] [summary in bullet format][end summary]"},
+                {"role": "user", "content": "\n\n REQUIRED RESPONSE FORMAT: [begin summary] [keywords/metadata (comma-separated, double quotes)] [summary intro in paragraph format] [summary in bullet format][end summary]"},
             ],
             actions=[],
             stream=False,
