@@ -80,11 +80,17 @@ if prompt := st.chat_input(placeholder="What's up"):
                 if isinstance(chunk, str):
                     full_response += chunk
                     time.sleep(0.05)
+                elif isinstance(chunk, list):
+                    for subchunk in chunk:
+                        full_response += subchunk
+                    time.sleep(0.05)
                 elif chunk.choices[0].delta.content:
                     full_response += chunk.choices[0].delta.content
 
                 # Add a blinking cursor to simulate typing
-                message_placeholder.markdown(full_response + "▌", unsafe_allow_html=True)
+                message_placeholder.markdown(
+                    full_response + "▌", unsafe_allow_html=True
+                )
 
             agent.messages.append({"role": "assistant", "content": full_response})
             utils.format_and_print_genai_response(full_response)
