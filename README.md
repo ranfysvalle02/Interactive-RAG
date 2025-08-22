@@ -8,7 +8,7 @@ In the future, agents will play a vital role in processing text, automating task
 
 In this example, we will specifically focus on leveraging agents in dynamic Retrieval Augmented Generation (RAG). Using ActionWeaver and MongoDB Atlas, you will have the ability to modify your RAG strategy in real-time through conversational interactions. Whether it's selecting more chunks, increasing chunk size, or tweaking other parameters, you can fine-tune your RAG approach to achieve the desired response quality and accuracy. You can even add/remove sources to your vector database using natural language!
 
-# A Unified Approach to Smarter AI: Mastering Chunking and RAG Agents
+# Mastering Chunking and RAG Agents
 
 The rise of Large Language Models (LLMs) has fundamentally changed how we interact with information. Yet, a core challenge persists: how can these models effectively query and understand long, complex documents? The answer lies in combining two powerful strategies: **chunking**, the art of breaking down documents into meaningful pieces, and **Retrieval-Augmented Generation (RAG)**, a technique that grounds the LLM in specific, relevant facts.
 
