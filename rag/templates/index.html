@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Interactive RAG Agent // MongoDB Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  </head>
+  <body
+    class="bg-gray-900 flex items-center justify-center h-screen font-sans text-gray-100 p-4"
+  >
+    <div
+      id="app-container"
+      class="w-full max-w-7xl h-full bg-gray-800 rounded-xl shadow-2xl flex gap-4 overflow-hidden border border-gray-700 p-4"
+    >
+      <div class="flex flex-col flex-grow h-full">
+        <div
+          id="chat-header"
+          class="p-4 border-b border-gray-700 flex justify-between items-center flex-shrink-0"
+        >
+          <div class="flex items-center gap-4">
+            <svg
+              class="h-12 w-12"
+              viewBox="0 0 200 200"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-labelledby="svgTitle"
+              role="img"
+            >
+              <title id="svgTitle">MongoDB Themed Data Chunks</title>
+              <g class="logo-chunk-group">
+                <g class="chunk chunk-1" transform="translate(40, 40)">
+                  <path d="M 0 15 L 30 0 L 60 15 L 30 30 Z" fill="#00ED64" />
+                  <path d="M 0 15 L 0 45 L 30 60 L 30 30 Z" fill="#47A43D" />
+                  <path d="M 60 15 L 60 45 L 30 60 L 30 30 Z" fill="#014732" />
+                </g>
+                <g class="chunk chunk-2" transform="translate(70, 80)">
+                  <path d="M 0 20 L 40 0 L 80 20 L 40 40 Z" fill="#00ED64" />
+                  <path d="M 0 20 L 0 50 L 40 70 L 40 40 Z" fill="#47A43D" />
+                  <path d="M 80 20 L 80 50 L 40 70 L 40 40 Z" fill="#014732" />
+                </g>
+              </g>
+            </svg>
+            <h1 id="chat-title" class="text-2xl font-bold text-white">
+              Interactive RAG Agent
+            </h1>
+          </div>
+        </div>
+
+        <div
+          id="chat-box"
+          class="flex-grow p-4 md:p-6 overflow-y-auto space-y-6"
+        >
+          <div
+            class="message system-message animate-fade-in-up bg-yellow-900/50 text-yellow-300 border-l-4 border-yellow-500 p-4 rounded-r-lg"
+          >
+            <b>Welcome!</b> Use the Control Panel on the right to manage
+            sessions, add data, and fine-tune retrieval settings.
+          </div>
+        </div>
+
+        <div id="input-area" class="p-4 border-t border-gray-700 flex-shrink-0">
+          <div class="flex justify-end items-center mb-2">
+            <div class="tooltip-container">
+              <button
+                type="button"
+                id="preview-rag-btn"
+                class="flex items-center gap-2 text-sm text-gray-400 hover:text-white bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded-md transition-colors"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="w-4 h-4"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M2.036 12.322a1.012 1.012 0 010-.639l4.43-7.29a1.125 1.125 0 011.906 0l4.43 7.29c.356.586.356 1.35 0 1.936l-4.43 7.29a1.125 1.125 0 01-1.906 0l-4.43-7.29z"
+                  ></path>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  ></path>
+                </svg>
+                <span>Preview Context</span>
+              </button>
+              <div class="tooltip-text">
+                Preview the RAG context for your query before sending
+              </div>
+            </div>
+          </div>
+          <form id="chat-form" class="relative flex items-center">
+            <textarea
+              id="user-input"
+              placeholder="Ask a question or give a command..."
+              class="w-full bg-gray-700 rounded-lg pr-12 py-3 px-4 text-base focus:outline-none focus:ring-2 focus:ring-mongodb-green-500 resize-none"
+              rows="1"
+            ></textarea>
+            <button
+              type="submit"
+              class="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-mongodb-green-500 text-mongodb-green-500 hover:text-gray-900 transition-all duration-200"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                class="w-5 h-5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M4.5 10.5L12 3m0 0l7.5 7.5M12 3v18"
+                />
+              </svg>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div
+        class="flex flex-col w-96 h-full flex-shrink-0 space-y-4 overflow-y-auto p-2"
+      >
+        <div class="control-panel-section">
+          <h3 class="control-panel-title">Session Management</h3>
+          <div id="session-controls" class="flex flex-col gap-3">
+            <div class="flex items-center gap-2">
+              <label for="session-selector" class="text-sm font-medium text-gray-300">
+                Active Session:
+              </label>
+              <select
+                id="session-selector"
+                class="flex-grow bg-gray-700 border border-gray-600 rounded-md px-2 py-1 text-sm focus:ring-2 focus:ring-mongodb-green-500 focus:outline-none"
+              ></select>
+            </div>
+            <button id="new-session-btn" class="btn btn-secondary w-full">
+              Create New Session
+            </button>
+            <button
+              id="clear-history-btn"
+              class="btn btn-secondary w-full text-yellow-300 border-yellow-500/50 hover:bg-yellow-500/10"
+            >
+              Clear Chat History
+            </button>
+          </div>
+        </div>
+
+        <div class="control-panel-section">
+          <h3 class="control-panel-title">Knowledge Base Tools</h3>
+          <div id="tool-buttons" class="grid grid-cols-3 gap-2 text-center">
+            <div class="tooltip-container">
+              <button
+                data-action="read_url"
+                class="w-full p-3 rounded-lg hover:bg-gray-700 transition-colors flex flex-col items-center"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="w-6 h-6 mb-1 text-gray-400"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"
+                  />
+                </svg>
+                <span class="text-xs">Add URL</span>
+              </button>
+            </div>
+            <div class="tooltip-container">
+              <button
+                data-action="read_file"
+                class="w-full p-3 rounded-lg hover:bg-gray-700 transition-colors flex flex-col items-center"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="w-6 h-6 mb-1 text-gray-400"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.122 2.122l7.81-7.81"
+                  />
+                </svg>
+                <span class="text-xs">Add File</span>
+              </button>
+            </div>
+            <div class="tooltip-container">
+              <button
+                data-action="browse_sources"
+                class="w-full p-3 rounded-lg hover:bg-gray-700 transition-colors flex flex-col items-center"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="w-6 h-6 mb-1 text-gray-400"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75"
+                  />
+                </svg>
+                <span class="text-xs">Browse DB</span>
+              </button>
+            </div>
+            <div class="tooltip-container">
+              <button
+                data-action="search_web"
+                class="w-full p-3 rounded-lg hover:bg-gray-700 transition-colors flex flex-col items-center"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="w-6 h-6 mb-1 text-gray-400"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A11.953 11.953 0 0012 13.5c-2.998 0-5.74-1.1-7.843-2.918"
+                  />
+                </svg>
+                <span class="text-xs">Search Web</span>
+              </button>
+            </div>
+            <div class="tooltip-container">
+              <button
+                data-action="list_sources"
+                class="w-full p-3 rounded-lg hover:bg-gray-700 transition-colors flex flex-col items-center"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="w-6 h-6 mb-1 text-gray-400"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6-2.292m0-14.25v14.25"
+                  />
+                </svg>
+                <span class="text-xs">List Sources</span>
+              </button>
+            </div>
+            <div class="tooltip-container">
+              <button
+                data-action="remove_all"
+                class="w-full p-3 rounded-lg hover:bg-gray-700 transition-colors flex flex-col items-center"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="w-6 h-6 mb-1 text-red-500/70 hover:text-red-500"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a4.8108 4.8108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a4.811 4.811 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 4.8667 0 00-7.5 0"
+                  />
+                </svg>
+                <span class="text-xs text-red-400">Forget All</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-panel-section">
+          <h3 class="control-panel-title">Retrieval Settings</h3>
+          <div id="rag-controls" class="space-y-4 text-sm">
+            <div class="flex items-center gap-2">
+              <label for="embedding-model-selector" class="font-medium text-gray-300">
+                Search Model:
+              </label>
+              <select
+                id="embedding-model-selector"
+                class="flex-grow bg-gray-700 border border-gray-600 rounded-md px-2 py-1 text-sm focus:ring-2 focus:ring-mongodb-green-500 focus:outline-none"
+              ></select>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <label for="num-sources-input" class="font-medium text-gray-300 tooltip-container">
+                k:
+                <div class="tooltip-text">Number of chunks to retrieve</div>
+              </label>
+              <input
+                type="number"
+                id="num-sources-input"
+                value="3"
+                min="1"
+                max="10"
+                class="w-16 bg-gray-700 border border-gray-600 rounded-md px-2 py-1 focus:ring-2 focus:ring-mongodb-green-500 focus:outline-none"
+              />
+            </div>
+
+            <div class="space-y-2">
+              <div class="flex justify-between items-center tooltip-container">
+                <label for="min-score-input" class="font-medium text-gray-300"
+                  >Min Score:</label
+                >
+                <span id="min-score-value" class="font-mono text-mongodb-green-500"
+                  >0.00</span
+                >
+                <div class="tooltip-text">
+                  Minimum relevance score (0.0 to 1.0). Chunks below this are discarded.
+                </div>
+              </div>
+              <input
+                type="range"
+                id="min-score-input"
+                min="0"
+                max="1"
+                step="0.01"
+                value="0.0"
+                class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+              />
+            </div>
+
+            <div class="space-y-2">
+              <div class="flex justify-between items-center tooltip-container">
+                <label for="max-chunk-length-input" class="font-medium text-gray-300"
+                  >Max Chars:</label
+                >
+                <span id="max-chars-value" class="font-mono text-mongodb-green-500"
+                  >2000</span
+                >
+                <div class="tooltip-text">
+                  Max characters per retrieved chunk. Truncates longer chunks.
+                </div>
+              </div>
+              <input
+                type="range"
+                id="max-chunk-length-input"
+                min="200"
+                max="4000"
+                step="100"
+                value="2000"
+                class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="modal-overlay"
+      class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 opacity-0 invisible transition-opacity duration-300"
+    >
+      <div
+        id="modal-container"
+        class="bg-gray-800 rounded-lg shadow-xl w-full max-w-5xl p-6 border border-gray-700 scale-95 opacity-0 transition-all duration-300"
+      >
+        <h3 id="modal-title" class="text-xl font-bold text-white mb-2">Modal Title</h3>
+        <p id="modal-text" class="text-gray-400 mb-4">Some description text here.</p>
+        <div id="modal-content-host"></div>
+        <div id="modal-buttons" class="flex justify-end gap-3 mt-6">
+          <button id="modal-btn-cancel" class="btn btn-secondary">Cancel</button>
+          <button id="modal-btn-submit" class="btn btn-primary">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="source-browser-overlay"
+      class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 opacity-0 invisible transition-opacity duration-300"
+    >
+      <div
+        id="source-browser-container"
+        class="bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl h-[80vh] p-6 border border-gray-700 scale-95 opacity-0 transition-all duration-300 flex flex-col"
+      >
+        <div class="flex justify-between items-center mb-4 flex-shrink-0">
+          <h3 class="text-xl font-bold text-white">🗂️ Source Browser</h3>
+          <button
+            id="source-browser-close-btn"
+            class="p-2 rounded-full hover:bg-gray-700"
+          >
+            &times;
+          </button>
+        </div>
+        <div class="flex-grow flex gap-4 overflow-hidden">
+          <div class="w-1/3 flex flex-col bg-gray-900/50 rounded-lg p-3">
+            <h4
+              class="font-bold mb-2 text-mongodb-green-500 border-b border-gray-700 pb-2"
+            >
+              Sources
+            </h4>
+            <div id="source-list" class="overflow-y-auto flex-grow space-y-1 pr-2"></div>
+          </div>
+          <div class="w-2/3 flex flex-col">
+            <h4
+              class="font-bold mb-2 text-mongodb-green-500 border-b border-gray-700 pb-2"
+            >
+              Chunks
+            </h4>
+            <div class="overflow-y-auto flex-grow bg-gray-900/50 rounded-lg p-3">
+              <div
+                id="chunk-list-placeholder"
+                class="text-gray-400 text-center py-10"
+              >
+                Select a source to view its chunks.
+              </div>
+              <div id="chunk-list" class="chunk-list-container"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+  </body>
+</html>
