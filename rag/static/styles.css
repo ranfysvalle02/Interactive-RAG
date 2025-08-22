@@ -41,6 +41,13 @@
       }  
   
       .typing-dot {  
+        width: 8px;
+        height: 8px;
+        background-color: var(--gray-400);
+        border-radius: 50%;
+        display: inline-block;
+        margin: 0 2px;
+        opacity: 0.6;
         animation: typing-bubble 1.2s infinite ease-in-out;  
       }  
       .typing-dot:nth-child(2) { animation-delay: 0.15s; }  
@@ -130,7 +137,7 @@
       .btn-secondary:hover:not(:disabled) {  
         background-color: var(--gray-600);  
         transform: translateY(-2px);  
-        box-shadow: 0 4px 8px rgba(0,0,0,0.3);  
+        box-shadow: 0 4-8px rgba(0,0,0,0.3);  
       }  
       .btn-secondary:active:not(:disabled) {  
         transform: translateY(1px);  
@@ -140,6 +147,50 @@
       .btn.needs-update {  
         animation: pulseGreen 1.5s infinite;  
       }  
+  
+      /* Chat bubble redesign */
+      .message.bot-message .bot-avatar {
+          align-self: flex-start;
+          transform: translateY(4px); /* Minor vertical alignment adjustment */
+      }
+      .message.bot-message .bot-content {
+          border-radius: 0.5rem 1.5rem 1.5rem 1.5rem;
+      }
+      .message.user-message .user-content {
+          background-color: var(--mongodb-green-500);
+          color: white;
+          border-radius: 1.5rem 0.5rem 1.5rem 1.5rem;
+      }
+
+      /* Chat bubble spacing */
+      .chat-box > *:not(:first-child) {
+          margin-top: 1.5rem;
+      }
+      .chat-box > .user-message + .bot-message,
+      .chat-box > .bot-message + .user-message {
+          margin-top: 2rem;
+      }
+
+      /* Source link redesign */
+      .source-links a {
+          background-color: var(--gray-600);
+          color: var(--mongodb-green-500);
+          padding: 0.25rem 0.75rem;
+          border-radius: 9999px;
+          font-weight: 500;
+          transition: all 0.2s ease;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.25rem;
+      }
+      .source-links a:hover {
+          background-color: var(--mongodb-green-600);
+          color: var(--gray-900);
+          transform: translateY(-2px);
+      }
+      .source-links a:active {
+          transform: translateY(0);
+      }
   
       /* Chunk Card Styles */  
       .chunk-card {  
@@ -206,4 +257,14 @@
         margin-bottom: 0.75rem;  
         padding-bottom: 0.5rem;  
         border-bottom: 1px solid var(--gray-700);  
-      }  
+      }
+
+      /* Source Browser Styles */
+      .source-item {
+        transition: background-color 0.1s;
+      }
+      .source-item.active {
+        background-color: var(--mongodb-green-500);
+        color: var(--gray-900);
+        font-weight: bold;
+      }
