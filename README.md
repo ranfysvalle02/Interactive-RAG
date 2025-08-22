@@ -1,6 +1,12 @@
-Of course. Here is a refined version of the article with an improved narrative flow and a detailed appendix that incorporates the provided context.
+# Interactive RAG Agent
 
------
+![](irag-2025.png)
+
+Agents are revolutionizing the way we leverage language models for decision-making and task performance. Agents are systems that use language models to make decisions and perform tasks. They are designed to handle complex scenarios and provide more flexibility compared to traditional approaches. Agents can be thought of as reasoning engines that leverage language models to process information, retrieve relevant data, ingest(chunk/embed) and generate responses.
+
+In the future, agents will play a vital role in processing text, automating tasks, and improving human-computer interactions as language models advance.
+
+In this example, we will specifically focus on leveraging agents in dynamic Retrieval Augmented Generation (RAG). Using ActionWeaver and MongoDB Atlas, you will have the ability to modify your RAG strategy in real-time through conversational interactions. Whether it's selecting more chunks, increasing chunk size, or tweaking other parameters, you can fine-tune your RAG approach to achieve the desired response quality and accuracy. You can even add/remove sources to your vector database using natural language!
 
 # A Unified Approach to Smarter AI: Mastering Chunking and RAG Agents
 
@@ -42,6 +48,8 @@ This unified approach simplifies the entire RAG pipeline by bringing your data, 
 -----
 
 ## The Foundation: The Art of Intelligent Chunking
+
+![](irag-chunk-mgmt.png)
 
 With the data model established, the next step is preparing the content. The effectiveness of any RAG system hinges on a well-chunked knowledge base. Using **LangChain's `RecursiveCharacterTextSplitter`**, documents are intelligently broken down by attempting to preserve sentence and paragraph boundaries, which is crucial for maintaining semantic meaning.
 
