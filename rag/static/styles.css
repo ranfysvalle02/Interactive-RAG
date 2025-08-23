@@ -260,11 +260,61 @@
       }
 
       /* Source Browser Styles */
+      .sb-column-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 0.25rem 0.75rem 0.25rem;
+        margin-bottom: 0.5rem;
+        border-bottom: 1px solid var(--gray-700);
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--gray-300);
+        flex-shrink: 0;
+      }
+
+      .sb-count-badge {
+        font-size: 0.75rem;
+        font-weight: 500;
+        background-color: var(--gray-700);
+        color: var(--gray-300);
+        padding: 2px 8px;
+        border-radius: 9999px;
+        flex-shrink: 0;
+        margin-left: 0.5rem;
+      }
+
       .source-item {
-        transition: background-color 0.1s;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.2s, color 0.2s;
+        text-align: left;
+        border: none;
+        background-color: transparent;
+        color: var(--gray-300);
+        font-size: 0.9rem;
+      }
+      .source-item:hover {
+        background-color: var(--gray-700);
       }
       .source-item.active {
         background-color: var(--mongodb-green-500);
         color: var(--gray-900);
         font-weight: bold;
+      }
+      .source-item.active .sb-count-badge {
+        background-color: var(--gray-800);
+        color: var(--mongodb-green-500);
+      }
+
+
+      /* Style for the file drop zone when dragging a file over it */
+      .drop-zone-dragover {
+        border-color: var(--mongodb-green-500) !important;
+        background-color: rgba(0, 237, 100, 0.1);
       }

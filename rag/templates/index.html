@@ -135,11 +135,9 @@
     <div class="control-panel-section">
      <h3 class="control-panel-title">Session Management</h3>
      <div id="session-controls" class="flex flex-col gap-3">
-   _   <div>
-       <p>
-        Think of each session as a distinct workspace, complete with
-        its own chat history and a dedicated set of documents, URLs,
-        or other data sources.
+      <div>
+       <p class="text-sm text-gray-400">
+        Each session is a distinct workspace with its own chat history and knowledge base.
        </p>
       </div>
       <div class="flex items-center gap-2">
@@ -262,7 +260,7 @@
        <button
         data-action="list_sources"
         class="w-full p-3 rounded-lg hover:bg-gray-700 transition-colors flex flex-col items-center"
-     _  >
+       >
         <svg
          xmlns="http://www.w3.org/2000/svg"
          fill="none"
@@ -420,19 +418,19 @@
      </button>
     </div>
     <div class="flex-grow flex gap-4 overflow-hidden">
-     <div class="w-1/3 flex flex-col bg-gray-900/50 rounded-lg p-3 border-r border-gray-700">
+     <div class="w-1/3 flex flex-col bg-gray-900/50 rounded-lg p-3">
       <div class="sb-column-header">
        <span>Sources</span>
        <span id="source-browser-source-count" class="sb-count-badge">Total: 0</span>
       </div>
       <div id="source-list" class="overflow-y-auto flex-grow space-y-1 pr-2"></div>
      </div>
-     <div class="w-2/3 flex flex-col">
+     <div class="w-2/3 flex flex-col bg-gray-900/50 rounded-lg p-3">
       <div class="sb-column-header">
        <span>Chunks</span>
        <span id="source-browser-selected-chunk-count" class="sb-count-badge">Selected: 0</span>
       </div>
-      <div class="overflow-y-auto flex-grow bg-gray-900/50 rounded-lg p-3">
+      <div class="overflow-y-auto flex-grow">
        <div
         id="chunk-list-placeholder"
         class="text-gray-400 text-center py-10"
