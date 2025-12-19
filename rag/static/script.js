@@ -383,9 +383,13 @@ function escapeHtmlForTextarea(str) {
 // ---------------------------------------------
 // Chat Rendering (add messages to the chat box)
 // ---------------------------------------------
+// Store query info with messages for chunk inspection
+let messageQueryMap = new Map();
+
 function addBotMessage(message) {
  const content = message.content;
  const sources = message.sources || [];
+ const query = message.query || null; // Store query if available
 
  const messageEl = document.createElement("div");
  messageEl.className = "message bot-message flex flex-col p-4 bg-gray-700 rounded-lg animate-fade-in-up";
@@ -401,6 +405,14 @@ function addBotMessage(message) {
  messageEl.appendChild(contentDiv);
 
  if (sources.length > 0) {
+  // Store query info for this message
+  let messageId = null;
+  if (query) {
+   messageId = `msg-${Date.now()}-${Math.random()}`;
+   messageEl.setAttribute('data-message-id', messageId);
+   messageQueryMap.set(messageId, query);
+  }
+
   let sourceLinksHTML = sources.map(source => {
    const href = `/source_content?session_id=${encodeURIComponent(currentSessionId)}&source=${encodeURIComponent(source)}`;
    const target = `target="_blank" rel="noopener noreferrer"`;
@@ -423,8 +435,22 @@ function addBotMessage(message) {
 
   const sourcesContainer = document.createElement("div");
   sourcesContainer.className = "source-links mt-4 pt-4 border-t border-gray-600";
+  
+  const inspectButton = messageId ? `
+    <button onclick="inspectRetrievedChunks('${messageId}')" 
+            class="flex items-center gap-1 text-xs bg-mongodb-green-500/20 hover:bg-mongodb-green-500/30 text-mongodb-green-400 px-2 py-1 rounded transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639l4.43-7.29a1.125 1.125 0 011.906 0l4.43 7.29c.356.586.356 1.35 0 1.936l-4.43 7.29a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+      </svg>
+      Inspect Chunks
+    </button>
+  ` : '';
+  
   sourcesContainer.innerHTML = `
-    <h4 class="text-xs font-bold uppercase text-gray-400 mb-2">Sources</h4>
+    <div class="flex justify-between items-center mb-2">
+      <h4 class="text-xs font-bold uppercase text-gray-400">Sources</h4>
+      ${inspectButton}
+    </div>
     <div class="flex flex-wrap gap-2">
       ${sourceLinksHTML}
     </div>
@@ -465,13 +491,16 @@ function setThinking(isThinking) {
 // -------------------------
 // Session / State Functions
 // -------------------------
+let indexStatusCache = {};
+
 function loadSessionsAndState() {
- fetch("/state")
+ fetch(`/state?session_id=${encodeURIComponent(currentSessionId)}`)
   .then((r) => r.json())
   .then((data) => {
    allSessions = data.all_sessions || [];
    availableModels = data.available_embedding_models || [];
    currentSessionId = data.current_session || "default";
+   indexStatusCache = data.index_status || {};
   
    sessionSelector.innerHTML = "";
    allSessions.forEach((s) => {
@@ -495,9 +524,165 @@ function loadSessionsAndState() {
    if (selectedModel && availableModels.includes(selectedModel)) {
      embeddingModelSelector.value = selectedModel;
    }
+   
+   // Update index status indicator
+   updateIndexStatusIndicator();
   })
   .catch((err) => {
    console.error("Failed to load state:", err);
+  });
+}
+
+function updateIndexStatusIndicator() {
+  const model = embeddingModelSelector.value;
+  const status = indexStatusCache[model];
+  
+  // Remove existing indicator
+  const existing = document.getElementById('index-status-indicator');
+  if (existing) existing.remove();
+  
+  if (!status) {
+    return;
+  }
+  
+  const isReady = status.index_ready;
+  const docCount = status.document_count || 0;
+  const indexStatus = status.index_status || 'UNKNOWN';
+  const indexQueryable = status.index_queryable || false;
+  
+  // Don't show indicator if no documents
+  if (docCount === 0) {
+    return;
+  }
+  
+  // Create modern indicator with badge style
+  const indicator = document.createElement('div');
+  indicator.id = 'index-status-indicator';
+  indicator.className = 'index-status-badge';
+  
+  let statusConfig = {};
+  
+  if (isReady && indexQueryable) {
+    statusConfig = {
+      variant: 'success',
+      icon: '✓',
+      text: `${docCount.toLocaleString()} docs indexed`,
+      pulse: false
+    };
+  } else if (indexStatus === 'NOT_FOUND' && docCount > 0) {
+    statusConfig = {
+      variant: 'warning',
+      icon: '⚠',
+      text: `Creating index for ${docCount.toLocaleString()} docs...`,
+      pulse: true
+    };
+    // Trigger index creation
+    fetch(`/index_status?session_id=${encodeURIComponent(currentSessionId)}&embedding_model=${encodeURIComponent(model)}&auto_create=true`)
+      .catch(err => console.error('Failed to trigger index creation:', err));
+  } else if (indexStatus === 'CREATING') {
+    statusConfig = {
+      variant: 'info',
+      icon: '⏳',
+      text: `Creating index (${docCount.toLocaleString()} docs)...`,
+      pulse: true
+    };
+  } else if (indexStatus === 'BUILDING' || indexStatus === 'PENDING') {
+    statusConfig = {
+      variant: 'info',
+      icon: '⏳',
+      text: `Index ${indexStatus === 'BUILDING' ? 'building' : 'pending'} (${docCount.toLocaleString()} docs)...`,
+      pulse: true
+    };
+  } else if (indexStatus === 'STALE') {
+    statusConfig = {
+      variant: 'warning',
+      icon: '🔄',
+      text: `Index updating (${docCount.toLocaleString()} docs)...`,
+      pulse: true
+    };
+  } else if (indexStatus === 'CREATION_FAILED' || indexStatus === 'FAILED') {
+    statusConfig = {
+      variant: 'error',
+      icon: '❌',
+      text: `Index failed (${docCount.toLocaleString()} docs)`,
+      pulse: false
+    };
+  } else if (docCount > 0 && !indexQueryable) {
+    statusConfig = {
+      variant: 'warning',
+      icon: '⏳',
+      text: `Index ${indexStatus.toLowerCase()} (${docCount.toLocaleString()} docs)...`,
+      pulse: true
+    };
+  } else {
+    return;
+  }
+  
+  indicator.innerHTML = `
+    <div class="index-status-content ${statusConfig.pulse ? 'pulse-animation' : ''}">
+      <span class="index-status-icon">${statusConfig.icon}</span>
+      <span class="index-status-text">${statusConfig.text}</span>
+      <button class="index-status-debug-btn" onclick="openDebugModal()" title="View debug info">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </button>
+    </div>
+  `;
+  
+  indicator.setAttribute('data-variant', statusConfig.variant);
+  
+  // Insert after embedding model selector
+  const modelSelector = embeddingModelSelector;
+  const parent = modelSelector.parentElement;
+  if (parent) {
+    parent.insertBefore(indicator, modelSelector.nextSibling);
+  }
+}
+
+function checkIndexReady(embeddingModel, maxWait = 30000, pollInterval = 2000) {
+  return new Promise((resolve) => {
+    const startTime = Date.now();
+    
+    const check = () => {
+      // Auto-create index if missing
+      fetch(`/index_status?session_id=${encodeURIComponent(currentSessionId)}&embedding_model=${encodeURIComponent(embeddingModel)}&auto_create=true`)
+        .then(r => r.json())
+        .then(data => {
+          if (data.ready_for_search) {
+            resolve(true);
+            return;
+          }
+          
+          // If index is being created, continue waiting
+          if (data.index_status === 'CREATING' || data.index_status === 'BUILDING' || data.index_status === 'PENDING') {
+            if (Date.now() - startTime > maxWait) {
+              resolve(false);
+              return;
+            }
+            setTimeout(check, pollInterval);
+            return;
+          }
+          
+          if (Date.now() - startTime > maxWait) {
+            resolve(false);
+            return;
+          }
+          
+          setTimeout(check, pollInterval);
+        })
+        .catch(() => {
+          // On error, assume not ready
+          if (Date.now() - startTime > maxWait) {
+            resolve(false);
+          } else {
+            setTimeout(check, pollInterval);
+          }
+        });
+    };
+    
+    check();
   });
 }
 
@@ -551,14 +736,57 @@ function createSession(newSessionName) {
 // ------
 // Events
 // ------
+let indexStatusRefreshInterval = null;
+
+function startIndexStatusRefresh() {
+  // Clear existing interval
+  if (indexStatusRefreshInterval) {
+    clearInterval(indexStatusRefreshInterval);
+  }
+  
+  // Refresh index status every 3 seconds if there are documents but index isn't ready
+  indexStatusRefreshInterval = setInterval(() => {
+    const model = embeddingModelSelector.value;
+    const status = indexStatusCache[model];
+    
+    // Refresh if:
+    // 1. We have documents but index isn't ready
+    // 2. Index is in a building/creating state (to show progress)
+    // 3. Index status is unknown
+    if (status && status.document_count > 0) {
+      const needsRefresh = !status.index_ready || 
+                          status.index_status === 'CREATING' || 
+                          status.index_status === 'BUILDING' || 
+                          status.index_status === 'PENDING' ||
+                          status.index_status === 'STALE' ||
+                          status.index_status === 'NOT_FOUND';
+      
+      if (needsRefresh) {
+        loadSessionsAndState();
+      }
+    }
+  }, 3000); // Check every 3 seconds for faster updates
+}
+
 document.addEventListener("DOMContentLoaded", () => {
  loadSessionsAndState();
+ startIndexStatusRefresh();
+ 
+ // Update index status when embedding model changes
+ embeddingModelSelector.addEventListener("change", () => {
+  // Refresh state to get latest status for new model
+  loadSessionsAndState();
+ });
 });
 
 sessionSelector.addEventListener("change", () => {
  const sel = sessionSelector.value;
  if (sel !== currentSessionId) {
   switchSession(sel);
+  // Refresh status when session changes
+  setTimeout(() => {
+    loadSessionsAndState();
+  }, 500);
  }
 });
 
@@ -591,7 +819,7 @@ clearHistoryBtn.addEventListener("click", () => {
   .catch((err) => console.error("Failed to clear history:", err));
 });
 
-chatForm.addEventListener("submit", (event) => {
+chatForm.addEventListener("submit", async (event) => {
  event.preventDefault();
  const text = userInput.value.trim();
  if (!text) return;
@@ -602,6 +830,19 @@ chatForm.addEventListener("submit", (event) => {
  const embeddingModel = embeddingModelSelector.value;
  const numSources = parseInt(numSourcesInput.value) || 3;
  const maxChunkLen = parseInt(maxCharsInput.value) || 2000;
+
+ // Check if index is ready, wait if needed
+ const status = indexStatusCache[embeddingModel];
+ if (status && !status.index_ready && status.document_count > 0) {
+  addSystemMessage(`⏳ Waiting for index to be ready (${status.document_count} documents indexed)...`);
+  const isReady = await checkIndexReady(embeddingModel, 30000, 2000);
+  if (!isReady) {
+   addSystemMessage(`⚠️ Index may still be building. Trying search anyway...`);
+  } else {
+   addSystemMessage(`✅ Index is ready!`);
+   loadSessionsAndState(); // Refresh status
+  }
+ }
 
  const payload = {
   query: text,
@@ -633,7 +874,7 @@ chatForm.addEventListener("submit", (event) => {
     }
    });
    if (data.session_update) {
-     loadSessionsAndState();
+    loadSessionsAndState();
    }
   })
   .catch((err) => {
@@ -784,7 +1025,15 @@ function handleReadFile() {
     </div>
     <div class="flex gap-4 mt-4 h-[50vh]">
       <div class="w-1/2 flex flex-col bg-gray-900/50 rounded-lg">
-        <h4 class="font-bold text-mongodb-green-500 border-b border-gray-700 p-3">Source Content (Editable)</h4>
+        <div class="flex justify-between items-center border-b border-gray-700 p-3">
+          <h4 class="font-bold text-mongodb-green-500">Source Content</h4>
+          <button onclick="openSourceContentFromIngestion()" class="text-xs bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 px-2 py-1 rounded transition-colors flex items-center gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 002.25-2.25V6a2.25 2.25 0 00-2.25-2.25H6A2.25 2.25 0 003.75 6v2.25A2.25 2.25 0 006 10.5zm0 9.75h2.25A2.25 2.25 0 0010.5 18v-2.25a2.25 2.25 0 00-2.25-2.25H6a2.25 2.25 0 00-2.25 2.25V18A2.25 2.25 0 006 20.25zm9.75-9.75H18a2.25 2.25 0 002.25-2.25V6A2.25 2.25 0 0018 3.75h-2.25A2.25 2.25 0 0013.5 6v2.25A2.25 2.25 0 0015.75 10.5z" />
+            </svg>
+            Open in Modal
+          </button>
+        </div>
         <div class="flex-grow p-1">
          <textarea id="ingestion-source-content-textarea" class="w-full h-full bg-transparent text-gray-200 p-2 rounded-md resize-none focus:outline-none focus:ring-1 focus:ring-mongodb-green-500" placeholder="Select a file to begin..."></textarea>
         </div>
@@ -931,7 +1180,15 @@ function handleReadUrlAndChunking(initialUrl = '') {
     </div>
     <div class="flex gap-4 mt-4 h-[55vh]">
       <div class="w-1/2 flex flex-col bg-gray-900/50 rounded-lg">
-        <h4 class="font-bold text-mongodb-green-500 border-b border-gray-700 p-3">Source Content (Editable)</h4>
+        <div class="flex justify-between items-center border-b border-gray-700 p-3">
+          <h4 class="font-bold text-mongodb-green-500">Source Content</h4>
+          <button onclick="openSourceContentFromIngestion()" class="text-xs bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 px-2 py-1 rounded transition-colors flex items-center gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 002.25-2.25V6a2.25 2.25 0 00-2.25-2.25H6A2.25 2.25 0 003.75 6v2.25A2.25 2.25 0 006 10.5zm0 9.75h2.25A2.25 2.25 0 0010.5 18v-2.25a2.25 2.25 0 00-2.25-2.25H6a2.25 2.25 0 00-2.25 2.25V18A2.25 2.25 0 006 20.25zm9.75-9.75H18a2.25 2.25 0 002.25-2.25V6A2.25 2.25 0 0018 3.75h-2.25A2.25 2.25 0 0013.5 6v2.25A2.25 2.25 0 0015.75 10.5z" />
+            </svg>
+            Open in Modal
+          </button>
+        </div>
         <div class="flex-grow p-1">
          <textarea id="ingestion-source-content-textarea" class="w-full h-full bg-transparent text-gray-200 p-2 rounded-md resize-none focus:outline-none focus:ring-1 focus:ring-mongodb-green-500" placeholder="Enter a URL and click 'Load Content'..."></textarea>
         </div>
@@ -1176,24 +1433,730 @@ maxCharsInput.addEventListener("input", () => {
  maxCharsValue.textContent = parseInt(maxCharsInput.value);
 });
 
-function pollIngestionTask(taskId) {
- const checkStatus = () => {
-  fetch(`/ingest/status/${taskId}`)
-   .then(r => r.json())
-   .then(data => {
-    if (data.status === 'complete') {
-     addSystemMessage(`Ingestion successful! ${data.message}`);
-     loadSessionsAndState();
-    } else if (data.status === 'failed') {
-     addSystemMessage(`Ingestion failed: ${data.message}`);
-    } else {
-     setTimeout(checkStatus, 2000);
+// ---------------------------
+// Ingestion Progress Overlay
+// ---------------------------
+let ingestionOverlay = null;
+let ingestionStatusInterval = null;
+
+function createIngestionOverlay() {
+  if (ingestionOverlay) return ingestionOverlay;
+  
+  const overlay = document.createElement('div');
+  overlay.id = 'ingestion-overlay';
+  overlay.className = 'fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50';
+  overlay.innerHTML = `
+    <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-md p-6 border border-gray-700">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="spinner-large"></div>
+        <h3 class="text-xl font-bold text-white">Processing Ingestion</h3>
+      </div>
+      <div id="ingestion-status-text" class="text-gray-300 mb-4 min-h-[3rem]">
+        Starting ingestion...
+      </div>
+      <div class="w-full bg-gray-700 rounded-full h-2 mb-2">
+        <div id="ingestion-progress-bar" class="bg-mongodb-green-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+      </div>
+      <p class="text-xs text-gray-400 text-center">Please wait while your content is being processed...</p>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  ingestionOverlay = overlay;
+  return overlay;
+}
+
+function showIngestionOverlay() {
+  const overlay = createIngestionOverlay();
+  overlay.classList.remove('hidden');
+  overlay.style.display = 'flex';
+  
+  // Disable all interactive elements
+  document.querySelectorAll('button, input, select, textarea').forEach(el => {
+    if (!el.closest('#ingestion-overlay')) {
+      el.disabled = true;
+      el.style.pointerEvents = 'none';
+      el.style.opacity = '0.5';
     }
-   })
-   .catch(err => {
-    addSystemMessage(`Failed to get ingestion status: ${err.message}`);
-   });
- };
- addSystemMessage(`Ingestion started with Task ID: ${taskId}. This may take a moment.`);
- setTimeout(checkStatus, 2000);
+  });
+}
+
+function hideIngestionOverlay() {
+  if (ingestionOverlay) {
+    ingestionOverlay.classList.add('hidden');
+    ingestionOverlay.style.display = 'none';
+  }
+  
+  // Re-enable all interactive elements
+  document.querySelectorAll('button, input, select, textarea').forEach(el => {
+    el.disabled = false;
+    el.style.pointerEvents = '';
+    el.style.opacity = '';
+  });
+  
+  if (ingestionStatusInterval) {
+    clearInterval(ingestionStatusInterval);
+    ingestionStatusInterval = null;
+  }
+}
+
+function updateIngestionStatus(status, step, progress = 0) {
+  const statusText = document.getElementById('ingestion-status-text');
+  const progressBar = document.getElementById('ingestion-progress-bar');
+  
+  if (statusText) {
+    const stepMessages = {
+      'pending': 'Initializing...',
+      'processing': step || 'Processing...',
+      'complete': 'Complete!',
+      'failed': 'Failed'
+    };
+    
+    let message = stepMessages[status] || status;
+    if (status === 'processing' && step) {
+      message = step;
+    } else if (status === 'complete') {
+      message = '✅ Ingestion completed successfully!';
+    } else if (status === 'failed') {
+      message = `❌ Ingestion failed: ${step || 'Unknown error'}`;
+    }
+    
+    statusText.textContent = message;
+    
+    // Add index status info if available
+    if (status === 'complete') {
+      setTimeout(() => {
+        loadSessionsAndState();
+        const model = embeddingModelSelector.value;
+        const status = indexStatusCache[model];
+        if (status && !status.index_ready) {
+          statusText.innerHTML = `
+            <div>${message}</div>
+            <div class="text-xs text-yellow-400 mt-2">
+              ⏳ Index is building... (${status.document_count} docs) - This may take 10-30 seconds
+            </div>
+          `;
+        }
+      }, 500);
+    }
+  }
+  
+  if (progressBar) {
+    let progressPercent = progress;
+    if (status === 'pending') progressPercent = 10;
+    else if (status === 'processing') progressPercent = Math.max(20, Math.min(90, progress));
+    else if (status === 'complete') progressPercent = 100;
+    else if (status === 'failed') progressPercent = 0;
+    
+    progressBar.style.width = `${progressPercent}%`;
+  }
+}
+
+// ---------------------------
+// Debug Modal Functions
+// ---------------------------
+// Make debug modal functions globally accessible
+window.openDebugModal = function() {
+  const model = embeddingModelSelector.value;
+  
+  // Show loading state
+  const modalHTML = `
+    <div class="debug-modal-overlay" id="debug-modal-overlay">
+      <div class="debug-modal-container">
+        <div class="debug-modal-header">
+          <div class="debug-modal-title">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Debug & Insights
+          </div>
+          <button class="debug-modal-close" onclick="closeDebugModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="debug-modal-tabs">
+          <button class="debug-tab active" data-tab="overview" onclick="switchDebugTab('overview')">Overview</button>
+          <button class="debug-tab" data-tab="chunks" onclick="switchDebugTab('chunks')">Chunks</button>
+          <button class="debug-tab" data-tab="requests" onclick="switchDebugTab('requests')">LLM Requests</button>
+          <button class="debug-tab" data-tab="retrievals" onclick="switchDebugTab('retrievals')">Retrievals</button>
+        </div>
+        <div class="debug-modal-content">
+          <div class="debug-tab-content active" id="debug-tab-overview">
+            <div class="flex justify-center items-center h-64">
+              <div class="spinner-large"></div>
+            </div>
+          </div>
+          <div class="debug-tab-content" id="debug-tab-chunks"></div>
+          <div class="debug-tab-content" id="debug-tab-requests"></div>
+          <div class="debug-tab-content" id="debug-tab-retrievals"></div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+  
+  // Load debug data
+  fetch(`/debug?session_id=${encodeURIComponent(currentSessionId)}&embedding_model=${encodeURIComponent(model)}`)
+    .then(r => r.json())
+    .then(data => {
+      renderDebugOverview(data);
+      renderDebugChunks(data);
+      renderDebugRequests(data);
+      renderDebugRetrievals(data);
+    })
+    .catch(err => {
+      document.getElementById('debug-tab-overview').innerHTML = `
+        <div class="debug-empty-state">
+          <div class="debug-empty-state-icon">⚠️</div>
+          <p>Failed to load debug data: ${escapeHtml(err.message)}</p>
+        </div>
+      `;
+    });
+  
+  // Close on overlay click
+  document.getElementById('debug-modal-overlay').addEventListener('click', (e) => {
+    if (e.target.id === 'debug-modal-overlay') {
+      closeDebugModal();
+    }
+  });
+  
+  // Close on Escape key
+  const escapeHandler = (e) => {
+    if (e.key === 'Escape') {
+      closeDebugModal();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+}
+
+window.closeDebugModal = function() {
+  const overlay = document.getElementById('debug-modal-overlay');
+  if (overlay) {
+    overlay.style.animation = 'fadeOut 0.2s ease-out';
+    setTimeout(() => overlay.remove(), 200);
+  }
+}
+
+window.switchDebugTab = function(tabName) {
+  // Update tabs
+  document.querySelectorAll('.debug-tab').forEach(tab => {
+    tab.classList.remove('active');
+    if (tab.dataset.tab === tabName) {
+      tab.classList.add('active');
+    }
+  });
+  
+  // Update content
+  document.querySelectorAll('.debug-tab-content').forEach(content => {
+    content.classList.remove('active');
+    if (content.id === `debug-tab-${tabName}`) {
+      content.classList.add('active');
+    }
+  });
+}
+
+function renderDebugOverview(data) {
+  const indexStatus = data.index_status || {};
+  const html = `
+    <div class="debug-section">
+      <h3 class="debug-section-title">Index Status</h3>
+      <div class="debug-info-grid">
+        <div class="debug-info-item">
+          <div class="debug-info-label">Index Name</div>
+          <div class="debug-info-value">${escapeHtml(indexStatus.name || 'N/A')}</div>
+        </div>
+        <div class="debug-info-item">
+          <div class="debug-info-label">Status</div>
+          <div class="debug-info-value">${escapeHtml(indexStatus.status || 'UNKNOWN')}</div>
+        </div>
+        <div class="debug-info-item">
+          <div class="debug-info-label">Queryable</div>
+          <div class="debug-info-value">${indexStatus.queryable ? '✓ Yes' : '✗ No'}</div>
+        </div>
+        <div class="debug-info-item">
+          <div class="debug-info-label">Documents</div>
+          <div class="debug-info-value">${(indexStatus.document_count || 0).toLocaleString()}</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="debug-section">
+      <h3 class="debug-section-title">Session Info</h3>
+      <div class="debug-info-grid">
+        <div class="debug-info-item">
+          <div class="debug-info-label">Session ID</div>
+          <div class="debug-info-value">${escapeHtml(data.session_id || 'N/A')}</div>
+        </div>
+        <div class="debug-info-item">
+          <div class="debug-info-label">Embedding Model</div>
+          <div class="debug-info-value">${escapeHtml(data.embedding_model || 'N/A')}</div>
+        </div>
+        <div class="debug-info-item">
+          <div class="debug-info-label">Chat History</div>
+          <div class="debug-info-value">${data.chat_history_length || 0} messages</div>
+        </div>
+        <div class="debug-info-item">
+          <div class="debug-info-label">Requests Stored</div>
+          <div class="debug-info-value">${data.total_requests_stored || 0}</div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('debug-tab-overview').innerHTML = html;
+}
+
+function renderDebugChunks(data) {
+  const chunks = data.sample_chunks || [];
+  if (chunks.length === 0) {
+    document.getElementById('debug-tab-chunks').innerHTML = `
+      <div class="debug-empty-state">
+        <div class="debug-empty-state-icon">📄</div>
+        <p>No chunks found in this session</p>
+      </div>
+    `;
+    return;
+  }
+  
+  const html = `
+    <div class="debug-section">
+      <h3 class="debug-section-title">Sample Chunks (${chunks.length})</h3>
+      <div class="debug-chunk-list">
+        ${chunks.map(chunk => `
+          <div class="debug-chunk-item">
+            <div class="debug-chunk-header">
+              <span class="debug-chunk-id">ID: ${escapeHtml(chunk._id)}</span>
+              <span class="debug-chunk-source" onclick="window.open('/source_content?session_id=${encodeURIComponent(data.session_id)}&source=${encodeURIComponent(chunk.source)}', '_blank')">
+                ${escapeHtml(chunk.source)}
+              </span>
+            </div>
+            <div class="debug-chunk-text">${escapeHtml(chunk.text)}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  document.getElementById('debug-tab-chunks').innerHTML = html;
+}
+
+function renderDebugRequests(data) {
+  const requests = data.recent_requests || [];
+  if (requests.length === 0) {
+    document.getElementById('debug-tab-requests').innerHTML = `
+      <div class="debug-empty-state">
+        <div class="debug-empty-state-icon">💬</div>
+        <p>No LLM requests recorded yet</p>
+        <p class="text-sm mt-2">Requests will appear here after you ask questions</p>
+      </div>
+    `;
+    return;
+  }
+  
+  const html = `
+    <div class="debug-section">
+      <h3 class="debug-section-title">Recent LLM Requests (${requests.length})</h3>
+      ${requests.reverse().map(req => {
+        const date = new Date(req.timestamp);
+        return `
+          <div class="debug-request-item">
+            <div class="debug-request-header">
+              <div class="debug-request-time">${date.toLocaleString()}</div>
+              <div class="text-xs text-gray-400">Model: ${escapeHtml(req.embedding_model || 'N/A')} | k: ${req.num_sources || 'N/A'}</div>
+            </div>
+            <div class="debug-request-query">${escapeHtml(req.query)}</div>
+            <div class="debug-request-details">
+              <span>Response: ${(req.response_length || 0).toLocaleString()} chars</span>
+              <span>Sources: ${(req.sources_used || []).length}</span>
+              ${req.sources_used && req.sources_used.length > 0 ? `
+                <div class="mt-2">
+                  ${req.sources_used.map(src => `
+                    <span class="text-xs bg-gray-700 px-2 py-1 rounded mr-1">${escapeHtml(src)}</span>
+                  `).join('')}
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+  document.getElementById('debug-tab-requests').innerHTML = html;
+}
+
+function renderDebugRetrievals(data) {
+  const retrievals = data.recent_retrieved_chunks || [];
+  if (retrievals.length === 0) {
+    document.getElementById('debug-tab-retrievals').innerHTML = `
+      <div class="debug-empty-state">
+        <div class="debug-empty-state-icon">🔍</div>
+        <p>No retrievals recorded yet</p>
+        <p class="text-sm mt-2">Retrievals will appear here after searches</p>
+      </div>
+    `;
+    return;
+  }
+  
+  const html = `
+    <div class="debug-section">
+      <h3 class="debug-section-title">Recent Retrievals (${retrievals.length})</h3>
+      ${retrievals.reverse().map(ret => {
+        const date = new Date(ret.timestamp);
+        return `
+          <div class="debug-request-item">
+            <div class="debug-request-header">
+              <div class="debug-request-time">${date.toLocaleString()}</div>
+              <div class="text-xs text-gray-400">Model: ${escapeHtml(ret.embedding_model || 'N/A')} | Chunks: ${(ret.chunks || []).length}</div>
+            </div>
+            <div class="debug-request-query">Query: ${escapeHtml(ret.query)}</div>
+            <div class="mt-3">
+              ${(ret.chunks || []).map((chunk, idx) => `
+                <div class="debug-chunk-item mt-2">
+                  <div class="debug-chunk-header">
+                    <span class="text-xs text-gray-400">Chunk ${idx + 1}</span>
+                    <span class="text-xs text-mongodb-green-500">Score: ${chunk.score?.toFixed(4) || 'N/A'}</span>
+                    <span class="debug-chunk-source">${escapeHtml(chunk.source)}</span>
+                  </div>
+                  <div class="debug-chunk-text">${escapeHtml(chunk.text)}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+  document.getElementById('debug-tab-retrievals').innerHTML = html;
+}
+
+function pollIngestionTask(taskId) {
+  showIngestionOverlay();
+  updateIngestionStatus('pending', 'Starting ingestion...', 10);
+  
+  let pollCount = 0;
+  const maxPolls = 300; // 10 minutes max (300 * 2 seconds)
+  
+  const checkStatus = () => {
+    pollCount++;
+    if (pollCount > maxPolls) {
+      hideIngestionOverlay();
+      addSystemMessage(`Ingestion timeout: Task ${taskId} took too long. Please check server logs.`);
+      return;
+    }
+    
+    fetch(`/ingest/status/${taskId}`)
+     .then(r => r.json())
+     .then(data => {
+      const status = data.status || 'pending';
+      const step = data.step || data.message || '';
+      
+      // Calculate progress based on step
+      let progress = 20;
+      if (step.includes('Chunking')) progress = 30;
+      else if (step.includes('Generating embeddings')) progress = 50;
+      else if (step.includes('Verifying vector search') || step.includes('Checking indexes')) progress = 60;
+      else if (step.includes('Preparing documents')) progress = 70;
+      else if (step.includes('Saving')) progress = 85;
+      else if (step.includes('Verifying')) progress = 95;
+      
+      updateIngestionStatus(status, step, progress);
+      
+      if (status === 'complete') {
+        hideIngestionOverlay();
+        addSystemMessage(`✅ Ingestion successful! ${data.message || ''}`);
+        
+        // Force immediate status refresh
+        loadSessionsAndState();
+        
+        // Check index status and show appropriate message, then keep checking
+        const checkIndexStatus = (attempt = 0) => {
+          setTimeout(() => {
+            loadSessionsAndState(); // Refresh to get latest status
+            setTimeout(() => {
+              const model = embeddingModelSelector.value;
+              const idxStatus = indexStatusCache[model];
+              
+              if (idxStatus) {
+                if (idxStatus.index_ready) {
+                  addSystemMessage(`✅ Index is ready! (${idxStatus.document_count} documents indexed)`);
+                } else if (idxStatus.index_status === 'CREATING' || idxStatus.index_status === 'BUILDING' || idxStatus.index_status === 'PENDING') {
+                  if (attempt === 0) {
+                    addSystemMessage(`⏳ Index is ${idxStatus.index_status.toLowerCase()} (${idxStatus.document_count} documents). This may take 10-30 seconds. Status will update automatically.`);
+                  }
+                  // Keep checking every 5 seconds until ready (max 12 attempts = 60 seconds)
+                  if (attempt < 12) {
+                    checkIndexStatus(attempt + 1);
+                  }
+                } else if (idxStatus.index_status === 'NOT_FOUND' && idxStatus.document_count > 0) {
+                  if (attempt === 0) {
+                    addSystemMessage(`⏳ Index creation initiated for ${idxStatus.document_count} documents. This may take 10-30 seconds.`);
+                  }
+                  // Keep checking every 5 seconds until ready (max 12 attempts = 60 seconds)
+                  if (attempt < 12) {
+                    checkIndexStatus(attempt + 1);
+                  }
+                } else {
+                  addSystemMessage('💡 Note: Vector search indexes may take 10-30 seconds to index new documents. If search doesn\'t work immediately, wait a moment and try again.');
+                }
+              }
+            }, 500); // Small delay to ensure cache is updated
+          }, attempt === 0 ? 1000 : 5000); // First check after 1s, then every 5s
+        };
+        
+        checkIndexStatus();
+      } else if (status === 'failed') {
+        hideIngestionOverlay();
+        addSystemMessage(`❌ Ingestion failed: ${data.message || 'Unknown error'}`);
+      } else {
+        // Continue polling
+        ingestionStatusInterval = setTimeout(checkStatus, 2000);
+      }
+     })
+     .catch(err => {
+      console.error('Failed to get ingestion status:', err);
+      // Retry on error
+      ingestionStatusInterval = setTimeout(checkStatus, 2000);
+     });
+  };
+  
+  // Start polling after a short delay
+  ingestionStatusInterval = setTimeout(checkStatus, 1000);
+}
+
+// ---------------------------
+// Source Content Modal
+// ---------------------------
+window.openSourceContentModal = function(content, sourceName = '') {
+  const modalHTML = `
+    <div class="source-content-modal-overlay" id="source-content-modal-overlay">
+      <div class="source-content-modal-container">
+        <div class="source-content-modal-header">
+          <div class="source-content-modal-title">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+            </svg>
+            Source Content${sourceName ? `: ${escapeHtml(sourceName)}` : ''}
+          </div>
+          <button class="source-content-modal-close" onclick="closeSourceContentModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="source-content-modal-content">
+          <textarea id="source-content-textarea" class="source-content-textarea" readonly>${escapeHtmlForTextarea(content || '')}</textarea>
+        </div>
+        <div class="source-content-modal-footer">
+          <button class="btn btn-secondary" onclick="closeSourceContentModal()">Close</button>
+          <button class="btn btn-primary" onclick="copySourceContent()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+            </svg>
+            Copy
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+  
+  // Close on overlay click
+  document.getElementById('source-content-modal-overlay').addEventListener('click', (e) => {
+    if (e.target.id === 'source-content-modal-overlay') {
+      closeSourceContentModal();
+    }
+  });
+  
+  // Close on Escape key
+  const escapeHandler = (e) => {
+    if (e.key === 'Escape') {
+      closeSourceContentModal();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+  
+  // Focus textarea
+  setTimeout(() => {
+    const textarea = document.getElementById('source-content-textarea');
+    if (textarea) {
+      textarea.focus();
+      textarea.select();
+    }
+  }, 100);
+}
+
+window.closeSourceContentModal = function() {
+  const overlay = document.getElementById('source-content-modal-overlay');
+  if (overlay) {
+    overlay.style.animation = 'fadeOut 0.2s ease-out';
+    setTimeout(() => overlay.remove(), 200);
+  }
+}
+
+window.copySourceContent = function() {
+  const textarea = document.getElementById('source-content-textarea');
+  if (textarea) {
+    textarea.select();
+    document.execCommand('copy');
+    // Show brief feedback
+    const btn = event.target.closest('button');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg> Copied!';
+    setTimeout(() => {
+      btn.innerHTML = originalText;
+    }, 2000);
+  }
+}
+
+// ---------------------------
+// Chunk Inspection Modal
+// ---------------------------
+window.inspectRetrievedChunks = function(messageId) {
+  const query = messageQueryMap.get(messageId);
+  if (!query) {
+    alert('Query information not available for this message.');
+    return;
+  }
+  
+  const model = embeddingModelSelector.value;
+  
+  // Show loading state
+  const modalHTML = `
+    <div class="chunk-inspection-modal-overlay" id="chunk-inspection-modal-overlay">
+      <div class="chunk-inspection-modal-container">
+        <div class="chunk-inspection-modal-header">
+          <div class="chunk-inspection-modal-title">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639l4.43-7.29a1.125 1.125 0 011.906 0l4.43 7.29c.356.586.356 1.35 0 1.936l-4.43 7.29a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+            </svg>
+            Retrieved Chunks
+          </div>
+          <button class="chunk-inspection-modal-close" onclick="closeChunkInspectionModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="chunk-inspection-modal-content">
+          <div class="chunk-inspection-query">
+            <div class="text-sm text-gray-400 mb-1">Query:</div>
+            <div class="text-base font-medium text-white">${escapeHtml(query)}</div>
+          </div>
+          <div class="flex justify-center items-center h-64">
+            <div class="spinner-large"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+  
+  // Fetch retrieved chunks from debug endpoint
+  fetch(`/debug?session_id=${encodeURIComponent(currentSessionId)}&embedding_model=${encodeURIComponent(model)}`)
+    .then(r => r.json())
+    .then(data => {
+      const retrievals = data.recent_retrieved_chunks || [];
+      
+      // Find the most recent retrieval matching this query
+      const matchingRetrieval = retrievals
+        .filter(ret => ret.query === query && ret.session_id === currentSessionId)
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+      
+      if (!matchingRetrieval || !matchingRetrieval.chunks || matchingRetrieval.chunks.length === 0) {
+        document.querySelector('#chunk-inspection-modal-overlay .chunk-inspection-modal-content').innerHTML = `
+          <div class="chunk-inspection-query">
+            <div class="text-sm text-gray-400 mb-1">Query:</div>
+            <div class="text-base font-medium text-white">${escapeHtml(query)}</div>
+          </div>
+          <div class="debug-empty-state">
+            <div class="debug-empty-state-icon">🔍</div>
+            <p>No chunks found for this query</p>
+            <p class="text-sm mt-2">The retrieval may have occurred too long ago or no chunks were retrieved.</p>
+          </div>
+        `;
+        return;
+      }
+      
+      const chunks = matchingRetrieval.chunks;
+      const html = `
+        <div class="chunk-inspection-query">
+          <div class="text-sm text-gray-400 mb-1">Query:</div>
+          <div class="text-base font-medium text-white">${escapeHtml(query)}</div>
+          <div class="text-xs text-gray-500 mt-1">Model: ${escapeHtml(model)} | ${chunks.length} chunks retrieved</div>
+        </div>
+        <div class="chunk-inspection-list">
+          ${chunks.map((chunk, idx) => `
+            <div class="chunk-inspection-item">
+              <div class="chunk-inspection-item-header">
+                <div class="flex items-center gap-2">
+                  <span class="chunk-inspection-item-number">${idx + 1}</span>
+                  <span class="chunk-inspection-item-score">Score: ${(chunk.score || 0).toFixed(4)}</span>
+                </div>
+                <a href="/source_content?session_id=${encodeURIComponent(currentSessionId)}&source=${encodeURIComponent(chunk.source)}" 
+                   target="_blank" 
+                   class="chunk-inspection-item-source">
+                  ${escapeHtml(chunk.source)}
+                </a>
+              </div>
+              <div class="chunk-inspection-item-content prose prose-invert max-w-none prose-sm">
+                ${marked.parse(chunk.text || '')}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      
+      document.querySelector('#chunk-inspection-modal-overlay .chunk-inspection-modal-content').innerHTML = html;
+    })
+    .catch(err => {
+      document.querySelector('#chunk-inspection-modal-overlay .chunk-inspection-modal-content').innerHTML = `
+        <div class="chunk-inspection-query">
+          <div class="text-sm text-gray-400 mb-1">Query:</div>
+          <div class="text-base font-medium text-white">${escapeHtml(query)}</div>
+        </div>
+        <div class="debug-empty-state">
+          <div class="debug-empty-state-icon">⚠️</div>
+          <p>Failed to load chunks: ${escapeHtml(err.message)}</p>
+        </div>
+      `;
+    });
+  
+  // Close on overlay click
+  document.getElementById('chunk-inspection-modal-overlay').addEventListener('click', (e) => {
+    if (e.target.id === 'chunk-inspection-modal-overlay') {
+      closeChunkInspectionModal();
+    }
+  });
+  
+  // Close on Escape key
+  const escapeHandler = (e) => {
+    if (e.key === 'Escape') {
+      closeChunkInspectionModal();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+}
+
+window.closeChunkInspectionModal = function() {
+  const overlay = document.getElementById('chunk-inspection-modal-overlay');
+  if (overlay) {
+    overlay.style.animation = 'fadeOut 0.2s ease-out';
+    setTimeout(() => overlay.remove(), 200);
+  }
+}
+
+// Helper function to open source content from ingestion modal
+window.openSourceContentFromIngestion = function() {
+  const textarea = document.getElementById('ingestion-source-content-textarea');
+  if (!textarea || !textarea.value) {
+    alert('No content to display. Please load content first.');
+    return;
+  }
+  openSourceContentModal(textarea.value, 'Source Content');
 }

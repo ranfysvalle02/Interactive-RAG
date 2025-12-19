@@ -1,0 +1,138 @@
+# ============================================================================
+# Enterprise-Grade Docker Compose Configuration for Interactive RAG
+# Best practices: security, health checks, resource limits, networking
+# ============================================================================
+
+services:
+  # Interactive RAG Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_USER: appuser
+        APP_UID: 1000
+        APP_GID: 1000
+    container_name: interactive_rag_app
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-5001}:5001"
+    environment:
+      - MONGO_URI=${MONGO_URI:-mongodb://admin:password@mongodb:27017/?authSource=admin}
+      - MONGO_DB_NAME=${MONGO_DB_NAME:-interactive_rag_db}
+      - APP_SLUG=${APP_SLUG:-interactive_rag}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - PYTHONUNBUFFERED=${PYTHONUNBUFFERED:-1}
+      # LLM API Keys (set these in .env file)
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - VOYAGE_API_KEY=${VOYAGE_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      # Azure OpenAI Configuration
+      - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT:-}
+      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY:-}
+      - AZURE_OPENAI_DEPLOYMENT_NAME=${AZURE_OPENAI_DEPLOYMENT_NAME:-}
+      - CHAT_DEPLOYMENT_NAME=${CHAT_DEPLOYMENT_NAME:-gpt-4o}
+      - EMBEDDING_DEPLOYMENT_NAME=${EMBEDDING_DEPLOYMENT_NAME:-text-embedding-ada-002}
+      # Optional: Firecrawl for URL extraction (replaces Jina)
+      - FIRECRAWL_API_KEY=${FIRECRAWL_API_KEY:-}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - mdb_runtime_network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # Resource limits (adjust based on needs)
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    # Security: tmpfs for temporary files
+    tmpfs:
+      - /tmp:noexec,nosuid,size=100m
+
+  # MongoDB Atlas Local (with Atlas Search and Vector Search support)
+  mongodb:
+    image: mongodb/mongodb-atlas-local:latest
+    container_name: interactive_rag_mongodb
+    restart: unless-stopped
+    ports:
+      - "${MONGO_PORT:-27017}:27017"
+    environment:
+      MONGODB_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-admin}
+      MONGODB_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-password}
+      MONGODB_INITDB_DATABASE: ${MONGO_INITDB_DATABASE:-interactive_rag_db}
+      # Optional: Disable telemetry if desired
+      # DO_NOT_TRACK: 1
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    networks:
+      - mdb_runtime_network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh "mongodb://localhost:27017/?directConnection=true" --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s  # Atlas Local takes longer to start
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # MongoDB Express (Optional - Web UI for MongoDB)
+  mongo-express:
+    image: mongo-express:latest
+    container_name: interactive_rag_mongo_express
+    restart: unless-stopped
+    ports:
+      - "${MONGO_EXPRESS_PORT:-8081}:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_INITDB_ROOT_USERNAME:-admin}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-password}
+      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_INITDB_ROOT_USERNAME:-admin}:${MONGO_INITDB_ROOT_PASSWORD:-password}@mongodb:27017/
+      ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_EXPRESS_USERNAME:-admin}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_EXPRESS_PASSWORD:-admin}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - mdb_runtime_network
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    profiles:
+      - ui  # Only start when explicitly requested: docker-compose --profile ui up
+
+volumes:
+  mongodb_data:
+    driver: local
+  mongodb_config:
+    driver: local
+
+networks:
+  mdb_runtime_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+

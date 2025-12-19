@@ -1,0 +1,24 @@
+# Core dependencies
+flask>=3.0.0
+flask-cors>=4.0.0
+pymongo>=4.6.0
+python-dotenv>=1.0.0
+requests>=2.31.0
+
+# LangChain and LangGraph
+langchain
+langchain-community
+langchain-openai
+langchain-voyageai
+langchain-mongodb
+langchain-text-splitters
+langgraph
+
+# Embedding and document processing
+docling
+ddgs
+
+# Optional: LiteLLM for additional LLM providers
+# litellm
+# langchain-litellm
+
